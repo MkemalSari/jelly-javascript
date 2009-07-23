@@ -52,7 +52,7 @@ var name = 'Tween',
 			},
 			stopTimer: function () {
 				if ( Class.timerHandle ) {
-                    // log( 'Timer stopped ')
+                 // log( 'Timer stopped ')
 					clearInterval( Class.timerHandle );
 				}
 				Class.timerHandle = null;
@@ -85,14 +85,14 @@ var name = 'Tween',
         },
 		
 		sequence: function () {
-			this.sequence = toArray( arguments );
+			this.sequenceStack = toArray( arguments );
 			this.callSequence();
 			return this;
 		}, 
 		
 		callSequence: function () {
 			var self = this,
-                next = isArray( self.sequence ) ? self.sequence.shift() : null;
+                next = isArray( self.sequenceStack ) ? self.sequenceStack.shift() : null;
 			if ( next ) { 
                 if ( isFunction(next) ) {
                     next.call( self, self );
@@ -122,13 +122,13 @@ var name = 'Tween',
                 key,
                 value, 
                 prop;
-			if ( args[1] ) {
+			if ( isDefined( args[1] ) ) {
 				obj = {};
 				obj[args[0]] = args[1];
 			} 
 			self.stop();
 			self.stack = [];
-									
+
 			for ( prop in obj ) {
 				key = J.toCamelCase( prop ); 
                 value = obj[prop];
@@ -263,13 +263,13 @@ var name = 'Tween',
 				}
 				else { 
                     var computed = self.compute( item.from, item.to );
-                    style[item.prop] = (msiePx ? round(computed) : computed) + self.unit;
+                    style[item.prop] = ( msiePx ? round( computed ) : computed ) + self.unit;
 				}				
             } while (i--)
 		},
 		
-		compute: function (from, to) {
-			return this.easing( this.elapsedTime, from, (to - from), this.duration );
+		compute: function ( from, to ) {
+			return this.easing( this.elapsedTime, from, ( to - from ), this.duration );
 		}
 
 	});

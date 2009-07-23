@@ -2,17 +2,20 @@
 
 Page init
 
-@location core
-@description  
+@location  core
+@description  page load tasks
 
 */
+
+// fix background image flicker on ie6
 
 if ( browser.ie6 ) { 
 	try { 
 		doc.execCommand( 'BackgroundImageCache', false, true );
-	} catch(ex) {}; 
+	} catch (ex) {}; 
 }
-J.addEvent(win, 'unload', J.purgeEventLog);
+
+// adding informational css classes to the root element for convenience
 
 var classname = ['unknown'], key;
 for ( key in browser ) {
@@ -21,7 +24,7 @@ for ( key in browser ) {
 			classname = [key]; 
 		} 
 		else {
-			classname.push(key);
+			classname.push( key );
 		}
 	}
 }
