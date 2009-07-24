@@ -26,13 +26,15 @@ var Class = defineClass( 'MultiTween', {
 		},
         
 		tidyUp: function () {
+			
 			var self = this,
-                item,
-				i = self.stack.length - 1;
-            do {
-				item = self.stack[i];
-				for ( var j = 0, n = self.collection.length; j < n; j++ ) {
-					var elem = self.collection[j], style = elem.style;
+				collection = self.collection,
+				stackCounter = self.stack.length - 1;
+			do {
+				var item = self.stack[ stackCounter ], 
+					collectionCounter = collection.length - 1;
+				do {
+					var elem = collection[ collectionCounter ], style = elem.style;
 					if ( item.opac ) { 
 						J.setOpacity( elem, item.to );                 
 					}
@@ -45,42 +47,46 @@ var Class = defineClass( 'MultiTween', {
 					else {
 						style[item.prop] = item.to + self.unit; 
 					}
-				}
-            } while (i--)
+				} while ( collectionCounter-- );
+			} while ( stackCounter-- );
+			
 		},
 		
 		increase: function () {
-			var self = this, 
-                item,
-                round = Math.round,
-                i = self.stack.length - 1,
-                msiePx = browser.ie && self.unit === 'px';
-            do {
-                item = self.stack[i];
-				for ( var j = 0, n = self.collection.length; j < n; j++ ) {
-					var elem = self.collection[j], style = elem.style;
-					if ( item.opac ) {
-						J.setOpacity( elem, self.compute( item.from, item.to ) );      
-					} 
-					else if ( item.color ) {
+			
+			var self = this,
+				round = Math.round,
+				setOpacity = J.setOpacity,
+				roundPx = browser.ie && self.unit === 'px',
+				collection = self.collection,
+				stackCounter = self.stack.length - 1;
+			do {
+				var item = self.stack[ stackCounter ], 
+					collectionCounter = collection.length - 1;
+				do {
+					var elem = collection[ collectionCounter ], style = elem.style;
+					if ( item.opac ) { 
+						setOpacity( elem, self.compute( item.from, item.to ) );         
+					}
+					else if ( item.color ) { 
 						style[item.prop] = 'rgb(' + 
 							round( self.compute( item.from[0], item.to[0] ) ) + ',' +
-							round( self.compute( item.from[1], item.to[1] ) ) + ',' +
 							round( self.compute( item.from[2], item.to[2] ) ) + ')';
-					}
+					} 
 					else if ( item.bgp ) {
 						style.backgroundPosition = 
 							self.compute( item.from[0], item.to[0] ) + self.unit + ' ' + 
 							self.compute( item.from[1], item.to[1] ) + self.unit;
-					}
-					else { 
+					} 
+					else {
 						var computed = self.compute( item.from, item.to );
-						style[item.prop] = ( msiePx ? round( computed ) : computed ) + self.unit;
-					}				
-				}
-			} while (i--)
-		}
+						style[item.prop] = ( roundPx ? round( computed ) : computed ) + self.unit;
+					}
+				} while ( collectionCounter-- );
+			} while ( stackCounter-- );
 		
+		}
+	
 	});
 
 })(); 
