@@ -9,21 +9,19 @@ Tween
 
 (function () {
 
-var name = 'Tween',
-	
-	parseColour = J.parseColour,
-	
-	Class = J[name] = defineClass({
+var Class = defineClass( 'Tween', {
 		
-		__init: function (el, opts) {
+		__init: function ( el, opts ) {
 			this.el = getElement(el);
 			extend( this, opts || {} ); 
 		},
 		
 		__static: {
+			
 			uid: 0,
 			tweens: {},
 			timerSpeed: 20,
+			
 			subscribe: function ( inst ) {
 				Class.tweens[ inst.tweenId ] = function () {
 						inst.step.call(inst);
@@ -32,6 +30,7 @@ var name = 'Tween',
 					Class.startTimer();
 				}
 			},
+			
 			unSubscribe: function ( inst ) {
 				delete Class.tweens[ inst.tweenId ];
 				clearTimeout( Class.timeoutHandle );
@@ -41,6 +40,7 @@ var name = 'Tween',
 						}
 					}, 250);
 			},
+			
 			startTimer: function () {
                 var handler = function () {
 						for ( var key in Class.tweens ) {
@@ -50,6 +50,7 @@ var name = 'Tween',
                 // log( 'Timer started ')
 				Class.timerHandle = setInterval( handler, Class.timerSpeed );
 			},
+			
 			stopTimer: function () {
 				if ( Class.timerHandle ) {
                  // log( 'Timer stopped ')
@@ -57,14 +58,13 @@ var name = 'Tween',
 				}
 				Class.timerHandle = null;
 			}
+			
 		},
 		
 		easing: J.easings.sineInOut,
 		duration: 500,
 		unit: 'px',
 		
-		fireEvent: fireEvent,
-
 		setEasing: function (val) {
 			this.easing = J.easings[val];
 			return this;
@@ -80,10 +80,6 @@ var name = 'Tween',
 			return this;
 		},
         
-        set: function (obj) {
-            return extend( this, obj );
-        },
-		
 		sequence: function () {
 			this.sequenceStack = toArray( arguments );
 			this.callSequence();
@@ -109,6 +105,9 @@ var name = 'Tween',
                     self.start( next );
                 }
 			}
+			else {
+				self.fireEvent( 'sequenceComplete' );
+			}
 		},
 		
 		stop: function () {
@@ -119,6 +118,7 @@ var name = 'Tween',
 		start: function ( obj ) {
 			var self = this,
 				args = toArray( arguments ),
+				parseColour = J.parseColour,
                 key,
                 value, 
                 prop;
@@ -194,7 +194,7 @@ var name = 'Tween',
 			self.startTime = +(new Date);
 			self.tweenId = ++Class.uid;
             Class.subscribe( self );
-            self.fireEvent('start');
+            self.fireEvent( 'start' );
 			return self;
 		},
 		
@@ -208,7 +208,7 @@ var name = 'Tween',
 				self.stop();
                 self.tidyUp();
 				setTimeout(	function () { 
-                    self.fireEvent('complete', self);
+                    self.fireEvent( 'complete' );
 					self.callSequence(); 
 				}, 0 );
                 return;

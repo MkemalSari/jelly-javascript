@@ -9,29 +9,21 @@ Request
 
 (function () {
 
-var name = 'Request',
-	
-	Class = J[name] = defineClass({
+var Class = defineClass( 'Request', {
 		
-		__init: function (obj) {
-			extend(this, obj);
+		__init: function ( obj ) {
+			extend( this, obj );
 		},
 		
 		__static: {
 			timeout: 15000	
 		},
 		
-		fireEvent: fireEvent,
 		noCache: true,
 		async: true,
 		cleanUp: true,
 		feedback: { start: functionLit, stop: functionLit },
 		requestHeaders: {},
-		
-		configure: function (obj) {
-			extend(this, obj || {});
-			return this;
-		},
 		
 		send: function ( method, request, callback ) {
 			var self = this,
@@ -55,20 +47,20 @@ var name = 'Request',
 			xhr.open( method, file, self.async );
 			xhr.onreadystatechange = function () {
 				if ( xhr.readyState === 4 ) {
-					self.fireEvent('complete', xhr);
+					self.fireEvent( 'complete', xhr );
 					clearTimeout(self.timer);
 					self.feedback.stop();
 					var status = xhr.status,
 						statusOk = ( status >= 200 && status < 300 ) || status === 304 ||
 						( status === undefined && browser.webkit );
 					if ( statusOk ) {
-						self.fireEvent('success', xhr);
+						self.fireEvent( 'success', xhr );
 						if ( callback ) {
-							callback.call(self, xhr);
+							callback.call( self, xhr );
 						}
 					}
 					else {
-						self.fireEvent('fail', xhr);
+						self.fireEvent( 'fail', xhr );
 					}
 					if ( self.cleanUp ) {
 						self.xhr = null;
@@ -76,19 +68,19 @@ var name = 'Request',
 					self.inProgress = false;
 				}
 			};
-			for (var key in self.requestHeaders) {
-				xhr.setRequestHeader(key, self.requestHeaders[key]);
+			for ( var key in self.requestHeaders ) {
+				xhr.setRequestHeader( key, self.requestHeaders[key] );
 			}
-			xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 			self.feedback.start();
-			self.timer = setTimeout(function () {
+			self.timer = setTimeout( function () {
 				xhr.abort();
-				self.fireEvent('timeout', xhr);               
+				self.fireEvent( 'timeout', xhr );               
 				self.inProgress = false;
 			}, self.timeout || Class.timeout );
 			
-			xhr.send(data);
-			self.fireEvent('request', xhr);
+			xhr.send( data );
+			self.fireEvent( 'request', xhr );
 			self.inProgress = true;
 			return true;
 		},
@@ -115,6 +107,7 @@ var name = 'Request',
 				return xhr;
 			};
 		}()
+		
 	});
 	
 })();

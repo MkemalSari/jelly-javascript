@@ -34,6 +34,10 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
+	getTags = function ( a, b ) { 
+		return ( b ? getElement( a ) : doc ).getElementsByTagName( b || a ); 
+	},
+	
 	getElement = function ( obj ) { 
 		return typeof obj === 'string' ? doc.getElementById( obj ) : obj; 
 	},
@@ -363,6 +367,7 @@ extend( J, {
 	removeClass: removeClass,
 	hasClass: hasClass,
 	toggleClass: toggleClass,
+	getTags: getTags,	
 	getElement: getElement,
 	createElement: createElement,
 	createBranch: createBranch,

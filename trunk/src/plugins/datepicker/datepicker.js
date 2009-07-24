@@ -9,15 +9,12 @@ Datepicker
 
 (function () {
 
-var name = 'DatePicker',
-	
-	Class = J[name] = defineClass({
+var Class = defineClass( 'DatePicker', {
 		
 		__init: function ( inputId, opts ) {
 			var self = this,
-				createElement = J.createElement,
 				cssPrefix =  '.' + ( opts.cssPrefix || Class.cssPrefix ),
-				branch = J.createBranch(
+				branch = createBranch(
 					cssPrefix,
 						cssPrefix + '-trim',
 						[cssPrefix + '-title',
@@ -56,12 +53,12 @@ var name = 'DatePicker',
 			
 			self.btn_open = createElement('img' + cssPrefix + '-open src:assets/images/calendar.png,' + 					'alt:"Select start week", title:"Select start week"')
 					
-			J.insertAfter( self.btn_open, self.input );
+			insertAfter( self.btn_open, self.input );
 
 			self.btn_open.onmousedown = function (e) {
-				var xy = J.getXY( this );
+				var xy = getXY( this );
 				self.calendar.style.position = "absolute";
-				J.setXY( self.calendar, xy[0]+self.offset[0], xy[1]+self.offset[1] );
+				setXY( self.calendar, xy[0]+self.offset[0], xy[1]+self.offset[1] );
 				self.setDate();
 				self.prepareTable();
 				Class.closeAll();
@@ -123,12 +120,12 @@ var name = 'DatePicker',
 
 		close: function () {
 			if ( !this.visible ) { return; }
-			J.removeElement( this.root );
+			removeElement( this.root );
 			this.visible = false;
 		},
 		
 		open: function () {
-			J.insertElement( this.root );
+			insertElement( this.root );
 			this.tween.setOpacity( 0 );
 			this.tween.start( {'opacity': 1 } );
 			this.visible = true;
@@ -274,11 +271,11 @@ var name = 'DatePicker',
 			var self = this;
 			self.table.innerHTML = self.renderDate( self.date );
 			self.setTitle( self.date );
-			var tds = self.table.getElementsByTagName('td'),
-				trs = self.table.getElementsByTagName('tr'),
+			var tds = getTags( self.table, 'td' ),
+				trs = getTags( self.table, 'tr' ),
 				clearClassNames = function (tds) {
-					for (var i = 0; i < tds.length; i++) { 
-						J.removeClass(tds[i], 'selected'); 
+					for ( var i = 0; i < tds.length; i++ ) { 
+						removeClass(tds[i], 'selected'); 
 					}
 				};
 			var i = tds.length-1;
@@ -288,15 +285,15 @@ var name = 'DatePicker',
 						var selectedCell = this;
 						switch ( self.selectMode ) {
 							case 'first':
-								selectedCell = J.getFirst( this.parentNode );
+								selectedCell = getFirst( this.parentNode );
 								break;
 							case 'last':
-								selectedCell = J.getLast( this.parentNode );
+								selectedCell = getLast( this.parentNode );
 								break;
 						}
 						self.setValue( selectedCell.id.replace( self.idPrefix + self.DATE_SEP, '' ) );
 						self.setDate();
-						J.addClass( this.parentNode, 'selected' ); 
+						addClass( this.parentNode, 'selected' ); 
 						self.close();
 					};
 				}

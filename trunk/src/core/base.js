@@ -61,47 +61,84 @@ var J = window.JELLY = {},
 		return !!obj && typeof obj === 'object' && obj.nodeType === 1; 
 	},
 	
+	isNodeList = function (obj) { 
+		return !!obj && !!obj.item && isNumber( obj.length ); 
+	},
+	
 	isNull = function (obj) { 
 		return obj === null; 
+	},
+	
+	isBoolean = function (obj) { 
+		return typeof obj === 'boolean'; 
 	},
 	
 	isArray = function (obj) { 
 		return {}.toString.call(obj) === '[object Array]'; 
 	},	
 	
-	inArray = function (obj, arr) { 
-		return arr.indexOf(obj) !== -1; 
+	inArray = function ( obj, arr ) { 
+		return arr.indexOf( obj ) !== -1; 
 	},
 	
 	toArray = function (obj) {
 		var result = [], n = obj.length, i = 0;
-		for (i; i < n; i++) { result[i] = obj[i]; }
+		for ( i; i < n; i++ ) { 
+			result[i] = obj[i]; 
+		}
 		return result;
 	},
 	
-	defineClass = function (opts) {
-		var _constructor = opts.__init || functionLit,
-			_static = opts.__static || {},
-			_extends = opts.__extends,
-			_prototype = _constructor.prototype; 
-		(isArray(_extends) ? _extends : 
-            ( _extends ? [_extends] : [] )).each(function (o) {
-			extend( _prototype, o.prototype ); 
+	defineClass = function ( name, opts ) {
+		var Class = opts.__init || function () {},
+			Static = opts.__static || {},
+			Extends = opts.__extends,
+			Prototype = Class.prototype; 
+		extend( Prototype, defineClassAbstract );
+		( isArray( Extends ) ? Extends : 
+			( Extends ? [ Extends ] : [] ) ).each( function ( obj ) {
+			extend( Prototype, obj.prototype ); 
+			Class.__parent = obj;
 		});
-		extend( _constructor, _static );
-		['__init', '__static', '__extends'].each( function (m) {delete opts[m];} );
-		extend( _prototype, opts );
-		_prototype.constructor = _constructor;
-		return _constructor;
+		extend( Class, Static );
+		Class.__name = name;
+		['__init', '__static', '__extends'].each( function ( mem ) {
+			delete opts[mem];
+		});
+		extend( Prototype, opts );
+		Prototype.constructor = Class;
+		J[name] = Class;
+		return Class;
 	},
 	
-	fireEvent = function () {
-		var args = toArray( arguments ),
-			event = 'on' + args.shift().toLowerCase().replace( /^\w/, 
-				function (m) { return m.toUpperCase(); } 
-			),
-			func = this[event];
-		return func ? func.apply(this, args) : false;
+	defineClassAbstract = {
+		
+		fireEvent: function () {
+			var args = toArray( arguments ),
+				event = 'on' + args.shift().replace( /^\w/, function ( m ) { 
+					return m.toUpperCase(); 
+				}),
+				func = this[event];
+			// If no argument is specified we just pass in the object as default
+			if ( !args.length ) {
+				args.push( this );
+			}
+			return func ? func.apply( this, args ) : false;
+		},
+		
+		isInstanceOf: function () {
+			return this.constuctor.__name;
+		},
+		
+		set: function ( a, b ) {
+			var self = this;
+			if ( isObject( a ) ) {
+				return extend( self, a );;
+			} 
+			self[a] = b;
+			return self;
+		}
+		
 	},
 	
 	browser = function () {
@@ -132,10 +169,9 @@ var J = window.JELLY = {},
 	
 	extend = function ( a, b, overwrite ) {
 		for ( var mem in b ) {
-			if ( isDefined( a[mem] ) && overwrite === false ) {
-				continue;
+			if ( isUndefined( a[mem] ) || isDefined( a[mem] ) && overwrite !== false ) {
+				a[mem] = b[mem];
 			}
-			a[mem] = b[mem];
 		}
 		return a;
 	},
@@ -163,12 +199,12 @@ extend( J, {
 	isNumeric: isNumeric,
 	isFunction: isFunction,
 	isElement: isElement,
+	isNodeList: isNodeList,
 	isNull: isNull,
 	isObject: isObject,
 	isArray: isArray,
 	toArray: toArray,
 	defineClass: defineClass,
-	fireEvent: fireEvent,
 	browser: browser,
 	extend: extend,	
 	log: log,

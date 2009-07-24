@@ -2,16 +2,14 @@
 
 Scroll
 
-@location core
+@location plugins
 @description 
 
 */
 
 (function () {
 
-var name = 'Scroll',
-	
-	Class = J[name] = defineClass({
+var Class = defineClass( 'Scroll', {
 		
 		__extends: J.Tween,
         
@@ -46,7 +44,7 @@ var name = 'Scroll',
             
             self.tweenId = ++J.Tween.uid;
             J.Tween.subscribe( self );
-            self.fireEvent('start');
+            self.fireEvent( 'start' );
 			return self;
         },
         

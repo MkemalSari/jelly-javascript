@@ -9,9 +9,7 @@ Poller
 
 (function () {
 
-var name = 'Poller',
-	
-	Class = J[name] = defineClass({
+var Class = defineClass( 'Poller', {
 		
 		__static: {
 			pollTime: 300
