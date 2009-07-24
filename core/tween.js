@@ -46,19 +46,19 @@ var Class = defineClass( 'Tween', {
 						for ( var key in Class.tweens ) {
 							Class.tweens[key]();
 						} 
-                    };
-                // log( 'Timer started ')
+				};
+				// log( 'Timer started ')
 				Class.timerHandle = setInterval( handler, Class.timerSpeed );
 			},
 			
 			stopTimer: function () {
 				if ( Class.timerHandle ) {
-                 // log( 'Timer stopped ')
+				// log( 'Timer stopped ')
 					clearInterval( Class.timerHandle );
 				}
 				Class.timerHandle = null;
 			}
-			
+	
 		},
 		
 		easing: J.easings.sineInOut,
@@ -70,7 +70,7 @@ var Class = defineClass( 'Tween', {
 			return this;
 		},
         
-        setDuration: function (val) {
+		setDuration: function (val) {
 			this.duration = val;
 			return this;
 		},
@@ -244,7 +244,7 @@ var Class = defineClass( 'Tween', {
                 round = Math.round,
 				style = self.el.style,
                 i = self.stack.length - 1,
-                msiePx = browser.ie && self.unit === 'px';
+                roundPx = browser.ie && self.unit === 'px';
             do {
                 item = self.stack[i];
                 if ( item.opac ) {
@@ -263,9 +263,10 @@ var Class = defineClass( 'Tween', {
 				}
 				else { 
                     var computed = self.compute( item.from, item.to );
-                    style[item.prop] = ( msiePx ? round( computed ) : computed ) + self.unit;
+                    style[item.prop] = ( roundPx ? round( computed ) : computed ) + self.unit;
 				}				
             } while (i--)
+
 		},
 		
 		compute: function ( from, to ) {
