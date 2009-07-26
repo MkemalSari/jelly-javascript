@@ -96,10 +96,20 @@ extend( Function.prototype, {
 
 
 Object.keys = isFunction( Object.keys ) ? Object.keys : 
-	function (obj) {
+	function ( obj ) {
 		var res = [], key;
 		for ( key in obj ) {
 			res.push( key );
 		}
 		return res;
 	};
+
+	
+if ( win.HTMLElement && HTMLElement.prototype && isUndefined( HTMLElement.prototype.contains ) ) {
+	HTMLElement.prototype.contains = function ( el ) {
+		return !!( this.compareDocumentPosition( el ) & 16 );
+	};
+}
+
+	
+	
