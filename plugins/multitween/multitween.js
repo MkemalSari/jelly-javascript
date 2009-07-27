@@ -48,8 +48,8 @@ var Class = defineClass( 'MultiTween', {
 						style[item.prop] = item.to + self.unit; 
 					}
 				} while ( collectionCounter-- );
-			} while ( stackCounter-- );
 			
+			} while ( stackCounter-- );
 		},
 		
 		increase: function () {
@@ -71,6 +71,7 @@ var Class = defineClass( 'MultiTween', {
 					else if ( item.color ) { 
 						style[item.prop] = 'rgb(' + 
 							round( self.compute( item.from[0], item.to[0] ) ) + ',' +
+							round( self.compute( item.from[1], item.to[1] ) ) + ',' +
 							round( self.compute( item.from[2], item.to[2] ) ) + ')';
 					} 
 					else if ( item.bgp ) {
@@ -83,8 +84,8 @@ var Class = defineClass( 'MultiTween', {
 						style[item.prop] = ( roundPx ? round( computed ) : computed ) + self.unit;
 					}
 				} while ( collectionCounter-- );
+			
 			} while ( stackCounter-- );
-		
 		}
 	
 	});
