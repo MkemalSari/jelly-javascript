@@ -89,6 +89,19 @@ var J = window.JELLY = {},
 		return result;
 	},
 	
+	empty: function ( arg ) {
+		if ( isString( arg ) ) {
+			return /^\s*$/.test( arg );
+		}
+		else if ( isArray( arg ) ) {
+			return !arg.length;
+		}
+		else if ( isObject( arg ) ) {
+			return !Object.keys( arg ).length;
+		}
+		return !arg;
+	},
+	
 	defineClass = function ( name, opts ) {
 		var Class = opts.__init || function () {},
 			Static = opts.__static || {},
@@ -120,7 +133,7 @@ var J = window.JELLY = {},
 				}),
 				func = this[event];
 			// If no argument is specified we just pass in the object as default
-			if ( !args.length ) {
+			if ( empty( args ) ) {
 				args.push( this );
 			}
 			return func ? func.apply( this, args ) : false;
@@ -197,13 +210,15 @@ extend( J, {
 	isInteger: isInteger,
 	isFloat: isFloat,
 	isNumeric: isNumeric,
+	isObject: isObject,	
 	isFunction: isFunction,
 	isElement: isElement,
 	isNodeList: isNodeList,
 	isNull: isNull,
-	isObject: isObject,
+	isBoolean: isBoolean,
 	isArray: isArray,
 	toArray: toArray,
+	empty: empty,
 	defineClass: defineClass,
 	browser: browser,
 	extend: extend,	
