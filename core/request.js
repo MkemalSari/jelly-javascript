@@ -3,7 +3,8 @@
 Request
 
 @location core
-@description   
+@description
+	XHR wrapper
 
 */
 
@@ -44,7 +45,9 @@ var Class = defineClass( 'Request', {
 			if ( method === 'GET' && self.noCache ) {
 				self.requestHeaders['If-Modifed-Since'] = 'Sat, 1 Jan 2000 00:00:00 GMT';
 			}
+			
 			xhr.open( method, file, self.async );
+			
 			xhr.onreadystatechange = function () {
 				if ( xhr.readyState === 4 ) {
 					self.fireEvent( 'complete', xhr );
@@ -68,10 +71,12 @@ var Class = defineClass( 'Request', {
 					self.inProgress = false;
 				}
 			};
+						
 			for ( var key in self.requestHeaders ) {
 				xhr.setRequestHeader( key, self.requestHeaders[key] );
 			}
 			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+			
 			self.feedback.start();
 			self.timer = setTimeout( function () {
 				xhr.abort();
@@ -79,9 +84,9 @@ var Class = defineClass( 'Request', {
 				self.inProgress = false;
 			}, self.timeout || Class.timeout );
 			
+			self.inProgress = true;
 			xhr.send( data );
 			self.fireEvent( 'request', xhr );
-			self.inProgress = true;
 			return true;
 		},
 		
