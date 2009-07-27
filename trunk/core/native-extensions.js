@@ -3,9 +3,13 @@
 Native extensions
 
 @location core
-@description  
+@description 
+	mostly patching native support for standard object methods
+	and implementing ecmascript 5 features where possible	
 
 */
+
+// Array methods
 
 extend( Array.prototype, {
 	
@@ -62,8 +66,12 @@ extend( Array.prototype, {
 	
 }, false);
 
+// common alias for convenience
 Array.prototype.each = Array.prototype.forEach;
 
+
+
+// String methods
 
 extend( String.prototype, {
 	
@@ -73,6 +81,9 @@ extend( String.prototype, {
 	
 }, false);
 
+
+
+// Function methods
 
 extend( Function.prototype, {
 	
@@ -95,21 +106,35 @@ extend( Function.prototype, {
 }, false);
 
 
-Object.keys = isFunction( Object.keys ) ? Object.keys : 
-	function ( obj ) {
-		var res = [], key;
-		for ( key in obj ) {
-			res.push( key );
-		}
-		return res;
-	};
 
+// HTMLElement methods
+
+if ( win.HTMLElement && HTMLElement.prototype ) {
 	
-if ( win.HTMLElement && HTMLElement.prototype && isUndefined( HTMLElement.prototype.contains ) ) {
-	HTMLElement.prototype.contains = function ( el ) {
-		return !!( this.compareDocumentPosition( el ) & 16 );
-	};
+	extend( HTMLElement.prototype, {
+	
+		contains: function ( el ) {
+			return !!( this.compareDocumentPosition( el ) & 16 );
+		}
+	
+	}, false);
+	
 }
 
+
+// ecmascript 5
+
+extend( Object, {
 	
+	keys: function ( obj ) {
+		var res = [], key;
+		for ( key in obj ) {
+			if ( obj.hasOwnProperty( key ) ) {
+				res.push( key );
+			}
+		}
+		return res;
+	}
+	
+}, false);
 	
