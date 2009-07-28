@@ -33,7 +33,8 @@ var Class = defineClass( 'MultiTween', {
 				var item = self.stack[ stackCounter ], 
 					collectionCounter = collection.length - 1;
 				do {
-					var elem = collection[ collectionCounter ], style = elem.style;
+					var elem = collection[ collectionCounter ], 
+						style = elem.style;
 					if ( item.opac ) { 
 						setOpacity( elem, item.to );                 
 					}
@@ -61,7 +62,8 @@ var Class = defineClass( 'MultiTween', {
 				var item = self.stack[ stackCounter ], 
 					collectionCounter = collection.length - 1;
 				do {
-					var elem = collection[ collectionCounter ], style = elem.style;
+					var elem = collection[ collectionCounter ], 
+						style = elem.style;
 					if ( item.opac ) { 
 						setOpacity( elem, self.compute( item.from, item.to ) );         
 					}
