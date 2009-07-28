@@ -2,8 +2,8 @@
 
 Elements
 
-@location core
-@description helper functions for working with elements and manipulating the DOM
+@description 
+	Utility functions for working with elements and manipulating the DOM
 
 */
 
@@ -17,7 +17,7 @@ var addClass = function ( el, cn ) {
 		el = getElement(el);
 		if ( !el.className ) { return; } 
 		var patt = new RegExp( '(^|\\s)' + cn + '(\\s|$)' );
-		el.className = J.normalize( el.className.replace( patt, ' ' ) );
+		el.className = normalize( el.className.replace( patt, ' ' ) );
 	},
 	
 	hasClass = function ( el, cn ) {
@@ -46,13 +46,22 @@ var addClass = function ( el, cn ) {
 		var el;
 		if ( !/[#:\.]/.test(arg) ) {
 			el = doc.createElement(arg), key;
-			for (key in attrs) {
+			for ( key in attrs ) {
 				switch (key) {
-					case 'setHTML': el.innerHTML = attrs[key]; break;
-					case 'setText': el.appendChild(doc.createTextNode(attrs[key])); break;
-					case 'class': el.className = attrs[key]; break;
-					case 'style': el.style.cssText = attrs[key]; break;
-					default: el.setAttribute(key, attrs[key]);
+					case 'setHTML': 
+						el.innerHTML = attrs[key]; 
+						break;
+					case 'setText': 
+						el.appendChild( doc.createTextNode( attrs[key] ) ); 
+						break;
+					case 'class': 
+						el.className = attrs[key]; 
+						break;
+					case 'style': 
+						el.style.cssText = attrs[key]; 
+						break;
+					default: 
+						el.setAttribute( key, attrs[key] );
 				}
 			}
 		} 
@@ -61,11 +70,11 @@ var addClass = function ( el, cn ) {
 				stringKey = 'JELLY_STR_TKN',
 				stringTokens = [], 
 				m;
-			while ( m = /('|")([^\1]*?)\1/.exec(arg) ) {
-				arg = arg.replace(m[0], stringKey);
-				stringTokens.push(m[2]);
+			while ( m = /('|")([^\1]*?)\1/.exec( arg ) ) {
+				arg = arg.replace( m[0], stringKey );
+				stringTokens.push( m[2] );
 			}
-			arg = arg.replace(/\s*(:|,)\s*/g, '$1');
+			arg = arg.replace( /\s*(:|,)\s*/g, '$1' );
 			var parts = arg.split(' '),
 				first = parts.shift(),
 				leadId = first.indexOf('#') !== -1,
@@ -277,11 +286,15 @@ var addClass = function ( el, cn ) {
 		if ( !isDefined( docRoot.hasAttribute ) && msie ) {
 			return function ( node, attr ) {
 				switch ( attr ) {
-					case 'class': return node.className || null;
+					case 'class': 
+						return node.className || null;
 					case 'href': 
-					case 'src': return node.getAttribute( attr, 2 ) || null;						
-					case 'style': return node.getAttribute( attr ).cssText.toLowerCase() || null;
-					case 'for': return node.attributes[attr].nodeValue || null;
+					case 'src': 
+						return node.getAttribute( attr, 2 ) || null;						
+					case 'style': 
+						return node.getAttribute( attr ).cssText.toLowerCase() || null;
+					case 'for': 
+						return node.attributes[attr].nodeValue || null;
 				}
 				return node.getAttribute( attr ) || null;
 			};
@@ -292,7 +305,7 @@ var addClass = function ( el, cn ) {
 	}(),
 	
 	getStyle = function ( el, prop ) {
-		var val, prop = J.toCamelCase( prop );
+		var val, prop = camelize( prop );
 		if ( prop === 'opacity' ) { 
 			if ( !isDefined( el.__opacity ) ) { 
 				el.__opacity = 1; 

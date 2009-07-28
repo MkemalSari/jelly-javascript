@@ -2,8 +2,8 @@
 
 Easings
 
-@location core
-@description Equations by Robert Penner. 
+@description 
+	Easing equations by Robert Penner 
 
 */
 

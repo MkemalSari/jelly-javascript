@@ -2,7 +2,6 @@
 
 Growl
 
-@location plugin
 @description 
 
 */

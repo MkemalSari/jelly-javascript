@@ -2,8 +2,8 @@
 
 Tween
 
-@location core
 @description   
+	Class for creating element tweens
 
 */
 
@@ -35,7 +35,7 @@ var Class = defineClass( 'Tween', {
 				delete Class.tweens[ inst.tweenId ];
 				clearTimeout( Class.timeoutHandle );
 				Class.timeoutHandle = setTimeout( function () {
-						if ( !Object.keys( Class.tweens ).length ) {
+						if ( empty( Class.tweens ) ) {
 							Class.stopTimer();
 						}
 					}, 250);
@@ -46,14 +46,14 @@ var Class = defineClass( 'Tween', {
 						for ( var key in Class.tweens ) {
 							Class.tweens[key]();
 						} 
-				};
-				// log( 'Timer started ')
+					};
+				//log('Timer started')
 				Class.timerHandle = setInterval( handler, Class.timerSpeed );
 			},
 			
 			stopTimer: function () {
 				if ( Class.timerHandle ) {
-				// log( 'Timer stopped ')
+					//log( 'Timer stopped ')
 					clearInterval( Class.timerHandle );
 				}
 				Class.timerHandle = null;
@@ -76,7 +76,7 @@ var Class = defineClass( 'Tween', {
 		},
         
 		setOpacity: function (val) {
-			J.setOpacity( this.el, val );
+			setOpacity( this.el, val );
 			return this;
 		},
         
@@ -94,14 +94,6 @@ var Class = defineClass( 'Tween', {
                     next.call( self, self );
                 }
                 else {
-					if ( 'duration' in next ) {
-						self.setDuration( next.duration );	
-						delete next.duration;
-					}
-					if ( 'easing' in next ) {
-						self.setEasing( next.easing);	
-						delete next.easing;
-					}
                     self.start( next );
                 }
 			}
@@ -118,28 +110,41 @@ var Class = defineClass( 'Tween', {
 		start: function ( obj ) {
 			var self = this,
 				args = toArray( arguments ),
-				parseColour = J.parseColour,
-                key,
-                value, 
-                prop;
+				elem = self.el;
+				
 			if ( isDefined( args[1] ) ) {
 				obj = {};
 				obj[args[0]] = args[1];
 			} 
 			self.stop();
 			self.stack = [];
-
+			
+			if ( isArray( elem ) || isNodeList( elem ) ) {
+				elem = elem[0];
+			}
+			
+			if ( 'duration' in obj ) {
+				self.setDuration( obj.duration );	
+				delete obj.duration;
+			}
+			if ( 'easing' in obj ) {
+				self.setEasing( obj.easing);	
+				delete obj.easing;
+			}
+			
+			var prop, key, value;
+			
 			for ( prop in obj ) {
-				key = J.toCamelCase( prop ); 
-                value = obj[prop];
+				key = camelize( prop ),
+				value = obj[prop];
 				if ( prop.indexOf('color') !== -1 ) {
 					if ( isArray( value ) ) {
 						value = [	
-                            parseColour(value[0], 'rgb-array'), 
-                            parseColour(value[1], 'rgb-array')];
+                            parseColour( value[0], 'rgb-array' ), 
+                            parseColour( value[1], 'rgb-array' )];
 					}
 					else {
-						var style = getStyle( self.el, key );
+						var style = getStyle( elem, key );
 						if ( isNaN( style ) && !isString( style ) ) { 
 							return logWarn( 'getStyle for "%s" returns NaN', key );
 						} 
@@ -156,7 +161,7 @@ var Class = defineClass( 'Tween', {
 					else {
                         var startX = 0,
 							startY = 0,
-							current = getStyle( self.el, key ),
+							current = getStyle( elem, key ),
 							m = /(\d+)[\w%]{1,2}\s+(\d+)[\w%]{1,2}/.exec( current );
 						if ( current && m ) {
 							startX = parseInt( m[1], 10 );
@@ -168,7 +173,7 @@ var Class = defineClass( 'Tween', {
 				}
 				else {
 					if ( !isArray( value ) ) {
-						var style = parseInt( getStyle( self.el, key ), 10 );
+						var style = parseInt( getStyle( elem, key ), 10 );
 						if ( isNaN( style ) && !isString( style ) ) { 
 							return logWarn( 'getStyle for "%s" returns NaN', key );
 						} 
@@ -220,9 +225,9 @@ var Class = defineClass( 'Tween', {
 			var self = this,
                 item,
 				style = self.el.style,
-                i = self.stack.length - 1;
+                stackCounter = self.stack.length - 1;
             do {
-            	item = self.stack[i];
+            	item = self.stack[stackCounter];
                 if ( item.opac ) { 
                     self.setOpacity( item.to );                 
                 }
@@ -235,7 +240,7 @@ var Class = defineClass( 'Tween', {
 				else {
                     style[item.prop] = item.to + self.unit; 
                 }
-            } while (i--)
+            } while ( stackCounter-- )
 		},
 		
 		increase: function () {
@@ -243,10 +248,10 @@ var Class = defineClass( 'Tween', {
                 item,
                 round = Math.round,
 				style = self.el.style,
-                i = self.stack.length - 1,
-                roundPx = browser.ie && self.unit === 'px';
+                stackCounter = self.stack.length - 1,
+				roundPx = ( browser.ie || browser.opera || browser.webkit ) && self.unit === 'px';
             do {
-                item = self.stack[i];
+                item = self.stack[stackCounter];
                 if ( item.opac ) {
                     self.setOpacity( self.compute( item.from, item.to ) );     
                 } 
@@ -265,7 +270,7 @@ var Class = defineClass( 'Tween', {
                     var computed = self.compute( item.from, item.to );
                     style[item.prop] = ( roundPx ? round( computed ) : computed ) + self.unit;
 				}				
-            } while (i--)
+            } while ( stackCounter-- )
 
 		},
 		

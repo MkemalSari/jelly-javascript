@@ -2,8 +2,8 @@
 
 Cookies
 
-@location core
-@description helper functions for working with cookies
+@description 
+	Utility functions for working with cookies
 
 */
 

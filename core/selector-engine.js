@@ -2,8 +2,8 @@
 
 Selector Engine
 
-@location core
-@description A cross-browser interface for querying the DOM
+@description 
+	A fast cross-browser interface for querying the DOM with CSS selectors
 
 */
 
@@ -417,7 +417,7 @@ J._Q = {
 			parseSelector = function (feed) {
 				// Seperate out the combinators + > ~, then split
 				var result = [],
-					parts = J.normalize( feed.replace(/(>|~(?!=)|\+(?!\d))/g, ' $1 ') ).split(' '),
+					parts = normalize( feed.replace(/(>|~(?!=)|\+(?!\d))/g, ' $1 ') ).split(' '),
 				    universal = {mode:'fetch', type:'TAG', val:'*'},
 				    getByClass = 'getElementsByClassName' in doc,
 				    sibling = false;

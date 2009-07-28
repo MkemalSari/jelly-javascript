@@ -2,8 +2,8 @@
 
 Flash
 
-@location core
-@description helper functions for working with flash objects
+@description 
+	Utility functions for working with flash objects
 
 */
 

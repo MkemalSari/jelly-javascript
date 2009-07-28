@@ -2,7 +2,6 @@
 
 Dialog
 
-@location plugins
 @description 
 
 */

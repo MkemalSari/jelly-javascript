@@ -2,9 +2,8 @@
 
 Request
 
-@location core
 @description
-	XHR wrapper
+	XHR wrapper class
 
 */
 

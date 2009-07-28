@@ -2,8 +2,8 @@
 
 Misc
 
-@location core
-@description various utilities
+@description 
+	Various utilities
 
 */
 
@@ -104,10 +104,10 @@ extend( J, {
 		return data.join('&');
 	},
 	
-	loadModule: function (namespace, path, callback) {
+	loadModule: function ( namespace, path, callback ) {
 		namespace = namespace.split('.');
 		if ( namespace[0] === 'window' ) { namespace.shift(); } 
-		var script = createElement('script'),
+		var script = createElement( 'script' ),
 			timeout = 1000,
 			polltotal = 0,
 			polltime = 15,
@@ -116,34 +116,34 @@ extend( J, {
 					ready = true;
 				for ( var i = 0; i < namespace.length; i++ ) {
 					_namespace = _namespace[namespace[i]];
-					if ( !isDefined(_namespace) ) {
+					if ( !isDefined( _namespace ) ) {
 						ready = false;
 						break;
 					}
 				} 
 				if ( ready ) { 
-					callback.call(_namespace, _namespace); 
+					callback.call( _namespace, _namespace ); 
 				} 
 				else {
 					if ( polltotal >= timeout ) { 
-						callback.call(this, false); 
+						callback.call( this, false ); 
 						return;
 					}
 					polltotal += polltime;
-					setTimeout(poller, polltime);
+					setTimeout( poller, polltime );
 				}
 			};
 		script.src = path;
-		docHead.appendChild(script);
+		docHead.appendChild( script );
 		poller();
 	},
 	
 	loadModules: function () {
-		var args = toArray(arguments), 
+		var args = toArray( arguments ), 
 			callback = args.pop(),
 			module,
-			loader = function (result) {
-				if ( isDefined(result) ) {
+			loader = function ( result ) {
+				if ( isDefined( result ) ) {
 					if ( module = args.shift() ) {
 						J.loadModule( module[0], module[1], loader )
 					} 
