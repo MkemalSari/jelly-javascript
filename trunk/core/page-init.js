@@ -2,8 +2,8 @@
 
 Page init
 
-@location  core
-@description  page load tasks
+@description  
+	Page load tasks
 
 */
 

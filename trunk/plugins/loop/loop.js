@@ -2,8 +2,8 @@
 
 Loop
 
-@location plugins
 @description 
+	Loops a tween object
 
 */
 

@@ -2,8 +2,8 @@
 
 Scroll
 
-@location plugins
 @description 
+	Tweened element scrolling, including the window
 
 */
 

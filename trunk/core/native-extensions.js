@@ -2,10 +2,9 @@
 
 Native extensions
 
-@location core
 @description 
-	mostly patching native support for standard object methods
-	and implementing ecmascript 5 features where possible	
+	Patching native support for standard object methods
+	Implementing ecmascript 5 features where possible	
 
 */
 

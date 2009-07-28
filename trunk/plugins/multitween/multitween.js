@@ -2,8 +2,8 @@
 
 MultiTween
 
-@location plugins
 @description   
+	Tweens a collection of elements
 
 */
 
@@ -20,13 +20,12 @@ var Class = defineClass( 'MultiTween', {
 				
 		setOpacity: function ( val ) {
 			this.collection.each( function ( el ) {
-				J.setOpacity( el, val );
+				setOpacity( el, val );
 			});
 			return this;
 		},
         
 		tidyUp: function () {
-			
 			var self = this,
 				collection = self.collection,
 				stackCounter = self.stack.length - 1;
@@ -36,7 +35,7 @@ var Class = defineClass( 'MultiTween', {
 				do {
 					var elem = collection[ collectionCounter ], style = elem.style;
 					if ( item.opac ) { 
-						J.setOpacity( elem, item.to );                 
+						setOpacity( elem, item.to );                 
 					}
 					else if ( item.color ) { 
 						style[item.prop] = 'rgb(' + item.to.join(',') + ')'; 
@@ -53,10 +52,8 @@ var Class = defineClass( 'MultiTween', {
 		},
 		
 		increase: function () {
-			
 			var self = this,
 				round = Math.round,
-				setOpacity = J.setOpacity,
 				roundPx = browser.ie && self.unit === 'px',
 				collection = self.collection,
 				stackCounter = self.stack.length - 1;

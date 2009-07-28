@@ -2,8 +2,8 @@
 
 Poller
 
-@location core
 @description   
+	Class for creating polling objects that can manage multiple subscribed callbacks
 
 */
 
@@ -72,7 +72,8 @@ var Class = defineClass( 'Poller', {
 		unSubscribe: function ( handlerId ) {
 			var self = this;
 			delete self.handlers[handlerId];
-			if ( !Object.keys( self.handlers ).length ) {
+			//if ( !Object.keys( self.handlers ).length ) {
+			if ( empty( self.handlers ) ) {
 				self.stop();
 			}
 		}

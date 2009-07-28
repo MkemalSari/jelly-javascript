@@ -2,8 +2,8 @@
 
 Datepicker
 
-@location plugin
 @description 
+	Simple datepicker
 
 */
 

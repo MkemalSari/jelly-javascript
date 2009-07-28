@@ -2,8 +2,8 @@
 
 Events
 
-@location core
-@description event utilities
+@description 
+	Event utilities
 
 */
 
