@@ -17,7 +17,7 @@ extend(J, {
 	setCookie: function ( name, value, expires, path, domain, secure ) {
 		if ( expires ) {
 			var expireTime = (+new Date) + ( ( 1000*60*60*24 ) * expires );
-			expires = new Date( expireTime ).toGMTString();
+			expires = new Date( expireTime ).toUTCString();
 		}
 		doc.cookie = name + '=' + escape( value ) +
 			( expires ? ';expires=' + expires : '' ) + 

@@ -13,6 +13,10 @@ var addEvent = function ( obj, type, fn ) {
 			mouseLeave = type === 'mouseleave',
 			wrapper, 
 			handle;
+			
+		if ( obj === doc && type === 'domready' ) {
+			return addDomReady( fn );
+		} 
 		if ( !standardEventModel ) {
 			wrapper = function (e) {
 				e = fixEvent(e);
@@ -38,20 +42,19 @@ var addEvent = function ( obj, type, fn ) {
 		return handle;
 	},
 	
-	removeEvent = function () {
-		if (standardEventModel) {
-			return function ( handle ) {
-				if ( handle ) { 
-					handle[0].removeEventListener( handle[1], handle[2], false ); 
-				}
-			};
-		} 
-		return function ( handle ) {
-			if ( handle ) { 
+	removeEvent = function ( handle ) {
+		if ( handle ) { 
+			if ( !isArray( handle ) ) {
+				return removeDomReady( handle );
+			} 
+			if ( standardEventModel ) {
+				handle[0].removeEventListener( handle[1], handle[2], false ); 
+			} 
+			else {
 				handle[0].detachEvent( 'on' + handle[1], handle[2] ); 
 			}
-		};
-	}(),
+		}
+	},
 	
 	eventLog = [], 
 	
@@ -113,5 +116,6 @@ extend( J, {
 });
 
 // Need to do our own garbage collection to prevent memory leaks
+//
 addEvent( win, 'unload', purgeEventLog );
 
