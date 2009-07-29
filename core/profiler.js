@@ -32,9 +32,7 @@ var self = J.Profiler = {
 	startTime: 0,
 	
 	start: function ( label ) {
-		self.label = label ? '<span style="font-size:12px;font-weight:normal;\
-			color:#ccc;display:block;padding:0 0 3px;">' + 
-			label + '</span>' : '';
+		self.label = label ? ('<span style="font-size:12px;font-weight:normal;color:#ccc;display:block;padding:0 0 3px;">' + label + '</span>') : '';
 		self.active = true;
 		self.startTime = (+new Date);
 	},
