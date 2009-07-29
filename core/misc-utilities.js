@@ -155,11 +155,11 @@ extend( J, {
 	},
 	
 	unpack: function () {
-		var str = 'var J=JELLY', mem;
+		var stack = ['var J=JELLY'], mem, i = 1;
 		for ( mem in J ) { 
-			str += ',' + mem + '=J.' + mem; 
+			stack[ i++ ] = mem + '=J.' + mem;
 		}
-		return str + ';';
+		return stack.join(',') + ';';
 	}
 	
 });
