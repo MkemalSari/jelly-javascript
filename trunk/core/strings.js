@@ -95,7 +95,7 @@ var	contains = function ( haystack, needle ) {
 	evalScripts = function ( str ) {
 		var wrapper = createElement( 'div', { setHTML: str } ), 
 			res = [];
-		toArray( getTags( wrapper, 'script' ) ).each( function (el) {
+		toArray( getElements( wrapper, 'script' ) ).each( function (el) {
 			res.push( win['eval']( el.innerHTML ) );
 		});
 		return res;
