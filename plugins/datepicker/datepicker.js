@@ -271,8 +271,8 @@ var Class = defineClass( 'DatePicker', {
 			var self = this;
 			self.table.innerHTML = self.renderDate( self.date );
 			self.setTitle( self.date );
-			var tds = getTags( self.table, 'td' ),
-				trs = getTags( self.table, 'tr' ),
+			var tds = getElements( self.table, 'td' ),
+				trs = getElements( self.table, 'tr' ),
 				clearClassNames = function (tds) {
 					for ( var i = 0; i < tds.length; i++ ) { 
 						removeClass(tds[i], 'selected'); 

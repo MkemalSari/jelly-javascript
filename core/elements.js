@@ -34,14 +34,14 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
-	getTags = function ( a, b ) { 
-		return ( b ? getElement( a ) : doc ).getElementsByTagName( b || a ); 
-	},
-	
 	getElement = function ( obj ) { 
 		return typeof obj === 'string' ? doc.getElementById( obj ) : obj; 
 	},
 	
+	getElements = function ( a, b ) { 
+		return ( b ? getElement( a ) : doc ).getElementsByTagName( b || a ); 
+	},
+
 	createElement = function ( arg, attrs ) {
 		var el;
 		if ( !/[#:\.]/.test(arg) ) {
@@ -380,7 +380,7 @@ extend( J, {
 	removeClass: removeClass,
 	hasClass: hasClass,
 	toggleClass: toggleClass,
-	getTags: getTags,	
+	getElements: getElements,	
 	getElement: getElement,
 	createElement: createElement,
 	createBranch: createBranch,
