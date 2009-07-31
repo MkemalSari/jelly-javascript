@@ -172,9 +172,10 @@ var J = window.JELLY = {},
 	// console api wrappers
 	//
 	createLogger = function ( method ) {
-		if ( win.console && win.console[method] ) {  	
+		var console = win.console;
+		if ( console && console[method] ) {  	
 			return function () {
-				win.console[method].apply( win.console, toArray( arguments ) ); 
+				console[method].apply( console, toArray( arguments ) ); 
 			};
 		}
 		return functionLit;

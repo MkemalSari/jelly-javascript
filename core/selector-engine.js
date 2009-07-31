@@ -6,530 +6,639 @@ Selector Engine
 	A fast cross-browser interface for querying the DOM with CSS selectors
 
 */
-
-J._Q = {
-	'A': function (a, b) {
-		try { 
-			return toArray( b ? a.querySelectorAll(b) : document.querySelectorAll(a) );
-		} catch (ex) {}
-	},
-	'B': function (a, b) {	
-		var toArray = J.toArray, 
-			getNext = J.getNext,
-			getPrevious = J.getPrevious,
-			msie = J.browser.ie,
-			win = window,
-			doc = win.document,
-			loc = win.location,
-			rootElement = doc.documentElement,
-			unMark = function (collection, mark) {
-				for ( var n = collection.length, i = 0; i < n; i++ ) {
-					collection[i][mark] = undefined;
+(function () {
+	
+	var	pushToStack = function ( value ) {
+			stack[stack.length] = value;
+		},
+		
+		unMark = function ( group ) {
+			for ( var i = 0, n = group.length; i < n; i++ ) {
+				group[i][uniqueKey] = null;
+			}
+		},
+		
+		filterUnique = function ( group ) {
+			var el, 
+				n = group.length, 
+				uniques = [];
+			while (n) {
+				el = group[--n];
+				if ( !el[uniqueKey] ) {
+					el[uniqueKey] = true;
+					uniques[uniques.length] = el;
 				}
-			},
-			contains = function () {
-			    if ( rootElement.contains )  { 
-			        return function ( needle, haystack ) {
-						return haystack.contains(needle);
-					};
-			    } 
-				return function ( needle, haystack ) {
-					return !!( haystack.compareDocumentPosition(needle) & 16 );
+			}
+			n = uniques.length;
+			while (n) {
+				uniques[--n][uniqueKey] = null;
+			}
+			return uniques.reverse();
+		},
+		
+		/*====================================
+			selector parsing
+		=====================================*/
+		
+		parseTokenComponent = function ( part, fetchOrFilter ) {
+			var obj = { 
+					mode: fetchOrFilter ? _fetch_ : _filter_, 
+					not: false,
+					type: _id_
 				};
-			}(),
-			mergeId = function (tkn) {
-				var tag = tkn.val[0], id = tkn.val[1];
-				if (tkn.mode === 'filter') { 
-					var tags = collection, n = collection.length, i = 0;
-					for (i; i < n; i++) {
-						if (tag) {
-							if ((tags[i].tagName.toLowerCase() === tag && tags[i].id === id) !== tkn.not) {
-								tmp[tmp.length] = tags[i]; 
-							}
-						} 
-						else if ((tags[i].id === id) !== tkn.not) {
-							tmp[tmp.length] = tags[i]; 
-						}
-						if (!tkn.not && tmp[0]) {return;}
-					}
-				} 
-				else {
-					if (!tag) {
-						tmp[0] = doc.getElementById(id);
+			if ( /^(\w+)?#\w/.test( part ) ) {
+				obj.val = part.split('#');
+			} 
+			else if ( /^\w+|\*$/.test( part ) ) {
+				obj.type = _tag_; 
+				obj.val = part;
+			} 
+			else if ( /^\.\w/.test( part ) ) { 
+				obj.type = _class_;	
+				obj.val = part.replace( /^\./, '' );
+			} 
+			else if ( /^\[/.test( part ) ) { 
+				obj.type = _attr_;	
+				obj.val = part.replace( /\[|\]/g, '' );	
+			} 
+			else if ( /^\+|>|~/.test( part ) ) { 
+				obj.type = _combi_; 
+				obj.val = part;			
+			} 
+			else if ( /:not\(/.test( part ) ) {
+				obj = parseTokenComponent( part.replace( /\:not\(|\)$/g, '' ) );
+				obj.not = true;
+			} 
+			else if ( /^:/.test( part ) ) { 
+				var _tmp = part.replace( /^:|\)$/g, '' ).split( '(' );
+				obj.type = _pseudo_; 
+				obj.kind = _tmp[0];
+				obj.val = _tmp[1];
+			} 
+			return obj;
+		},
+
+		parseSelector = function ( selector ) {
+			var result = [],
+				// Seperate out the combinators + > ~, then split
+				parts = normalize( selector.replace( /(>|~(?!=)|\+(?!\d))/g, ' $1 ' ) ).split( ' ' ),
+				universal = { mode: _fetch_, type: _tag_, val: '*' },
+				getByClass = 'getElementsByClassName' in doc,
+				sibling = false;
+
+			for ( var i = 0, tmp; i < parts.length; i++ ) { 
+				tmp = parts[i].
+						replace( /([^\(\#\.\[])(:)/g, '$1 $2' ).
+						replace( /([^\(])(\[|\.)/g, '$1 $2' ).
+						replace( /\:not\(\s*/g, ':not(' ).trim().split(' ');	
+				for ( var j = 0, obj; j < tmp.length; j++ ) {
+					obj = parseTokenComponent( tmp[j], !j );
+					if ( sibling ) {
+						obj.mode = _filter_;
 					} 
-					else {
-						var elem = doc.getElementById(id);
-						if (elem && elem.tagName.toLowerCase() === tag) {
-							tmp[0] = elem;	
-						}
+					else if ( j === 0 && 
+						( obj.type === _pseudo_ || obj.type === _attr_ || 
+							( obj.type === _class_ && !getByClass ) || 
+						obj.not ) ) {
+						result.push( universal );
+						obj.mode = _filter_;
 					}
-					if (!firstRun && tmp[0]) {
-						var tags = collection, n = collection.length, flag = false, i = 0;
-						for (i; i < n; i++) {
-							if (contains(tmp[0], tags[i])) {
-								flag = true;
-								break;
-							}
+					if ( contains( tmp[j], uniqueKey ) ) {
+						obj[obj.type === _attr_ ? 'spValue' : 'val'] = strings.shift();
+					}
+					result.push( obj );
+					sibling = /^(~|\+)$/.test( obj.val );
+				}
+			}
+			result.postFilter = !( parts.length === 1 || parts.length === 3 && /^[\+~]$/.test( parts[1] ) );
+			return result;
+		},	
+		
+		/*====================================
+			ids
+		=====================================*/
+		
+		mergeId = function ( tkn ) {
+			var tag = tkn.val[0], 
+				id = tkn.val[1];
+				
+			if ( tkn.mode === _filter_ ) { 
+				for ( var i = 0, n = collection.length; i < n; i++) {
+					if ( tag ) {
+						if ( ( collection[i].tagName.toLowerCase() === tag && 
+								collection[i].id === id ) !== tkn.not) {
+							pushToStack( collection[i] );
 						}
-						if (!flag) {tmp[0] = null;}
 					} 
+					else if ( ( collection[i].id === id ) !== tkn.not ) {
+						pushToStack( collection[i] );
+					}
+					if ( !tkn.not && stack[0] ) {
+						return;
+					}
 				}
-			}, 
-			mergeTags = function (tkn) {
-				var tags, n, test, i = 0, extra = (tkn.val === '*' && msie);
-				if (firstRun) {
-					tags = doc.getElementsByTagName(tkn.val); n = tags.length;	
-					for (i; i < n; i++) {
-						if (extra) {if (tags[i].nodeType === 1) {tmp[tmp.length] = tags[i];}}
-						else {tmp[tmp.length] = tags[i];}
-					}
-				} 
-				else if (tkn.not || tkn.mode === 'filter') {
-					tags = collection; n = tags.length; test = tkn.val.toUpperCase();
-					for (i; i < n; i++) {
-						if ((tags[i].nodeName.toUpperCase() === test) !== tkn.not) {
-							tmp[tmp.length] = tags[i];
-						}
-					}
+			} 
+			else {
+				if ( !tag ) {
+					stack[0] = getElement( id );
 				} 
 				else {
-					tags = collection; 
-					n = tags.length;
-					for (i; i < n; i++) {
-						var tags2 = tags[i].getElementsByTagName(tkn.val), n2 = tags2.length, j;
-						for (j = 0; j < n2; j++) {
-							if (extra) {if (tags2[j].nodeType === 1) {tmp[tmp.length] = tags2[j];}}
-							else {tmp[tmp.length] = tags2[j];}
-						}
+					var elem = getElement( id );
+					if ( elem && elem.tagName.toLowerCase() === tag ) {
+						stack[0] = elem;	
 					}
 				}
-			},
-			mergeClass = function (tkn) {
-				var tags = collection, val = tkn.val, not = tkn.not, n = tags.length, i = 0;
-				if (tkn.mode === 'fetch') {
-					if (firstRun) {
-						tmp = toArray(doc.getElementsByClassName(val));
-					} 
-					else {
-						for (i; i < n; i++) {
-							var tags2 = tags[i].getElementsByClassName(val), n2 = tags2.length, j = 0;
-							for (j; j < n2; j++) {
-								tmp[tmp.length] = tags2[j];
-							}
-						}
-					}
-				} 
-				else {
-					var patt = new RegExp('(^|\\s)' + val + '(\\s|$)'), cn;
-					for (i; i < n; i++) {
-						cn = tags[i].className;
-						if (!cn) {
-							if (not) {tmp[tmp.length] = tags[i];}
-							continue;
-						} 
-						if (patt.test(cn) !== not) {tmp[tmp.length] = tags[i];} 
-					}
-				}
-			},
-			attributeTests = {
-				'=': function (attr, val) {return attr === val;}, 
-				'^=': function (attr, val) {return attr.indexOf(val) === 0;}, 
-				'$=': function (attr, val) {return attr.substr(attr.length - val.length) === val;}, 
-				'*=': function (attr, val) {return attr.indexOf(val) !== -1;}, 
-				'|=': function (attr, val) {return attr.indexOf(val) === 0;}, 
-				'~=': function (attr, val) {return (' ' + attr + ' ').indexOf(' ' + val + ' ') !== -1;} 
-			},
-			mergeAttribute = function (tkn) {
-				var tags = collection, n = tags.length, getAttribute = J.getAttribute, attrValue = tkn.val, i = 0;
-				if (/=/.test(attrValue)) {
-					var parts = /([\w-]+)([^=]?=)(.+)/.exec(attrValue), attr, mode = attributeTests,
-						val = tkn.spValue !== undefined ? tkn.spValue : parts[3];
-					for (i; i < n; i++) {
-						attr = getAttribute(tags[i], parts[1]);
-						if ((attr !== null && mode[parts[2]](attr, val)) !== tkn.not) {
-							tmp[tmp.length] = tags[i];
-						}
-					}
-				} 
-				else {
-					for (i; i < n; i++) {
-						if ((getAttribute(tags[i], attrValue) !== null) !== tkn.not) {
-							tmp[tmp.length] = tags[i];                    
-						}
-					}
-				}
-			},
-			mergeDirectSibling = function (tkn) {
-				var tags = collection, n = tags.length, next, i = 0;
-				for (i; i < n; i++) {
-					next = getNext(tags[i]);
-					if (next) {tmp[tmp.length] = next;}
-				}
-			},
-			mergeAdjacentSibling = function (tkn) {
-				var tags = collection, n = tags.length, store = [], sibs = [], i = 0; 
-				for (i; i < n; i++) {
-					var parental = tags[i].parentNode;
-					parental.__jelly = true;
-					store[store.length] = {
-						parent: parental, 
-						child: tags[i]
-					};
-				}	
-				for (i = 0; i < store.length; i++) {
-					if (store[i].parent.__jelly !== undefined) {
-						store[i].parent.__jelly = undefined;
-						sibs[sibs.length] = store[i].child;
-					}
-				}
-				for (i = 0; i < sibs.length; i++) {
-					var next = sibs[i].nextSibling;
-					while (next) {
-						if (next.nodeType === 1) {tmp[tmp.length] = next;}
-						next = next.nextSibling;
-					}
-				}
-			},
-			filterChildren = function () {
-				var tags = collection, n = tags.length, n2 = tmp.length, result = [], i = 0; 
-				for (i; i < n2; i++) {
-					var parentElem = tmp[i].parentNode; 
-					for (var j = 0; j < n; j++) {  
-						if (tags[j] === parentElem) {
-							result[result.length] = tmp[i];
+				if ( !firstRun && stack[0] ) {
+					var flag = false;
+					for ( var i = 0, n = collection.length; i < n; i++ ) {
+						if ( stack[0].contains( collection[i] ) ) {
+							flag = true;
 							break;
 						}
 					}
+					if ( !flag ) {
+						stack[0] = null;
+					}
+				} 
+			}
+		}, 
+		
+		/*====================================
+			tags
+		=====================================*/
+		
+		mergeTags = function ( tkn ) {
+			var extra = msie && tkn.val === '*';	
+			if ( firstRun ) {
+				for ( var i = 0, tags = getElements( tkn.val ), n = tags.length; i < n; i++) {
+					if ( extra ) { 
+						if ( tags[i].nodeType === 1 ) {
+							pushToStack( tags[i] );
+						}
+					}
+					else {
+						pushToStack( tags[i] );
+					}
 				}
-				tmp = result;
-			},
-			mergePseudo = function (tkn) {
-				var tags = collection, n = tags.length, i = 0;
-				if (/^(nth-|first-of|last-of)/.test(tkn.kind)) {
-					tmp = pseudoTests[tkn.kind](tags, tkn); 
-				} 
-				else if (tkn.kind === 'root' && !tkn.not) {
-					tmp[0] = rootElement;
-				} 
-				else if (tkn.kind === 'target' && !tkn.not) {
-					var hash = loc.href.split('#')[1] || null;
-					tmp[0] = doc.getElementById(hash) || doc.getElementsByName(hash)[0];
+			} 
+			else if ( tkn.not || tkn.mode === _filter_ ) {
+				for ( var i = 0, test = tkn.val.toUpperCase(), n = collection.length; i < n; i++ ) {
+					if ( ( collection[i].nodeName.toUpperCase() === test ) !== tkn.not ) {
+						pushToStack( collection[i] );
+					}
+				}
+			} 
+			else {
+				for ( var i = 0, n = collection.length; i < n; i++ ) {
+					var tags = getElements( collection[i], tkn.val ), 
+						n2 = tags.length, 
+						j = 0;
+					for ( j; j < n2; j++ ) {
+						if ( extra ) {
+							if ( tags[j].nodeType === 1 ) {
+								pushToStack( tags[j] );
+							}
+						}
+						else {
+							pushToStack( tags[j] );
+						}
+					}
+				}
+			}
+		},
+		
+		/*====================================
+			class
+		=====================================*/
+		
+		mergeClass = function ( tkn ) {
+			var val = tkn.val, 
+				not = tkn.not, 
+				n = collection.length, 
+				i = 0;
+			if ( tkn.mode === _fetch_ ) {
+				if ( firstRun ) {
+					stack = toArray( doc.getElementsByClassName( val ) );
 				} 
 				else {
-					for (i; i < n; i++) {
-						if (pseudoTests[tkn.kind](tags[i], tkn) !== tkn.not) {
-							tmp[tmp.length] = tags[i];
+					for ( i; i < n; i++ ) {
+						var tags = collection[i].getElementsByClassName( val ), 
+							n2 = tags.length, 
+							j = 0;
+						for ( j; j < n2; j++ ) {
+							pushToStack( tags[j] );
 						}
 					}
 				}
-			},
-			parseNthExpr = function (expr) {
-				var obj = {};
-				obj.direction = /^\-/.test(expr) ? 'neg' : 'pos';
-				if (/^n$/.test(expr)) { 
-					obj.mode = 'all';
-					return obj;
-				} 
-				else if (/^\d+$/.test(expr)) {
-					obj.mode = 'child';
-					obj.val = parseInt(expr, 10);
-					return obj;
-				} 
-				obj.mode = 'an+b';
-				if (/^(even|2n|2n\+2)$/.test(expr)) {obj.oddEven = 0;} 
-				else if (/^(odd|2n\+1)$/.test(expr)) {obj.oddEven = 1;}
-				var pts = expr.split('n');
-				obj.start = pts[1] ? parseInt(pts[1], 10) : 1;
-				obj.jump = pts[0] && !/^\-$/.test(pts[0]) ? parseInt(pts[0].replace(/^\-/, ''), 10) : 1;		
-				return obj;
-			},
-			nthChildFilter = function (collection, expr, oftype, last, not) {
-				expr = parseNthExpr(expr);
-				if ( expr.mode === 'all' ) { return collection; }				
-				var	result = [], 
-					parentCache = [], 
-					n = collection.length, 
-					i = 0,
-					nodeName = collection[0].nodeName,
-					testType = oftype ? 
-						function (el) {return el.nodeType === 1 && el.nodeName === nodeName;} : 
-						function (el) {return el.nodeType === 1;},		
-					append = function (cond) {if (cond) {result[result.length] = collection[i];}};
+			} 
+			else {
+				var patt = new RegExp( '(^|\\s)' + val + '(\\s|$)' ), 
+					classname;
 				for ( i; i < n; i++ ) {
-					var pnt = collection[i].parentNode, c = 1;
-					if (!pnt._indexedChilden) {
-						parentCache[parentCache.length] = pnt;
-						if (!last) {
-							for (var el = pnt.firstChild; el; el = el.nextSibling) {
-								if (testType(el)) {el.nodeIndex = c++;}
-							}
-						} 
-						else {
-							for (var el = pnt.lastChild; el; el = el.previousSibling) {
-								if (testType(el)) {el.nodeIndex = c++;}
-							}
+					classname = collection[i].className;
+					if ( !classname ) {
+						if ( not ) {
+							pushToStack( collection[i] );
 						}
-						pnt._indexedChilden = true;
-					}
-					if (expr.mode === 'child') { 
-						append(((collection[i].nodeIndex === expr.val) !== not));
+						continue;
 					} 
-					else if (expr.oddEven !== undefined) { 
-						append((collection[i].nodeIndex % 2 === expr.oddEven) !== not);
+					if ( patt.test( classname ) !== not ) {
+						pushToStack( collection[i] );
 					} 
-					else {
-						if (expr.direction === 'pos') {
-							if (collection[i].nodeIndex < expr.start) {
-								if (not) {
-									append(true);
-								} 
-								else { continue; }
-							} 
-							else { 
-								append(((collection[i].nodeIndex - expr.start) % expr.jump === 0) !== not); }
-						} 
-						else {
-							if (collection[i].nodeIndex > expr.start) {
-								if (not) {append(true);} 
-								else {continue;}
-							} 
-							else { append(((expr.start - collection[i].nodeIndex) % expr.jump === 0) !== not); }
-						}
+				}
+			}
+		},		
+		
+		/*====================================
+			attributes
+		=====================================*/
+	
+		attributeTests = {
+			'=': function ( attr, val ) { return attr === val; }, 
+			'^=': function ( attr, val ) { return attr.indexOf( val ) === 0; }, 
+			'$=': function ( attr, val ) { return attr.substr( attr.length - val.length ) === val; }, 
+			'*=': function ( attr, val ) { return attr.indexOf( val ) !== -1; }, 
+			'|=': function ( attr, val ) { return attr.indexOf( val ) === 0; }, 
+			'~=': function ( attr, val ) { return (' ' + attr + ' ').indexOf(' ' + val + ' ') !== -1; } 
+		},
+		
+		mergeAttribute = function ( tkn ) {
+			var n = collection.length, 
+				i = 0;
+			if ( contains( tkn.val, '=' ) ) {
+				var parts = /([\w-]+)([^=]?=)(.+)/.exec( tkn.val ), 
+					attr, 
+					val = isDefined( tkn.spValue ) ? tkn.spValue : parts[3];
+				for ( i; i < n; i++ ) {
+					attr = getAttribute( collection[i], parts[1] );
+					if ( ( attr !== null && attributeTests[parts[2]]( attr, val ) ) !== tkn.not ) {
+						pushToStack( collection[i] );
 					}
 				}
-				unMark(parentCache, '_indexedChilden');
-				return expr.direction === 'neg' ? result.reverse() : result;
-			},
-			pseudoTests = {
-				'nth-child': function (tags, tkn) {
-					return nthChildFilter(tags, tkn.val, false, false, tkn.not);
-				},
-				'nth-of-type': function (tags, tkn) {
-					return nthChildFilter(tags, tkn.val, true, false, tkn.not);
-				},
-				'nth-last-child': function (tags, tkn) {
-					return nthChildFilter(tags, tkn.val, false, true, tkn.not);
-				},
-				'nth-last-of-type': function (tags, tkn) {
-					return nthChildFilter(tags, tkn.val, true, true, tkn.not);
-				},
-				'first-of-type': function (tags, tkn) {
-					return nthChildFilter(tags, '1', true, false, tkn.not);
-				},
-				'last-of-type': function (tags, tkn) {
-					return nthChildFilter(tags, '1', true, true, tkn.not);
-				},
-				'only-child': function (el) {
-					return !getNext(el) && !getPrevious(el);
-				},
-				'only-of-type': function (el) {
-					var tags = el.parentNode.getElementsByTagName(el.nodeName);
-					if ( tags.length === 1 && tags[0].parentNode === el.parentNode ) {
-						return true;
-					} 
-					else {
-						var bool = true, n = tags.length, i = 0, c = 0;
-						for ( i; i < n; i++ ) {
-							if ( el.parentNode === tags[i].parentNode ) {
-								c++; 
-								if ( c > 1 ) {
-									return false;
-								}
-							}
-						}
-						return true;
-					}
-				},
-				'first-child': function (el) {
-					return !getPrevious(el);
-				},
-				'last-child': function (el) {
-					return !getNext(el);
-				}, 
-				'checked': function (el) {
-					return el.checked;
-				},
-				'enabled': function (el) {
-					return !el.disabled;
-				},
-				'disabled': function (el) {
-					return el.disabled;
-				},
-				'empty': function (el) {
-					return !el.firstChild;
-				},
-				'lang': function (el, tkn) {
-					return el.getAttribute('lang') === tkn.val;
-				},
-				'root': function (el) {
-					return el === rootElement;
-				},
-				'target': function (el) {
-					var hash = loc.href.split('#')[1] || null;
-					return el.id === hash || el.name === hash;
-				}
-			},
-			filterUnique = function (collection) {
-				var c, n = collection.length, uniques = [];
-				while (n) {
-					c = collection[--n];
-					if (!c.__jelly) {
-						c.__jelly = true;
-						uniques[uniques.length] = c;
+			} 
+			else {
+				for ( i; i < n; i++ ) {
+					if ( ( getAttribute( collection[i], tkn.val ) !== null ) !== tkn.not ) {
+						pushToStack( collection[i] );
 					}
 				}
-				n = uniques.length;
-				while (n) {uniques[--n].__jelly = undefined;}
-				return uniques.reverse();
-			},
+			}
+		},
+		
+		/*====================================
+			pseudo classes
+		=====================================*/
+	
+		mergePseudo = function ( tkn ) {
+			var kind = tkn.kind,
+				not = tkn.not;
+			if ( /^(nth-|first-of|last-of)/.test( kind ) ) {
+				stack = pseudoTests[kind]( collection, tkn ); 
+			} 
+			else if ( kind === 'root' && !not ) {
+				stack[0] = rootElement;
+			} 
+			else if ( kind === 'target' && !not ) {
+				var hash = win.location.href.split('#')[1] || null;
+				stack[0] = getElement( hash ) || getElements( hash )[0];
+			} 
+			else {
+				for ( var i = 0, n = collection.length; i < n; i++ ) {
+					if ( pseudoTests[kind]( collection[i], tkn ) !== not ) {
+						pushToStack( collection[i] );
+					}
+				}
+			}
+		},
+		
+		parseNthExpr = function ( expr ) {
+			var obj = { mode: 'all' };
+			obj.direction = expr.indexOf('-') === 0 ? 'neg' : 'pos';
 			
-			parseTokenComponent = function (part, fetchOrFilter) {
-				var obj = {mode: fetchOrFilter ? 'fetch' : 'filter', not: false};
-				if (/^(\w+)?#[^\s]+$/.test(part)) {
-					obj.type = 'ID'; obj.val = part.split('#');
-				} 
-				else if (/^(\w+|\*)$/.test(part)) {
-					obj.type = 'TAG'; obj.val = part;
-				} 
-				else if (/^\.[^\s]+$/.test(part)) { 
-					obj.type = 'CLASS';	obj.val = part.replace(/^\./, '');
-				} 
-				else if (/^\[[^\s]+$/.test(part)) { 
-					obj.type = 'ATTR';	obj.val = part.replace(/^\[|\]$/g, '');	
-				} 
-				else if (/^\+|>|~$/.test(part)) { 
-					obj.type = 'COMBI'; obj.val = part;			
-				} 
-				else if (/^\:not[\s\S]+$/.test(part)) {
-					var tmp = part.replace(/^\:not\(|\)$/g, '');
-					obj = parseTokenComponent(tmp);
-					obj.not = true;
-				} 
-				else if (/^:[^\s]+$/.test(part)) { 
-					var tmp = part.replace(/^\:|\)$/g, '').split('(');
-					obj.type = 'PSEUDO'; 
-					obj.kind = tmp[0];
-					obj.val = tmp[1];
-				} 
+			if ( expr === 'n' ) { 
 				return obj;
-			},
+			} 
+			else if ( /^\d+$/.test( expr ) ) {
+				obj.mode = 'child';
+				obj.val = parseInt( expr, 10 );
+				return obj;
+			} 
+			obj.mode = 'an+b';
 			
-			parseSelector = function (feed) {
-				// Seperate out the combinators + > ~, then split
-				var result = [],
-					parts = normalize( feed.replace(/(>|~(?!=)|\+(?!\d))/g, ' $1 ') ).split(' '),
-				    universal = {mode:'fetch', type:'TAG', val:'*'},
-				    getByClass = 'getElementsByClassName' in doc,
-				    sibling = false;
-					
-				for ( var i = 0; i < parts.length; i++ ) { 
-					var tmp = parts[i].replace(/([^\(\#\.\[])(:)/g, '$1 $2').
-						replace(/([^\(])(\[|\.)/g, '$1 $2').
-						replace(/\:not\(\s*/g, ':not(').trim().split(' ');	
-					for (var j = 0; j < tmp.length; j++) {
-						var obj = parseTokenComponent(tmp[j], !j);
-						if (sibling) {
-							obj.mode = 'filter';
+			if ( /^(even|2n|2n\+2)$/.test( expr ) ) {
+				obj.oddEven = 0;
+			} 
+			else if ( /^(odd|2n\+1)$/.test( expr ) ) {
+				obj.oddEven = 1;
+			}
+			var pts = expr.split('n');
+			obj.start = pts[1] ? parseInt( pts[1], 10 ) : 1;
+			obj.jump = pts[0] && pts[0] !== '-'	? parseInt( pts[0].replace( /^\-/, '' ), 10 ) : 1;		
+			return obj;
+		},
+		
+		nthChildFilter = function ( collection, expr, ofType, last, not ) {
+			expr = parseNthExpr( expr );
+			if ( expr.mode === 'all' ) { return collection; }				
+			var	result = [], 
+				parentCache = [], 
+				nodeName = collection[0].nodeName,
+				testType = ofType ? 
+					function (el) { return el.nodeType === 1 && el.nodeName === nodeName; } : 
+					function (el) { return el.nodeType === 1; },		
+				append = function ( cond ) { 
+					if ( cond ) { 
+						result.push( collection[i] ); 
+					}
+				};
+			for ( var i = 0, n = collection.length, pnt, uid; i < n; i++ ) {
+				pnt = collection[i].parentNode, 
+				uid = 1;
+				if ( !pnt[uniqueKey] ) {
+					var el = pnt[ !last ? 'firstChild' : 'lastChild' ],
+						direction = !last ? 'nextSibling' : 'previousSibling'; 
+					for ( el; el; el = el[direction] ) {
+						if ( testType( el ) ) {
+							el.nodeIndex = uid++;
+						}
+					}
+					pnt[uniqueKey] = 1;
+					parentCache.push( pnt );
+				}
+				if ( expr.mode === 'child' ) { 
+					append( ( ( collection[i].nodeIndex === expr.val ) !== not ) );
+				} 
+				else if ( isDefined( expr.oddEven ) ) { 
+					append( ( collection[i].nodeIndex % 2 === expr.oddEven ) !== not );
+				} 
+				else {
+					if ( expr.direction === 'pos' ) {
+						if ( collection[i].nodeIndex < expr.start ) {
+							if ( not ) {
+								append( true );
+							} 
 						} 
-						else if ( j === 0 && 
-							( /PSEUDO|ATTR/.test(obj.type) || 
-							  (obj.type === 'CLASS' && !getByClass) || 
-							  obj.not ) ) {
-							result[result.length] = universal;
-							obj.mode = 'filter';
+						else { 
+							append( ( ( collection[i].nodeIndex - expr.start ) % expr.jump === 0 ) !== not ); 
 						}
-						if (tmp[j].indexOf(uniqueKey) !== -1) {
-							obj[obj.type === 'ATTR' ? 'spValue' : 'val'] = strings.shift();
+					} 
+					else {
+						if ( collection[i].nodeIndex > expr.start ) {
+							if ( not ) { 
+								append( true ); 
+							} 
+						} 
+						else { 
+							append( ( ( expr.start - collection[i].nodeIndex ) % expr.jump === 0 ) !== not ); 
 						}
-						result[result.length] = obj;
-						sibling = /^(~|\+)$/.test(obj.val);
 					}
 				}
-				result.postFilter = !(parts.length === 1 || parts.length === 3 && /^[\+~]$/.test(parts[1]));
-				return result;
-			};
+			}
+			unMark( parentCache );
+			return expr.direction === 'neg' ? result.reverse() : result;
+		},
 		
-		/* ---------------------------------------------------------------------------------------- */
-		var contextMode = !!b,
-			selector = contextMode ? b : a,
-			quoteMarkTest = /('|")([^\1]*?)\1/,
-			_Q = J._Q, 
-			uniqueKey = _Q.uniqueKey, 
-			firstRun = _Q.firstRun, 
-			strings = _Q.strings, 
-			m;
-
-		if ( firstRun ) {
-			while ( selector.indexOf(uniqueKey) !== -1 ) {
-				uniqueKey += uniqueKey;
+		pseudoTests = {
+			'nth-child': function ( tags, tkn ) {
+				return nthChildFilter( tags, tkn.val, false, false, tkn.not );
+			},
+			'nth-of-type': function ( tags, tkn ) {
+				return nthChildFilter( tags, tkn.val, true, false, tkn.not );
+			},
+			'nth-last-child': function ( tags, tkn ) {
+				return nthChildFilter( tags, tkn.val, false, true, tkn.not );
+			},
+			'nth-last-of-type': function ( tags, tkn ) {
+				return nthChildFilter( tags, tkn.val, true, true, tkn.not );
+			},
+			'first-of-type': function ( tags, tkn ) {
+				return nthChildFilter( tags, '1', true, false, tkn.not );
+			},
+			'last-of-type': function ( tags, tkn ) {
+				return nthChildFilter( tags, '1', true, true, tkn.not );
+			},
+			'only-child': function (el) {
+				return !getNext(el) && !getPrevious(el);
+			},
+			'only-of-type': function (el) {
+				var tags = getElements( el.parentNode, el.nodeName );
+				if ( tags.length === 1 && tags[0].parentNode === el.parentNode ) {
+					return true;
+				} 
+				else {
+					for ( var bool = true, n = tags.length, i = 0, c = 0; i < n; i++ ) {
+						if ( el.parentNode === tags[i].parentNode ) {
+							c++; 
+							if ( c > 1 ) {
+								return false;
+							}
+						}
+					}
+					return true;
+				}
+			},
+			'first-child': function (el) { return !getPrevious(el); },
+			'last-child': function (el) { return !getNext(el); }, 
+			'checked': function (el) { return el.checked; },
+			'enabled': function (el) { return !el.disabled; },
+			'disabled': function (el) { return el.disabled; },
+			'empty': function (el) { return !el.firstChild;	},
+			'lang': function ( el, tkn ) { return el.getAttribute('lang') === tkn.val; },
+			'root': function (el) { return el === rootElement; },
+			'target': function (el) {
+				var hash = win.location.href.split('#')[1] || null;
+				return el.id === hash || el.name === hash;
 			}
-			m = quoteMarkTest.exec(selector);
-			while (m) {
-				strings[strings.length] = m[2];
-				selector = selector.split(m[0]);
-				selector = [selector[0], uniqueKey, selector[1]].join('');   
-				m = quoteMarkTest.exec(selector);
-			}
-		}
+		},
 		
-		// Split and recurse for comma chained selectors
-		if ( /,/.test(selector) ) {
-			var combo = [],	parts = selector.split(','), part;
-			firstRun = false;
-			while ( part = parts.shift() ) {
-				combo = combo.concat( contextMode ? J.Q(a, part) : J.Q(part) );
-			}
-			firstRun = true;
-			return filterUnique(combo);
-		}
+		/*====================================
+			combinators
+		=====================================*/
 
-		var tokens = parseSelector(selector),
-			collection = contextMode ? [a] : [],	
-			firstRun = true && !b,
-			children = null, 
-			k = 0;
+		mergeDirectSibling = function () {
+			for ( var i = 0, n = collection.length, next; i < n; i++ ) {
+				if ( next = getNext( collection[i] ) ) {
+					pushToStack( next );
+				}
+			}
+		},
 		
-		for (k; k < tokens.length; k++) {
-			var tmp = [], tkn = tokens[k];						
-			switch (tkn.type) {
-				case 'ID': mergeId(tkn); break;
-				case 'TAG': mergeTags(tkn); break;
-				case 'CLASS': mergeClass(tkn); break;
-				case 'ATTR': mergeAttribute(tkn); break;
-				case 'PSEUDO': mergePseudo(tkn); break
-				case 'COMBI': 
-					if (tkn.val === '+') {mergeDirectSibling(tkn);} 
-					else if (tkn.val === '~') {mergeAdjacentSibling(tkn);}
+		mergeAdjacentSibling = function () {
+			var store = [], 
+				sibs = [], 
+				collectionLength = collection.length, 
+				i = 0,
+				next,
+				parental; 
+			for ( i; i < collectionLength; i++ ) {
+				parental = collection[i].parentNode;
+				parental[uniqueKey] = true;
+				store.push({
+					parent: parental, 
+					child: collection[i]
+				});
+			}	
+			for ( i = 0; i < store.length; i++ ) {
+				if ( store[i].parent[uniqueKey] ) {
+					store[i].parent[uniqueKey] = null;
+					sibs.push( store[i].child );
+				}
 			}
-			if (children) { filterChildren(); }
-			if (tkn.val === '>') {
-				children = true;
-				continue;
+			for ( i = 0; i < sibs.length; i++ ) {
+				next = sibs[i].nextSibling;
+				while ( next ) {
+					if ( next.nodeType === 1 ) {
+						pushToStack( next );
+					}
+					next = next.nextSibling;
+				}
 			}
-			if (!tmp[0]) {return [];}
-			children = null;
-			collection = tmp;
-			firstRun = false;	
-		}
-		if ( tokens.postFilter ) { return filterUnique(collection); }
-		return collection;
-	},
-	strings: [],
-	uniqueKey: '@@',
-	firstRun: true
-};
+		},
+		
+		filterChildren = function () {
+			var result = [], 
+				collectionLength = collection.length, 
+				stackLength = stack.length, 
+				parentElem,
+				i = 0,
+				j; 
+			for ( i; i < stackLength; i++ ) {
+				parentElem = stack[i].parentNode; 
+				for ( j = 0; j < collectionLength; j++ ) {  
+					if ( collection[j] === parentElem ) {
+						result.push( stack[i] );
+						break;
+					}
+				}
+			}
+			stack = result;
+		},
+		
+		firstRun = 1,
+		strings = [],
+		uniqueKey = '__JELLY_Q__',
+		stack = [],
+		collection = [],
+		
+		_filter_ = 1,
+		_fetch_ = 2,
+		
+		_id_ = 3,
+		_tag_ = 4,
+		_class_ = 5,
+		_attr_ = 6,
+		_pseudo_ = 7,
+		_combi_ = 8,
+		
+		/*====================================
+			execute
+		=====================================*/
+		
+		execute = function ( a, b ) {
+		
+			var contextMode = !!b,
+				selector = contextMode ? b : a;
+			
+			collection = contextMode ? [a] : [];
 
-J.Q = function () {
-	if ('querySelectorAll' in doc) {
-		if (!browser.ie) { 
-			return J._Q.A; 
+			if ( firstRun ) {
+				var m;
+				while ( m = /('|")([^\1]*?)\1/.exec( selector ) ) {
+					strings.push( m[2] );
+					selector = selector.split( m[0] );
+					selector = [ selector[0], uniqueKey, selector[1] ].join('');   
+				}
+			}
+			
+			// Split and recurse for comma chained selectors
+			if ( contains( selector, ',' ) ) {
+				var combo = [],	
+					parts = selector.split(','), 
+					part;
+				firstRun = 0;
+				while ( part = parts.shift() ) {
+					combo = combo.concat( contextMode ? execute( a, part ) : execute( part ) );
+				}
+				firstRun = 1;
+				return filterUnique( combo );
+			}
+			
+			firstRun = !b;
+			
+			var tokens = parseSelector( selector ),
+				children = null; 
+				
+			// log(tokens)
+		
+			for ( var i = 0, n = tokens.length, token; i < n; i++ ) {
+			
+				stack = []; 
+				token = tokens[i];
+				switch ( token.type ) {
+					case _id_: 
+						mergeId( token ); 
+						break;
+					case _tag_: 
+						mergeTags( token ); 
+						break;
+					case _class_: 
+						mergeClass( token ); 
+						break;
+					case _attr_: 
+						mergeAttribute( token ); 
+						break;
+					case _pseudo_: 
+						mergePseudo( token ); 
+						break
+					case _combi_: 
+						if ( token.val === '+' ) {
+							mergeDirectSibling( token );
+						} 
+						else if ( token.val === '~' ) {
+							mergeAdjacentSibling( token );
+						}
+				}
+				if ( children ) { 
+					filterChildren(); 
+				}
+				if ( token.val === '>' ) {
+					children = true;
+					continue;
+				}
+				if ( !stack[0] ) {
+					return [];
+				}
+				children = null;
+				firstRun = 0;
+				collection = stack;
+			}
+			if ( tokens.postFilter ) { 
+				return filterUnique( collection ); 
+			}
+			return collection;
+		},
+		
+		nativeSelectorEngine = function ( a, b ) {
+			try { 
+				return toArray( b ? a.querySelectorAll(b) : doc.querySelectorAll(a) );
+			} catch ( ex ) { 
+				logWarn( ex ); 
+			}
+		};
+		
+	J.Q = function () {
+		if ( querySelectorAll ) {
+			if ( !browser.ie ) { 
+				return nativeSelectorEngine; 
+			} 
+			return function ( a, b ) {
+				if ( /\:(nth|las|onl|not|tar|roo|emp|ena|dis|che)/.test( b || a ) ) { 
+					return execute( a, b ); 
+				}
+				return nativeSelectorEngine( a, b );
+			}
 		} 
-		return function (a, b) {
-			if (/\:(nth|las|onl|not|tar|roo|emp|ena|dis|che)/.test(b || a)) { 
-				return J._Q.B(a, b); 
-			}
-			return J._Q.A(a, b);
-		}
-	} 
-	return J._Q.B;
-}();
+		return execute;
+	}();
+	
+})();
