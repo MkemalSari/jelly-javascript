@@ -1,0 +1,21 @@
+
+Build Info
+==========
+
+If you want to configure your own builds you'll need to:
+
+ 1  Install a PHP( v5 or greater ) interpreter on your machine, and add it to your path
+ 2  Install Java runtime -- if you haven't got it already
+ 3  Get the latest version of the YUI Compressor, and place the excecutable somewhere in your dev directory
+ 4  Adjust path settings in compiler.php to your setup
+ 5  Modify your ini file to suit
+
+Typically it is easier to wrap your build commands in batch files, 
+so you can easily sync up your builds e.g. 
+
+  php -f "C:\path\to\jelly\compiler.php"
+  
+You can use alternative ini files by passing in an extra argument -- 
+useful for project specific configurations:
+
+  php -f "C:\path\to\jelly\compiler.php" "C:\path\to\project\alt.ini"
