@@ -9,7 +9,7 @@ Native extensions
 */
 
 // Array methods
-
+//
 extend( Array.prototype, {
 	
 	forEach: function ( fn, obj ) {
@@ -69,9 +69,8 @@ extend( Array.prototype, {
 Array.prototype.each = Array.prototype.forEach;
 
 
-
 // String methods
-
+//
 extend( String.prototype, {
 	
 	trim: function () {
@@ -81,9 +80,8 @@ extend( String.prototype, {
 }, false);
 
 
-
 // Function methods
-
+//
 extend( Function.prototype, {
 	
 	bind: function () {
@@ -94,8 +92,7 @@ extend( Function.prototype, {
 			scope = args.shift(),
 			fn = this; 
 		return function () {
-			var arr = toArray( args );
-			for ( var i = 0; arguments.length > i; i++ ) { 
+			for ( var i = 0, arr = toArray( args ); arguments.length > i; i++ ) { 
 				arr.push( arguments[i] ); 
 			}
 			return fn.apply( scope, arr );
@@ -105,9 +102,8 @@ extend( Function.prototype, {
 }, false);
 
 
-
 // HTMLElement methods
-
+//
 if ( win.HTMLElement && HTMLElement.prototype ) {
 	
 	extend( HTMLElement.prototype, {
@@ -120,9 +116,8 @@ if ( win.HTMLElement && HTMLElement.prototype ) {
 	
 }
 
-
 // ecmascript 5
-
+//
 extend( Object, {
 	
 	keys: function ( obj ) {
