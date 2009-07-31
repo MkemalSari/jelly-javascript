@@ -181,9 +181,8 @@ var J = window.JELLY = {},
 		return functionLit;
 	},
 	log = createLogger('log'),
-	logError = createLogger('error'),
 	logWarn = createLogger('warn'),
-	logInfo = createLogger('info');
+	logError = createLogger('error');
 		
 extend( J, {
 	browser: browser,
@@ -205,7 +204,6 @@ extend( J, {
 	empty: empty,
 	extend: extend,	
 	log: log,
-	logError: logError,
 	logWarn: logWarn,
-	logInfo: logInfo
+	logError: logError
 });
