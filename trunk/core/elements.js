@@ -67,7 +67,7 @@ var addClass = function ( el, cn ) {
 		} 
 		else {
 			var arg = arg.trim(),
-				stringKey = 'JELLY_STR_TKN',
+				stringKey = '__JELLY_CE__',
 				stringTokens = [], 
 				m;
 			while ( m = /('|")([^\1]*?)\1/.exec( arg ) ) {
