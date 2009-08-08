@@ -61,7 +61,8 @@ var self = J.Monitor = {
 					format.color = 'orange';
 				}
 				else if ( isObject( obj ) ) {
-					format = { color: 'lime', value: 'Object' };
+					format.color = 'lime';
+					format.value ='Object';
 				}
 				else if ( isElement( obj ) ) {
 					format.color = 'hotpink';
