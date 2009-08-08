@@ -5,6 +5,34 @@ Poller
 @description   
 	Class for creating polling objects that can manage multiple subscribed callbacks
 
+@api
+	>> Instance mode
+	var obj = new Poller( (Integer) milliseconds )
+	** (Mixed) handle **  obj.subscribe( (Function) callback [, (String) handle] )
+	** void **  obj.unSubscribe( (Mixed) handle )
+	
+	>> Static mode
+	** (Mixed) handle **  Poller.subscribe( (Integer|String) time/term , (Function) callback [, (String) handle] )
+	** void **  Poller.unSubscribe( (Integer|String) time/term , (Mixed) handle )
+	
+@examples
+	// Create a new polling object
+	var poller = new Poller( 200 );
+	
+	var handle = poller.subscribe( function () { ... } );
+	poller.unSubscribe( handle );
+	
+	poller.subscribe( function () { ... }, 'myref' );
+	poller.unSubscribe( 'myref' );
+	
+	
+	// Subscribe to a global polling object
+	var handle = Poller.subscribe( 100, function () { ... } );
+	Poller.unSubscribe( 100, handle );
+	
+	var handle = Poller.subscribe( 'fast', function () { ... } );
+	Poller.unSubscribe( 'fast', handle );
+
 */
 
 (function () {
@@ -12,7 +40,29 @@ Poller
 var Class = defineClass( 'Poller', {
 		
 		__static: {
-			pollTime: 300
+			
+			pollTime: 300,
+			cache: {},
+			
+			subscribe: function ( key, fn, ref ) {
+				var keyStr = key+'', speed;
+				if ( !( keyStr in Class.cache ) ) {
+					speed = isString( key ) ? Class.keyterms[key] : key;
+					Class.cache[keyStr] = new Poller( speed );
+				}
+				return Class.cache[keyStr].subscribe( fn, ref || null );
+			},
+			
+			unSubscribe: function ( key, handlerId ) {
+				Class.cache[key].unsubscribe( handlerId );
+			},
+
+			keyterms: {
+				'vslow': 1000,
+				'slow': 500,
+				'fast': 100,
+				'vfast': 50
+			}
 		},
 		
 		__init: function ( pollTime ) {
@@ -72,7 +122,6 @@ var Class = defineClass( 'Poller', {
 		unSubscribe: function ( handlerId ) {
 			var self = this;
 			delete self.handlers[handlerId];
-			//if ( !Object.keys( self.handlers ).length ) {
 			if ( empty( self.handlers ) ) {
 				self.stop();
 			}
