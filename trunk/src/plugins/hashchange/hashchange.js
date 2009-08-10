@@ -6,7 +6,7 @@ HashChange
 	An 'onhashchange' event handler 
 	
 @dependencies   
-	Poller
+	Poll
 
 @api
 	** (Mixed) handle **  HashChange.subscribe( (Function) callback [, (String) reference] )
@@ -44,13 +44,13 @@ var self = J.HashChange = {
 	
 	start: function () {
 		if ( !self.poller ) {
-			self.poller = Poller.subscribe( 'fast', self.loop );
+			self.poller = Poll.subscribe( 'fast', self.loop );
 		}
 	},
 	
 	stop: function () {
 		if ( self.poller ) {
-			Poller.unsubscribe( 'fast', self.poller );
+			Poll.unsubscribe( 'fast', self.poller );
 			self.poller = null;
 		}
 	},

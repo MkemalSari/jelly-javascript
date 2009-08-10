@@ -104,56 +104,6 @@ extend( J, {
 		return data.join('&');
 	},
 	
-	loadModule: function ( namespace, path, callback ) {
-		namespace = namespace.split('.');
-		if ( namespace[0] === 'window' ) { namespace.shift(); } 
-		var script = createElement( 'script' ),
-			timeout = 1000,
-			polltotal = 0,
-			polltime = 15,
-			poller = function () {
-				var _namespace = window, 
-					ready = true;
-				for ( var i = 0; i < namespace.length; i++ ) {
-					_namespace = _namespace[namespace[i]];
-					if ( !isDefined( _namespace ) ) {
-						ready = false;
-						break;
-					}
-				} 
-				if ( ready ) { 
-					callback.call( _namespace, _namespace ); 
-				} 
-				else {
-					if ( polltotal >= timeout ) { 
-						callback.call( this, false ); 
-						return;
-					}
-					polltotal += polltime;
-					setTimeout( poller, polltime );
-				}
-			};
-		script.src = path;
-		docHead.appendChild( script );
-		poller();
-	},
-	
-	loadModules: function () {
-		var args = toArray( arguments ), 
-			callback = args.pop(),
-			module,
-			loader = function ( result ) {
-				if ( isDefined( result ) ) {
-					if ( module = args.shift() ) {
-						J.loadModule( module[0], module[1], loader )
-					} 
-					else { callback( true ); }
-				}
-				else { callback( false ); }
-			};
-		loader( true );
-	},
-	
 	unpack: function () {
 		var stack = ['var J=JELLY'], mem, i = 1;
 		for ( mem in J ) { 

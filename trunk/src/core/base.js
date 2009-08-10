@@ -169,6 +169,15 @@ var J = window.JELLY = {},
 		return a;
 	},
 	
+	// defered function invocation wrapper
+	//
+	defer = function () {
+		var args = toArray( arguments ),
+			func = args.shift(),
+			scope = args.shift();
+		return setTimeout( function () { func.apply( scope, args ); }, 0 );
+	},
+	
 	// console api wrappers
 	//
 	createLogger = function ( method ) {
