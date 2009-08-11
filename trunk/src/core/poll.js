@@ -84,7 +84,12 @@ var Class = defineClass( 'Poll', {
 		self.firstPoll = setTimeout( function () { 
 			(function poll () {
 				for ( var key in self.handlers ) {
-					self.handlers[key]();
+					try {
+						self.handlers[key]();
+					}
+					catch (ex) {
+						logError(ex);
+					}
 				} 
 				self.timerHandle = setTimeout( poll, self.pollTime );
 			})()

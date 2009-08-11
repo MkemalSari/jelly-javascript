@@ -7,9 +7,7 @@ Misc
 
 */
 
-extend( J, {
-	
-	getViewport: function () {
+var getViewport = function () {
 		if ( isDefined(win.innerWidth) ) {
 			return function () {
 				return [win.innerWidth, win.innerHeight];
@@ -24,8 +22,8 @@ extend( J, {
 			return [docBody.clientWidth || 0, docBody.clientHeight || 0];
 		};
 	}(),
-	
-	getWindowScroll: function () {
+
+	getWindowScroll = function () {
 		if ( isDefined(win.pageYOffset) ) {
 			return function () {
 				return [win.pageXOffset, win.pageYOffset];
@@ -40,7 +38,7 @@ extend( J, {
 		};
 	}(),
 	
-	parseQuery: function (el) {
+	parseQuery = function (el) {
 		el = el || win.location;
 		var data = {};
 		if (/\?/.test(el.href)) {
@@ -55,7 +53,7 @@ extend( J, {
 		return data;
 	},
 	
-	buildQuery: function () {
+	buildQuery = function () {
 		var append = function ( name, value ) {
 				if ( !name ) { return; } 
 				if ( callbackFilter ) { value = callbackFilter.call(value, value); } 
@@ -104,12 +102,18 @@ extend( J, {
 		return data.join('&');
 	},
 	
-	unpack: function () {
+	unpack = function () {
 		var stack = ['var J=JELLY'], mem, i = 1;
 		for ( mem in J ) { 
 			stack[ i++ ] = mem + '=J.' + mem;
 		}
 		return stack.join(',') + ';';
-	}
-	
+	};
+
+extend( J, {
+	getViewport: getViewport,
+	getWindowScroll: getWindowScroll,
+	parseQuery: parseQuery,
+	buildQuery: buildQuery,
+	unpack: unpack
 });

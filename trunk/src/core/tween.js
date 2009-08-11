@@ -75,7 +75,7 @@ var Class = defineClass( 'Tween', {
 			return this;
 		},
         
-		setOpacity: function (val) {
+		setOpacity: function ( val ) {
 			setOpacity( this.el, val );
 			return this;
 		},
@@ -281,3 +281,5 @@ var Class = defineClass( 'Tween', {
 	});
 
 })(); 
+
+var Tween = J.Tween;
