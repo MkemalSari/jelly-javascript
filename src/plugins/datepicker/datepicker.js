@@ -51,7 +51,7 @@ var Class = defineClass( 'DatePicker', {
 			extend( self, opts );
 			self.offset = opts.offset || [0,0];
 			
-			self.btn_open = createElement('img' + cssPrefix + '-open src:assets/images/calendar.png,' + 					'alt:"Select start week", title:"Select start week"')
+			self.btn_open = createElement( 'img' + cssPrefix + '-open src:assets/images/calendar.png,' + 					'alt:"Select start week", title:"Select start week"' );
 					
 			insertAfter( self.btn_open, self.input );
 

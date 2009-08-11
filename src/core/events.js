@@ -72,14 +72,14 @@ var addEvent = function ( obj, type, fn ) {
 			return function (e) { return e; };
 		}
 		return function (e) {
-			e = window.event;
+			e = win.event;
 			e.target = e.srcElement;
 			e.relatedTarget = function () {
-				switch ( e.type ) {
-					case 'mouseover': return e.fromElement;
-					case 'mouseout': return e.toElement;
-				}
-			}();
+					switch ( e.type ) {
+						case 'mouseover': return e.fromElement;
+						case 'mouseout': return e.toElement;
+					}
+				}();
 			e.stopPropagation = function () { e.cancelBubble = true; };
 			e.preventDefault = function () { e.returnValue = false; };
 			e.pageX = e.clientX + docRoot.scrollLeft;
@@ -91,12 +91,19 @@ var addEvent = function ( obj, type, fn ) {
 	mouseEnterLeave = function (e) { 
 		var related, i;
 		if ( e.relatedTarget ) {
-			related = e.relatedTarget;
-			if ( related.nodeType !== 1 || related === this ) { return false; }
-			var children = this.getElementsByTagName('*');
-			for ( i = 0; children[i]; i++ ) {
-				if ( related === children[i] ) { return false; }
+			try {
+				related = e.relatedTarget;
+				if ( related.nodeType !== 1 || related === this ) { 
+					return false; 
+				}
+				var children = this.getElementsByTagName('*'), n = children.length, i = 0;
+				for ( i; n > i; i++ ) {
+					if ( related === children[i] ) { 
+						return false; 
+					}
+				}
 			}
+			catch ( ex ) {}
 		}
 		return true;
 	},

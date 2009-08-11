@@ -642,3 +642,5 @@ Selector Engine
 	}();
 	
 })();
+
+var Q = J.Q;
