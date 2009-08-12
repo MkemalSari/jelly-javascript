@@ -323,6 +323,29 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
+	setStyle = function ( el, a, b ) {
+		var set = function ( prop, value ) {
+				if ( prop === 'float' ) {
+					prop = 'cssFloat';
+				}
+				if ( prop === 'opacity' ) {
+					setOpacity( el, value );	
+				}
+				else {
+					el.style[camelize( prop )] = value;
+				}
+			},
+			prop;
+		if ( isObject( a ) ) {	
+			for ( prop in a ) {
+				set( prop, a[prop] );
+			}
+		}
+		else if ( b ) {
+			set( a, b );			
+		}
+	},
+	
 	setOpacity = function () {
 		if ( 'filters' in docRoot ) {
 			return function ( el, val ) {
@@ -405,6 +428,7 @@ extend( J, {
 	setY: setY,
 	getAttribute: getAttribute,
 	getStyle: getStyle,
+	setStyle: setStyle,
 	setOpacity: setOpacity,
 	storeData: storeData,
 	retrieveData: retrieveData,
