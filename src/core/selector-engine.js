@@ -613,33 +613,63 @@ Selector Engine
 				collection = stack;
 			}
 			if ( tokens.postFilter ) { 
-				return filterUnique( collection ); 
+				return addSugar( filterUnique( collection ) ); 
 			}
-			return collection;
+			return addSugar( collection );
 		},
 		
 		nativeSelectorEngine = function ( a, b ) {
 			try { 
-				return toArray( b ? a.querySelectorAll(b) : doc.querySelectorAll(a) );
+				return addSugar( toArray( b ? a.querySelectorAll(b) : doc.querySelectorAll(a) ) );
 			} catch ( ex ) { 
 				logWarn( ex ); 
 			}
-		};
+		},
 		
-	J.Q = function () {
-		if ( querySelectorAll ) {
-			if ( !browser.ie ) { 
-				return nativeSelectorEngine; 
-			} 
-			return function ( a, b ) {
-				if ( /\:(nth|las|onl|not|tar|roo|emp|ena|dis|che)/.test( b || a ) ) { 
-					return execute( a, b ); 
-				}
-				return nativeSelectorEngine( a, b );
+		/*====================================
+			sugar methods
+		=====================================*/
+		
+		addSugar = function ( collection ) {
+			for ( var meth in sugarMethods ) {
+				collection[meth] = sugarMethods[meth];
 			}
+			return collection;
+		},
+		
+		sugarMethods = {};
+		
+// Build our sugar methods object
+[ 'addClass', 'removeClass', 'setStyle', 'addEvent' ].each( function ( meth ) {
+	sugarMethods[meth] = function () {
+		var args = toArray( arguments ),
+			n = this.length,
+			i = 0;
+		for ( i; i < n; i++ ) {
+			J[meth].apply( {}, [this[i]].concat( args ) );
+		}  
+		return this;
+	} 
+});
+	
+/*====================================
+	external api
+=====================================*/
+
+J.Q = function () {
+	if ( querySelectorAll ) {
+		if ( !browser.ie ) { 
+			return nativeSelectorEngine; 
 		} 
-		return execute;
-	}();
+		return function ( a, b ) {
+			if ( /\:(nth|las|onl|not|tar|roo|emp|ena|dis|che)/.test( b || a ) ) { 
+				return execute( a, b ); 
+			}
+			return nativeSelectorEngine( a, b );
+		}
+	} 
+	return execute;
+}();
 	
 })();
 
