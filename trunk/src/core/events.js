@@ -18,14 +18,13 @@ var addEvent = function ( obj, type, fn ) {
 			return addDomReady( fn );
 		} 
 		if ( !standardEventModel ) {
-			wrapper = function (e) {
-				e = fixEvent(e);
-				fn.call( obj, e );
+			wrapper = function ( e ) {
+				fn.call( obj, fixEvent( e ) );
 			};
 		}
 		if ( mouseEnter || mouseLeave ) {
-			wrapper = function (e) {
-				e = fixEvent(e);
+			wrapper = function ( e ) {
+				e = fixEvent( e );
 				if ( !mouseEnterLeave.call( obj, e ) ) { return; }
 				fn.call( obj, e );
 			};

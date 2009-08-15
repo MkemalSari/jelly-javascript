@@ -8,12 +8,12 @@ Misc
 */
 
 var getViewport = function () {
-		if ( isDefined(win.innerWidth) ) {
+	/*	if ( isDefined( win.innerWidth ) ) {
 			return function () {
 				return [win.innerWidth, win.innerHeight];
 			};
-		} 
-		if ( isDefined(docRoot) && isDefined(docRoot.clientWidth) && docRoot.clientWidth !== 0 ) { 
+		}*/ 
+		if ( isDefined( docRoot.clientWidth ) && docRoot.clientWidth !== 0 ) { 
 			return function () {
 				return [docRoot.clientWidth, docRoot.clientHeight];
 			};
