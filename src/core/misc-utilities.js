@@ -8,40 +8,35 @@ Misc
 */
 
 var getViewport = function () {
-	/*	if ( isDefined( win.innerWidth ) ) {
-			return function () {
-				return [win.innerWidth, win.innerHeight];
-			};
-		}*/ 
 		if ( isDefined( docRoot.clientWidth ) && docRoot.clientWidth !== 0 ) { 
 			return function () {
-				return [docRoot.clientWidth, docRoot.clientHeight];
+				return [ docRoot.clientWidth, docRoot.clientHeight ];
 			};
 		}
 		return function () {
-			return [docBody.clientWidth || 0, docBody.clientHeight || 0];
+			return [ doc.body.clientWidth || 0, doc.body.clientHeight || 0 ];
 		};
 	}(),
 
 	getWindowScroll = function () {
-		if ( isDefined(win.pageYOffset) ) {
+		if ( isDefined( win.pageYOffset ) ) {
 			return function () {
-				return [win.pageXOffset, win.pageYOffset];
+				return [ win.pageXOffset, win.pageYOffset ];
 			};
 		} 
 		return function () {
-			if ( isDefined(docRoot.scrollTop) && 
-				(docRoot.scrollTop > 0 || docRoot.scrollLeft > 0) ) {
-				return [docRoot.scrollLeft, docRoot.scrollTop];
+			if ( isDefined( docRoot.scrollTop ) && 
+				( docRoot.scrollTop > 0 || docRoot.scrollLeft > 0 ) ) {
+				return [ docRoot.scrollLeft, docRoot.scrollTop ];
 			}
-			return [docBody.scrollLeft, docBody.scrollTop];
+			return [ doc.body.scrollLeft, doc.body.scrollTop ];
 		};
 	}(),
 	
-	parseQuery = function (el) {
+	parseQuery = function ( el ) {
 		el = el || win.location;
 		var data = {};
-		if (/\?/.test(el.href)) {
+		if ( /\?/.test( el.href ) ) {
 			var queries = el.href.split('?')[1].split('&'),
 				i = queries.length-1,
 				parts;

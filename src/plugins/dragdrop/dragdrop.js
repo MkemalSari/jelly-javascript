@@ -28,11 +28,16 @@ var Class = defineClass( 'DragDrop', {
 				defaults = {
 					el: getElement( el ),
 					axis: 'xy',
-					offset: { xMin: 0, xMax: 0, yMin: 0, yMax: 0 }
+					offset: { xMin: 0, xMax: 0, yMin: 0, yMax: 0 }					
 				};
 	
 			extend( self, extend( defaults, opts ) );
+			
+			if ( opts.droppables ) {
+				self.droppables = isString( opts.droppables ) ? Q( opts.droppables ) : opts.droppables;
+			}
 			self.container = getElement( opts.container );
+			
 			self.handle = getElement( opts.handle ) || self.el;
 			self.bindEvts( self );
 		},
@@ -42,13 +47,16 @@ var Class = defineClass( 'DragDrop', {
 			
 			var el = self.el,
 				handle = self.handle,
+				
 				containerElement = self.container,
+				droppableElements = self.droppables,
 				
 				data = {},
-						
+										
 				mousedown = function ( e ) {
 					
 					e.preventDefault();
+					setWindowBounds( self );
 					
 					var pageX = e.pageX,
 						pageY = e.pageY,
@@ -66,13 +74,7 @@ var Class = defineClass( 'DragDrop', {
 							self.moveX = 1;
 					}
 					
-					setViewportBounds( self );
-					
-					var	handle = {
-							X: pageX - coords[0],
-							Y: pageY - coords[1]
-						},
-						element = {
+					var	element = {
 							T: coords[1],
 							R: coords[0] + el.offsetWidth,
 							B: coords[1] + el.offsetHeight,
@@ -85,22 +87,23 @@ var Class = defineClass( 'DragDrop', {
 						mouse = {
 							startX: pageX,
 							startY: pageY,
-							bounds: viewportBounds 
+							bounds: windowBounds 
 						};
 						
 					data = {
-						handle: handle,
+						handleX: pageX - coords[0],
+						handleY: pageY - coords[1],
 						element: element,
 						mouse: mouse
 					};
 			
 					if ( containerElement ) {
 						var isWindow = containerElement === win,
-							coords = getXY( containerElement ),
-							containerTop = coords[1],
-							containerLeft = coords[0],
-							containerWidth = containerElement.offsetWidth,
-							containerHeight = containerElement.offsetHeight,
+							coords = isWindow ? windowBounds : getXY( containerElement ),
+							containerTop = isWindow ? coords.T : coords[1],
+							containerLeft = isWindow ? coords.L : coords[0],
+							containerWidth = isWindow ? coords.R : containerElement.offsetWidth,
+							containerHeight = isWindow ? coords.B : containerElement.offsetHeight,
 							offset = self.offset,
 						
 							container = {
@@ -118,15 +121,28 @@ var Class = defineClass( 'DragDrop', {
 								L: containerLeft + offset.xMin
 							},
 							elementBounds = {
-								T: element.startY + ( container.T - element.T ),
-								R: element.startX + ( container.R - element.R ),
-								B: element.startY + ( container.B - element.B ),
-								L: element.startX + ( container.L - element.L )
+								T: element.startY + ( container.T - element.T ) + offset.yMin,
+								R: element.startX + ( container.R - element.R ) + offset.xMax,
+								B: element.startY + ( container.B - element.B ) + offset.yMax,
+								L: element.startX + ( container.L - element.L ) + offset.xMin
 							};
 							data.container = container;
 							data.mouse.bounds = mouseBounds;
 							data.element.bounds = elementBounds;
 					} 
+					
+					if ( droppableElements ) {
+						data.dropZones = droppableElements.map( function ( el ) {
+							var coords = getXY( el );
+							return {
+									el: el,
+									T: coords[1],
+									R: coords[0] + el.offsetWidth,
+									B: coords[1] + el.offsetHeight,
+									L: coords[0]
+								};
+						});
+					}
 					
 					self.onDrag = self.onDrag || functionLit;
 					
@@ -143,15 +159,19 @@ var Class = defineClass( 'DragDrop', {
 					
 					e.preventDefault();
 					
+					if ( self.onDrag.call( self, e, data ) === false ) {
+						return;
+					}
+					
 					var	mouse = data.mouse,
 						handle = data.handle,
 						element = data.element,
 						container = data.container,
 						pageX = e.pageX,
 						pageY = e.pageY,
-						currentMouseLeft = pageX - handle.X,
-						currentMouseTop = pageY - handle.Y;
-	
+						currentMouseLeft = pageX - data.handleX,
+						currentMouseTop = pageY - data.handleY;
+
 					if ( containerElement ) {
 						if ( self.moveX ) { 
 							if ( currentMouseLeft >= mouse.bounds.R ) {
@@ -184,7 +204,37 @@ var Class = defineClass( 'DragDrop', {
 							moveY( self, element.startY + ( pageY - mouse.startY ) );
 						}
 					}
-					self.onDrag.call( self, e, data );
+					
+					if ( droppableElements ) {
+						var currentDropZoneEntered = null,
+							dropZones = data.dropZones,
+							n = dropZones.length,
+							i = 0, 
+							droppable;
+						for ( i; i < n; i++ ) {
+							droppable = dropZones[i];
+							if (	pageX > droppable.L && 
+									pageX < droppable.R && 
+									pageY > droppable.T && 
+									pageY < droppable.B ) {
+								
+								currentDropZoneEntered = true;
+								if ( droppable !== self.dropZone ) {
+									self.fireEvent( 'enter', e, droppable.el );
+									if ( self.dropZone ) {
+										self.fireEvent( 'leave', e, self.dropZone.el );
+									} 
+									self.dropZone = droppable;
+								}
+								break;
+							} 
+						}
+						if ( self.dropZone && !currentDropZoneEntered ) {
+							self.fireEvent( 'leave', e, self.dropZone.el );
+							self.dropZone = null;
+						}
+					}
+
 				},
 				
 				mouseup = function ( e ) {
@@ -230,16 +280,15 @@ var Class = defineClass( 'DragDrop', {
 	docMouseMove,
 	docMouseUp,
 	
-	// Viewport dimension storage
-	viewportBounds, 
-	setViewportBounds = function ( self ) {
-		var tolerance = 0,
-			viewport = getViewport();
-		viewportBounds = {
-			T: tolerance, 
-			R: viewport[0] - tolerance, 
-			B: viewport[1] - tolerance, 
-			L: tolerance
+	windowBounds, 
+	setWindowBounds = function ( self ) {
+		var viewport = getViewport(),
+			winScroll = getWindowScroll();
+		windowBounds = {
+			T: 0, 
+			R: viewport[0], 
+			B: viewport[1] + winScroll[1], 
+			L: 0
 		};
 	};
 	
