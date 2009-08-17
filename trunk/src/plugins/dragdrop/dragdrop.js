@@ -209,15 +209,17 @@ var Class = defineClass( 'DragDrop', {
 						var currentDropZoneEntered = null,
 							dropZones = data.dropZones,
 							n = dropZones.length,
-							i = 0, 
-							droppable;
+							i = 0;
+							
 						for ( i; i < n; i++ ) {
-							droppable = dropZones[i];
-							if (	pageX > droppable.L && 
+							var droppable = dropZones[i],
+								inZone = 
+									pageX > droppable.L && 
 									pageX < droppable.R && 
 									pageY > droppable.T && 
-									pageY < droppable.B ) {
-								
+									pageY < droppable.B;
+							
+							if ( inZone ) {
 								currentDropZoneEntered = true;
 								if ( droppable !== self.dropZone ) {
 									self.fireEvent( 'enter', e, droppable.el );
