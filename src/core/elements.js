@@ -252,10 +252,25 @@ var addClass = function ( el, cn ) {
 	getXY = function (el) {
 		el = getElement(el);
 		var xy = [0, 0];
-		do {
-			xy[0] += el.offsetLeft;
-			xy[1] += el.offsetTop;
-		} while (el = el.offsetParent);
+		if ( !el ) {
+			return xy;
+		} 
+		if ( 'getBoundingClientRect' in el ) {
+			var bounds = el.getBoundingClientRect(),
+				winScroll = getWindowScroll(),
+				left = bounds.left,
+				top = bounds.top;
+			xy = [ left + winScroll[0], top + winScroll[1] ];
+		} 
+		else {
+			xy = [ el.offsetLeft, el.offsetTop ];
+			while ( el = el.offsetParent ) {
+				xy[0] += el.offsetLeft;
+				xy[0] += parseInt( getStyle( el, 'border-left-width' ) ) || 0;
+				xy[1] += el.offsetTop;
+				xy[1] += parseInt( getStyle( el, 'border-top-width' ) ) || 0;
+			}
+		}
 		return xy;
 	},
 
