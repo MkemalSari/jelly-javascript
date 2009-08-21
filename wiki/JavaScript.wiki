@@ -1,3 +1,0 @@
-*Jelly Javascript*
-
-is a fully featured JavaScript library with DOM manipulation, Events, Ajax, Animation and a powerful CSS3 style selector engine.
