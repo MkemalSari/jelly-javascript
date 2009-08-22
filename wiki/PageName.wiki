@@ -7,6 +7,7 @@ Jelly uses the single namespace 'JELLY' as a base for all utilities. So if you w
 {{{
 
 var myFoo = JELLY.createElement( '#foobar' );
+
 // myFoo -> <div id="foobar"></div>
 
 }}}
@@ -20,7 +21,6 @@ var J = JELLY,
     Q = J.Q;
 
 Q( '#content strong.highlight' ).setStyle( 'color', 'red' );
-
 
 })(); // End closure
 }}}
@@ -45,4 +45,4 @@ Q( '.column-1 ul > li:last-of-type' ).each( function ( el ) {
 })(); // End closure
 }}}
 
-This is certainly the most convenient way to use Jelly, however there are some minor caveats: There is a small overhead for using the `eval`/`unpack` combination (or for any use of `eval` as it is usually quite slow), so use sparingly. i.e not in any kind of loop.
+This is certainly the most convenient way to use Jelly, however there is a small overhead for using the `eval`/`unpack` combination (or for any use of `eval` as it is usually quite slow), so use sparingly. i.e not in a loop.
