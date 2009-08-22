@@ -25,7 +25,7 @@ Q( '#content strong.highlight' ).setStyle( 'color', 'red' );
 })(); // End closure
 }}}
 
-Taking things one step further, you can use the `unpack` utility which returns a string of all the library members shortcuted to local variable names. Running `eval` on this returned string will import the whole library namespace into the closure. 
+Taking things one step further, you can use the `unpack` utility which returns a string of all the library members shortcuted to local variable names. Running `eval` on this returned string will import the whole library namespace into a closure. 
 
 {{{
 (function () { // Start closure
@@ -45,4 +45,4 @@ Q( '.column-1 ul > li:last-of-type' ).each( function ( el ) {
 })(); // End closure
 }}}
 
-This is certainly the most convenient way to use Jelly, however there is a small overhead for using the `eval`/`unpack` combination (or for any use of `eval` as it is usually quite slow), so use sparingly. i.e not in a loop.
+This is certainly the most convenient way to use Jelly, however there is a small overhead for using the `eval`/`unpack` combination (or for any use of `eval` as it is usually quite slow), so don't use in a loop or inside any repeated function calls unless you really can't avoid it. Though using it sparingly to import namespaces will to no harm. 
