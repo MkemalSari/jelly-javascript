@@ -1,4 +1,4 @@
-#summary Quick start guide
+#summary Quick start guide to how the library works
 #labels Featured,Phase-Implementation
 
 = Quick start =
