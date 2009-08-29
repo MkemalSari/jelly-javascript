@@ -79,6 +79,11 @@ var Class = defineClass( 'Tween', {
 			setOpacity( this.el, val );
 			return this;
 		},
+		
+		setElement: function ( el ) {
+			this.el = getElement( el );
+			return this;
+		},
         
 		sequence: function () {
 			this.sequenceStack = toArray( arguments );
