@@ -9,6 +9,8 @@ MultiTween
 
 (function () {
 
+if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+
 var Class = defineClass( 'MultiTween', {
 		
 		__extends: J.Tween,

@@ -42,7 +42,7 @@ var	defineClass = function ( name, opts ) {
 	//
 	defineClassAbstract = {
 		
-		fireEvent: function () {
+		fire: function () {
 			var args = toArray( arguments ),
 				event = 'on' + capitalize( args.shift() ),
 				func = this[event];

@@ -34,6 +34,8 @@ Overlay
 
 (function () {
 
+if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+
 var Class = defineClass( 'Overlay', {
 
 		__init: function ( opts ) {
@@ -54,7 +56,7 @@ var Class = defineClass( 'Overlay', {
 			var self = this;
 			if ( !self.inserted ) {
 				insert( self );
-				defer( self.fireEvent, self, 'show' );
+				defer( self.fire, self, 'show' );
 			}
 		},
 		
@@ -62,7 +64,7 @@ var Class = defineClass( 'Overlay', {
 			var self = this;
 			if ( self.inserted ) {
 				remove( self );
-				defer( self.fireEvent, self, 'hide' );
+				defer( self.fire, self, 'hide' );
 			}
 		}
 	}),

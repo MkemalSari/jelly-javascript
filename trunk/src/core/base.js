@@ -8,7 +8,7 @@ Base
 
 */
 
-var J = window.JELLY = {},
+var J = window.JELLY = { __JELLY__: true },
 
 	// shortcuts
 	//
@@ -173,7 +173,7 @@ var J = window.JELLY = {},
 	defer = function () {
 		var args = toArray( arguments ),
 			func = args.shift(),
-			scope = args.shift();
+			scope = args.shift() || {};
 		return setTimeout( function () { func.apply( scope, args ); }, 0 );
 	},
 	
@@ -193,6 +193,11 @@ var J = window.JELLY = {},
 	logError = createLogger('error');
 		
 extend( J, {
+	win: win,
+	doc: doc,
+	docRoot: docRoot, 
+	docHead: docHead,
+	functionLit: functionLit,
 	browser: browser,
 	isDefined: isDefined,
 	isUndefined: isUndefined,
@@ -211,7 +216,8 @@ extend( J, {
 	toArray: toArray,
 	empty: empty,
 	extend: extend,	
+	defer: defer,
 	log: log,
 	logWarn: logWarn,
-	logError: logError
+	logError: logError	
 });

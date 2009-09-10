@@ -20,6 +20,8 @@ HashChange
 
 (function () {
 
+if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+
 var self = J.HashChange = {
 
 	handlers: {},
