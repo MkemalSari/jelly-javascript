@@ -42,6 +42,8 @@ Tips
 
 (function () {
 
+if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+
 var Class = defineClass( 'Tips', {
 			
 		__init: function ( selector, opts ) {
@@ -99,8 +101,8 @@ var Class = defineClass( 'Tips', {
 				self.tween.stop().setOpacity(1);
 			}
 			insert( self );
-			self.fireEvent( 'update', self, retrieveData( el, 'titleHTML' ) );
-			self.fireEvent( 'show' );
+			self.fire( 'update', self, retrieveData( el, 'titleHTML' ) );
+			self.fire( 'show' );
 
 			if ( self.maxWidth && tip.offsetWidth > self.maxWidth ) {
 				setWidth( self, self.maxWidth );
@@ -132,7 +134,7 @@ var Class = defineClass( 'Tips', {
 			else {
 				remove( self );
 			}
-			self.fireEvent( 'hide' );
+			self.fire( 'hide' );
 		},
 		
 		refresh: function ( selector ) {

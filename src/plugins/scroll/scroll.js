@@ -9,6 +9,8 @@ Scroll
 
 (function () {
 
+if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+
 var Class = defineClass( 'Scroll', {
 		
 		__extends: J.Tween,
@@ -44,7 +46,7 @@ var Class = defineClass( 'Scroll', {
             
             self.tweenId = ++J.Tween.uid;
             J.Tween.subscribe( self );
-            self.fireEvent( 'start' );
+            self.fire( 'start' );
 			return self;
         },
         

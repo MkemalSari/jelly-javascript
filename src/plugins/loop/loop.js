@@ -9,6 +9,8 @@ Loop
 
 (function () {
 
+if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+
 var Class = defineClass( 'Loop', {
 		
 		__static: {
@@ -53,7 +55,7 @@ var Class = defineClass( 'Loop', {
 				else {
 					self.cancel = true;
 					tween[onSequenceComplete] = function () {
-						self.fireEvent( 'complete' );
+						self.fire( 'complete' );
 					};
 				}
 				tween.sequence.apply( self.tween, args );

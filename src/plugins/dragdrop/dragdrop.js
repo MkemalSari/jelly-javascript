@@ -20,6 +20,8 @@ DragDrop
 
 (function () {
 
+if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+
 var Class = defineClass( 'DragDrop', {
 		
 		__init: function ( el, opts ) {
@@ -152,7 +154,7 @@ var Class = defineClass( 'DragDrop', {
 					if ( !docMouseUp ) { 
 						docMouseUp = addEvent( doc, 'mouseup', mouseup );
 					}
-					self.fireEvent( 'start', e, data );
+					self.fire( 'start', e, data );
 				},
 				
 				mousemove = function ( e ) {
@@ -222,9 +224,9 @@ var Class = defineClass( 'DragDrop', {
 							if ( inZone ) {
 								currentDropZoneEntered = true;
 								if ( droppable !== self.dropZone ) {
-									self.fireEvent( 'enter', e, droppable.el );
+									self.fire( 'enter', e, droppable.el );
 									if ( self.dropZone ) {
-										self.fireEvent( 'leave', e, self.dropZone.el );
+										self.fire( 'leave', e, self.dropZone.el );
 									} 
 									self.dropZone = droppable;
 								}
@@ -232,7 +234,7 @@ var Class = defineClass( 'DragDrop', {
 							} 
 						}
 						if ( self.dropZone && !currentDropZoneEntered ) {
-							self.fireEvent( 'leave', e, self.dropZone.el );
+							self.fire( 'leave', e, self.dropZone.el );
 							self.dropZone = null;
 						}
 					}
@@ -242,7 +244,7 @@ var Class = defineClass( 'DragDrop', {
 				mouseup = function ( e ) {
 					stopEvent( e );
 					cancelDrag( self );
-					self.fireEvent( 'drop', e, data );
+					self.fire( 'drop', e, data );
 				},
 				
 				moveX = function ( self, value ) {
@@ -275,7 +277,7 @@ var Class = defineClass( 'DragDrop', {
 	
 	cancelDrag = function ( self ) {
 		releaseDocEvts();
-		self.fireEvent( 'cancel' );
+		self.fire( 'cancel' );
 	},
 	
 	// Document event storage 

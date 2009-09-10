@@ -103,7 +103,7 @@ var Class = defineClass( 'Tween', {
                 }
 			}
 			else {
-				self.fireEvent( 'sequenceComplete' );
+				self.fire( 'sequenceComplete' );
 			}
 		},
 		
@@ -204,7 +204,7 @@ var Class = defineClass( 'Tween', {
 			self.startTime = +(new Date);
 			self.tweenId = ++Class.uid;
             Class.subscribe( self );
-            self.fireEvent( 'start' );
+            self.fire( 'start' );
 			return self;
 		},
 		
@@ -218,7 +218,7 @@ var Class = defineClass( 'Tween', {
 				self.stop();
                 self.tidyUp();
 				setTimeout(	function () { 
-                    self.fireEvent( 'complete' );
+                    self.fire( 'complete' );
 					self.callSequence(); 
 				}, 0 );
                 return;

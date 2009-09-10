@@ -49,20 +49,20 @@ var Class = defineClass( 'Request', {
 			
 			xhr.onreadystatechange = function () {
 				if ( xhr.readyState === 4 ) {
-					self.fireEvent( 'complete', xhr );
+					self.fire( 'complete', xhr );
 					clearTimeout(self.timer);
 					self.feedback.stop();
 					var status = xhr.status,
 						statusOk = ( status >= 200 && status < 300 ) || status === 304 ||
 						( status === undefined && browser.webkit );
 					if ( statusOk ) {
-						self.fireEvent( 'success', xhr );
+						self.fire( 'success', xhr );
 						if ( callback ) {
 							callback.call( self, xhr );
 						}
 					}
 					else {
-						self.fireEvent( 'fail', xhr );
+						self.fire( 'fail', xhr );
 					}
 					if ( self.cleanUp ) {
 						self.xhr = null;
@@ -79,13 +79,13 @@ var Class = defineClass( 'Request', {
 			self.feedback.start();
 			self.timer = setTimeout( function () {
 				xhr.abort();
-				self.fireEvent( 'timeout', xhr );               
+				self.fire( 'timeout', xhr );               
 				self.inProgress = false;
 			}, self.timeout || Class.timeout );
 			
 			self.inProgress = true;
 			xhr.send( data );
-			self.fireEvent( 'request', xhr );
+			self.fire( 'request', xhr );
 			return true;
 		},
 		

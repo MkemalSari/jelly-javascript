@@ -12,9 +12,9 @@ define( 'BUILD_PATH', BASE . '/build' );
 define( 'TOOLS_PATH', BASE . '/tools' );
 define( 'YUI_COMPRESSOR', TOOLS_PATH . '/yuicompressor-2.4.2.jar' );
 
-$ini_file = BASE . "/build.ini";
+$ini_file = BASE . "/build.conf";
 
-# Accept alternative ini files when called from the command line
+# Accept alternative configuration files when called from the command line
 if ( isset( $argv ) && isset( $argv[1] ) ) {
 	$ini_file = $argv[1];
 } 

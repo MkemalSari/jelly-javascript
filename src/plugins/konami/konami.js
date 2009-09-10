@@ -19,6 +19,8 @@ Konami
 
 (function () {
 	
+if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+	
 var self = J.Konami = {
 	
 	enable: function ( handler, altSequence ) {
