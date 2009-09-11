@@ -8,7 +8,7 @@ Base
 
 */
 
-var J = window.JELLY = { __JELLY__: true },
+var J = window.JELLY = { __JELLY__: 1.12 },
 
 	// shortcuts
 	//

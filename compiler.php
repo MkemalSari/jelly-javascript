@@ -5,7 +5,7 @@
 #############################################################
 
 # define a base path for your dev directory
-define( 'BASE', 'c:\wamp\www\jelly' ); 
+define( 'BASE', '/Users/petelove/jelly-javascript' ); 
 
 define( 'SRC_PATH', BASE . '/src' );
 define( 'BUILD_PATH', BASE . '/build' );
@@ -14,7 +14,7 @@ define( 'YUI_COMPRESSOR', TOOLS_PATH . '/yuicompressor-2.4.2.jar' );
 
 $ini_file = BASE . "/build.conf";
 
-# Accept alternative configuration files when called from the command line
+# Accept alternative ini files when called from the command line
 if ( isset( $argv ) && isset( $argv[1] ) ) {
 	$ini_file = $argv[1];
 } 
