@@ -183,12 +183,12 @@ var Class = defineClass( 'Tween', {
 							return logWarn( 'getStyle for "%s" returns NaN', key );
 						} 
 						value = [style, value]; 
-                        if ( prop === 'opacity' ) {
-                            value.opac = true;
-                        }
-					}
+                    }
 					else {
 						value = value;
+					}
+					if ( prop === 'opacity' ) {
+						value.opac = true;
 					}
 				}
                 self.stack.push({
@@ -200,7 +200,6 @@ var Class = defineClass( 'Tween', {
                     opac: value.opac
                 });
 			}
-            
 			self.startTime = +(new Date);
 			self.tweenId = ++Class.uid;
             Class.subscribe( self );
@@ -258,7 +257,7 @@ var Class = defineClass( 'Tween', {
             do {
                 item = self.stack[stackCounter];
                 if ( item.opac ) {
-                    self.setOpacity( self.compute( item.from, item.to ) );     
+                    self.setOpacity( self.compute( item.from, item.to ) );  
                 } 
                 else if ( item.color ) {
 					style[item.prop] = 'rgb(' + 
