@@ -7,7 +7,11 @@ Strings
 
 */
 
-var	contains = function ( haystack, needle ) {
+var	contains = function ( haystack, needle, caseInsensitive ) {
+		if ( caseInsensitive ) {
+			haystack = haystack.toLowerCase();
+			needle = needle.toLowerCase();			
+		}
 		return haystack.indexOf( needle ) !== -1;
 	},
 	
