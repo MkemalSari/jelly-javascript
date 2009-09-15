@@ -49,6 +49,8 @@ var J = window.JELLY = { __JELLY__: 1.12 },
 	
 	// 'is' functions
 	//
+	objToString = {}.toString,
+	
 	isDefined = function ( obj ) { 
 		return typeof obj !== 'undefined'; 
 	},
@@ -95,18 +97,26 @@ var J = window.JELLY = { __JELLY__: 1.12 },
 	
 	isFunction = function ( obj ) { 
 		// Opera can't handle a wrapped 'return typeof === "function"'
-		return {}.toString.call( obj ) === '[object Function]'; 
+		return objToString.call( obj ) === '[object Function]'; 
 	},
 	
-	isElement = function ( obj ) {
-		return isObjectLike( obj ) && !!obj.nodeName && obj.nodeType === 1; 
-	},
+	isElement = function () {
+		if ( !msie ) {
+			return function ( obj ) {
+				return /^\[object HTML[A-Za-z]*Element\]$/.test( objToString.call( obj ) );
+			};
+		} 
+		return function ( obj ) {
+			return isObjectLike( obj ) && !!obj.nodeName && obj.nodeType === 1; 
+		};
+
+	}(),
 	
 	isNodeList = function () { 
 		if ( !msie ) {
 			return function ( obj ) {
-				return isArrayLike( obj ) && /^\[object (HTMLCollection|NodeList)\]$/.test( obj+'' );
-			}
+				return /^\[object (HTMLCollection|NodeList)\]$/.test( objToString.call( obj ) );
+			};
 		} 
 		return function ( obj ) {
 			return isArrayLike( obj ) && !!obj.item; 
@@ -114,7 +124,7 @@ var J = window.JELLY = { __JELLY__: 1.12 },
 	}(),
 	
 	isArray = function ( obj ) { 
-		return {}.toString.call( obj ) === '[object Array]'; 
+		return objToString.call( obj ) === '[object Array]'; 
 	},	
 	
 	isArrayLike = function ( obj ) { 
