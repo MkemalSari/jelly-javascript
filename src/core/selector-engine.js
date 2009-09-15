@@ -606,7 +606,7 @@ Selector Engine
 					continue;
 				}
 				if ( !stack[0] ) {
-					return [];
+					return addSugar( [] );
 				}
 				children = null;
 				firstRun = 0;
