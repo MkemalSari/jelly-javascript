@@ -175,6 +175,12 @@ var addClass = function ( el, cn ) {
 		return el.parentNode.removeChild(el);
 	},
 	
+	removeChildren = function ( parent ) {
+		var children = getChildren( getElement( parent ) );
+		children.each( removeElement );
+		return children;
+	}, 
+	
 	insertElement = function ( el, datum ) {
 		el = getElement(el);
 		return ( getElement(datum) || doc.body ).appendChild(el);
