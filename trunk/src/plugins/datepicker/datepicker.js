@@ -20,8 +20,8 @@ var Class = defineClass( 'DatePicker', {
 					cssPrefix,
 						cssPrefix + '-trim',
 						[cssPrefix + '-title',
-						 cssPrefix + '-back title:"Previous Month", setHTML:&laquo;', 
-						 cssPrefix + '-next title:"Next Month", setHTML:&raquo;', 
+						 cssPrefix + '-back title:"Previous Month", html:&laquo;', 
+						 cssPrefix + '-next title:"Next Month", html:&raquo;', 
 						 cssPrefix + '.j-cal-table']
 				);
 			self.root = branch.root;
@@ -31,7 +31,7 @@ var Class = defineClass( 'DatePicker', {
 			self.title = branch.div[2];
 			self.calendar = branch.div[0];
 			self.btn_close = self.calendar.appendChild( 
-				createElement( cssPrefix + '-close setHTML:"x Close"' ) );
+				createElement( cssPrefix + '-close html:"x Close"' ) );
 			self.visible = false;
 			self.input = getElement( inputId );
 			
@@ -53,7 +53,8 @@ var Class = defineClass( 'DatePicker', {
 			extend( self, opts );
 			self.offset = opts.offset || [0,0];
 			
-			self.btn_open = createElement( 'img' + cssPrefix + '-open src:assets/images/calendar.png,' + 					'alt:"Select start week", title:"Select start week"' );
+			self.btn_open = createElement( 'img' + cssPrefix + '-open src:assets/images/calendar.png,' + 					
+				'alt:"Select start week", title:"Select start week"' );
 					
 			insertAfter( self.btn_open, self.input );
 

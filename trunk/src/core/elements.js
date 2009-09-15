@@ -48,10 +48,10 @@ var addClass = function ( el, cn ) {
 			el = doc.createElement(arg), key;
 			for ( key in attrs ) {
 				switch (key) {
-					case 'setHTML': 
+					case 'html': 
 						el.innerHTML = attrs[key]; 
 						break;
-					case 'setText': 
+					case 'text': 
 						el.appendChild( doc.createTextNode( attrs[key] ) ); 
 						break;
 					case 'class': 
@@ -107,55 +107,7 @@ var addClass = function ( el, cn ) {
 		}
 		return attrs === true ? { elem: el, ref: branchMapData } : el;
 	},
-	
-	createBranch = function () {
-		var args = toArray( arguments ),
-			res = {},
-			context,
-			parseToken = function ( arg ) {
-				if ( arg && isObject( arg ) ) {
-					if ( isElement( arg.root ) ) {
-						for ( var key in arg ) {
-							if ( isArray( arg[key] ) ) {
-								var nodeName = arg[key][0].nodeName.toLowerCase();
-								res[nodeName] = res[nodeName] || [];
-								arg[key].each( function (el) { 
-									res[nodeName].push(el); 
-								});
-							} 
-							else if ( key !== 'root' ) { res[key] = arg[key]; }
-						} 
-						return arg.root;
-					} 
-				}
-				else if ( isElement(arg) ) { 
-					return arg; 
-				} 
-				else if ( !isString(arg) ) { 
-					return; 
-				} 
-				var obj = createElement(arg, true),
-					elem = obj.elem,
-					type = elem.nodeName.toLowerCase();
-				res[type] = res[type] || [];
-				res[type].push(elem);
-				if ( obj.ref ) { res[obj.ref] = elem; }
-				return elem;
-			};
-		res.root = context = parseToken( args.shift() );
-		args.each(function (feed) {
-			if ( !isArray(feed) ) { 
-				context = context.appendChild( parseToken( feed ) ); 
-			} 
-			else { 
-				feed.each( function (o) { 
-					context.appendChild( parseToken(o) ) 
-				}); 
-			}
-		});
-		return res;
-	},	
-	
+
 	createBranch = function () {
 		var args = toArray( arguments ),
 			res = {},
