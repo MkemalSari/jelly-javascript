@@ -98,17 +98,9 @@ var J = window.JELLY = { __JELLY__: 1.12 },
 		return {}.toString.call( obj ) === '[object Function]'; 
 	},
 	
-	isElement = function () { 
-		if ( !msie ) {
-			return function ( obj ) {
-				return isObjectLike( obj ) && !isArray( obj ) && 
-					/^\[object HTML[A-Za-z]*Element\]$/.test( obj+'' );
-			}
-		} 
-		return function ( obj ) {
-			return isObjectLike( obj ) && !!obj.nodeName && obj.nodeType === 1; 
-		};
-	}(),
+	isElement = function ( obj ) {
+		return isObjectLike( obj ) && !!obj.nodeName && obj.nodeType === 1; 
+	},
 	
 	isNodeList = function () { 
 		if ( !msie ) {
