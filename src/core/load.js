@@ -68,15 +68,16 @@ var self = J.Load = {
 	},
 	
 	img: function ( path, callback, opts ) {
-		if ( self.cache[path] ) {
-			return self.cache[path];
+		callback = callback || functionLit;
+		var cached = self.cache[path];
+		if ( cached ) {
+			callback.call( cached, cached );
+			return cached;
 		}
 		var img = createElement( 'img', opts || {} ),
 			onload = function () {
 				self.cache[path] = img;
-				if ( callback ) {
-					callback.call( img, img );
-				}
+				callback.call( img, img );
 			},
 			onerror = function (e) {
 				logWarn( capitalize( e.type ) + ' loading image: "' + path + '"' );
