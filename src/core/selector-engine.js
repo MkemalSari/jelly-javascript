@@ -539,7 +539,7 @@ Selector Engine
 			var contextMode = !!b,
 				selector = contextMode ? b : a;
 			
-			collection = contextMode ? [a] : [];
+			collection = contextMode ? [ getElement( a ) ] : [];
 
 			if ( firstRun ) {
 				var m;
@@ -620,7 +620,7 @@ Selector Engine
 		
 		nativeSelectorEngine = function ( a, b ) {
 			try { 
-				return addSugar( toArray( b ? a.querySelectorAll(b) : doc.querySelectorAll(a) ) );
+				return addSugar( toArray( b ? ( getElement( a ) ).querySelectorAll( b ) : doc.querySelectorAll( a ) ) );
 			} catch ( ex ) { 
 				logWarn( ex ); 
 			}
