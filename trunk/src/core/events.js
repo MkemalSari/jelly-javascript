@@ -121,7 +121,11 @@ extend( J, {
 	fixEvent: fixEvent
 });
 
-// Need to do our own garbage collection to prevent memory leaks
+// IE garbage collection to prevent memory leaks
 //
-addEvent( win, 'unload', purgeEventLog );
+if ( browser.ie && browser.ie < 8 ) { 
+	addEvent( win, 'unload', purgeEventLog );
+}
+
+
 
