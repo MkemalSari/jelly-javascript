@@ -36,7 +36,7 @@ eval( JELLY.unpack() );
 
 var navPageTop = createBranch( 
     'li.pager', 
-        'a href:"#top", setText:"Go to top"' 
+        'a href:"#top", text:"Go to top"' 
     ).root;
 
 Q( '.column-1 ul > li:last-of-type' ).each( function ( el ) {
