@@ -640,18 +640,40 @@ Selector Engine
 		sugarMethods = {};
 		
 // Build our sugar methods object
-[ 'addClass', 'removeClass', 'setStyle', 'addEvent' ].each( function ( meth ) {
-	sugarMethods[meth] = function () {
+[ 
+	'addClass', 
+	'removeClass', 
+	'setStyle', 
+	'addEvent', 
+	['setAttribute', 
+		function ( el, attr, value ) { return el.setAttribute( attr, value ); }],
+	['removeAttribute', 
+		function ( el, attr ) {	return el.removeAttribute( attr ); }],
+	['remove', 
+		removeElement]		
+].each( function ( obj ) {
+	
+	var name = obj,
+		method;
+
+	if ( isArray( obj ) ) {
+		name = obj[0];
+		method = obj[1];
+	}
+	else {
+		method = J[ obj ]
+	}
+	sugarMethods[name] = function () {
 		var args = toArray( arguments ),
 			n = this.length,
 			i = 0;
 		for ( i; i < n; i++ ) {
-			J[meth].apply( {}, [this[i]].concat( args ) );
+			method.apply( {}, [this[i]].concat( args ) );
 		}  
 		return this;
 	} 
 });
-	
+
 /*====================================
 	external api
 =====================================*/
