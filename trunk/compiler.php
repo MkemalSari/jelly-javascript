@@ -5,7 +5,7 @@
 #############################################################
 
 # define a base path for your dev directory
-define( 'BASE', '/Users/petelove/jelly-javascript' ); 
+define( 'BASE', 'C:\Documents and Settings\pboere\My Documents\jelly' ); 
 
 define( 'SRC_PATH', BASE . '/src' );
 define( 'BUILD_PATH', BASE . '/build' );
