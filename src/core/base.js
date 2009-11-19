@@ -8,11 +8,11 @@ Base
 
 */
 
-var J = window.JELLY = { __JELLY__: 1.12 },
+var J = this.JELLY = { __JELLY__: 1.12 },
 
 	// shortcuts
 	//
-	win = window,
+	win = this,
 	doc = win.document,
 	docRoot = doc.documentElement,
 	docHead = doc.getElementsByTagName('head')[0],

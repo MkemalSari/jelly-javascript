@@ -97,8 +97,12 @@ var getViewport = function () {
 		return data.join('&');
 	},
 	
+	// Library loading function
 	unpack = function () {
-		var stack = ['var J=JELLY'], mem, i = 1;
+		if ( typeof __JELLY__ !== 'undefined' ) { 
+			return null; 
+		}
+		var stack = [ 'var J=JELLY' ], mem, i = 1;
 		for ( mem in J ) { 
 			stack[ i++ ] = mem + '=J.' + mem;
 		}

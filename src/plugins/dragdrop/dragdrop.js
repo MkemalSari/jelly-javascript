@@ -20,7 +20,7 @@ DragDrop
 
 (function () {
 
-if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+this['eval']( JELLY.unpack() );
 
 var Class = defineClass( 'DragDrop', {
 		
