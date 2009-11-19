@@ -366,8 +366,8 @@ var addClass = function ( el, cn ) {
 				set( prop, a[prop] );
 			}
 		}
-		else if ( b ) {
-			set( a, b );			
+		else {
+			set( a, isDefined( b ) ? b : '' );			
 		}
 	},
 	
