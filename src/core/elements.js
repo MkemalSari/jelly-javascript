@@ -376,6 +376,7 @@ var addClass = function ( el, cn ) {
 			return function ( el, val ) {
 				if ( el.__opacity === undefined ) {
 					el.__opacity = 1;
+					el.style.zoom = 1;
 				}
 				el.style.filter = val === 1 ? '' : 'alpha(opacity=' + (val * 100) + ')';
 				el.__opacity = val;
