@@ -34,7 +34,7 @@ Overlay
 
 (function () {
 
-if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
+this['eval']( JELLY.unpack() );
 
 var Class = defineClass( 'Overlay', {
 
@@ -76,15 +76,20 @@ var Class = defineClass( 'Overlay', {
 			Class.shim.style.height =
 			self.screen.style.height = 
 				Math.max( docRoot.scrollHeight, getViewport()[1] ) + 'px';
-			insertElement( Class.shim );
+			// Only insert shim if actually necessary
+			if ( getElements( 'select' ).length ) {
+				insertElement( Class.shim );
+				self.shimmed = true;
+			}
 		}
 		insertElement( self.screen );
 		self.inserted = true;
 	},
 	
 	remove = function ( self ) {
-		if ( browser.ie6 ) {
+		if ( self.shimmed ) {
 			removeElement( Class.shim );
+			self.shimmed = false;
 		}
 		removeElement( self.screen );
 		self.inserted = false;
