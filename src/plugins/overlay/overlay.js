@@ -34,7 +34,7 @@ Overlay
 
 (function () {
 
-this['eval']( JELLY.unpack() );
+// this['eval']( JELLY.unpack() );
 
 var Class = defineClass( 'Overlay', {
 

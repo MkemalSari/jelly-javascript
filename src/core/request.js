@@ -53,8 +53,10 @@ var Class = defineClass( 'Request', {
 					clearTimeout(self.timer);
 					self.feedback.stop();
 					var status = xhr.status,
-						statusOk = ( status >= 200 && status < 300 ) || status === 304 ||
-						( status === undefined && browser.webkit );
+						// cheers jQuery
+						statusOk = !xhr.status && location.protocol == "file:" ||
+							( xhr.status >= 200 && xhr.status < 300 ) || xhr.status == 304 || xhr.status == 1223;
+						
 					if ( statusOk ) {
 						self.fire( 'success', xhr );
 						if ( callback ) {

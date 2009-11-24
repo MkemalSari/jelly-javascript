@@ -9,8 +9,6 @@ Loop
 
 (function () {
 
-if ( typeof __JELLY__ === 'undefined' ) { window['eval']( JELLY.unpack() ); }
-
 var Class = defineClass( 'Loop', {
 		
 		__static: {
