@@ -10,12 +10,13 @@ Flash
 extend( J, {
 	
 	getFlashVersion: function () {
-		var ver = { major: 0, build: 0 },
+		var version = { major: 0, build: 0 },
 			plugins = navigator.plugins,
 			desc,
-			versionString;
-		if ( plugins && isObject( plugins['Shockwave Flash'] ) ) {
-			desc = plugins['Shockwave Flash'].description;
+			versionString,
+			testString = 'Shockwave Flash';
+		if ( plugins && isObject( plugins[ testString ] ) ) {
+			desc = plugins[ testString ].description;
 			if ( desc !== null ) {
 				versionString = desc.replace( /^[^\d]+/, '' );
 				version.major = parseInt( versionString.replace( /^(.*)\..*$/, '$1' ), 10 );
@@ -36,14 +37,18 @@ extend( J, {
 		return version;
 	},
 	
-	createFlashObject: function ( path, width, height, fallback, params, vars, attributes ) {
-		var params = params || {};
-			vars = vars || {},
-			attrs = attributes || {},
-			fallback = fallback || 'You need <a href="http://www.adobe.com/go/getflashplayer">Adobe Flash Player</a> installed to view this content</a>',
+	createFlashObject: function ( obj ) {
+		var path = obj.path || '',
+			width = obj.width || 1,
+			height = obj.height || 1,
+			params = obj.params || {},
+			vars = obj.flashvars || {},
+			attrs = obj.attributes || {},
+			fallback = obj.fallback || 
+				'You need <a href="http://www.adobe.com/go/getflashplayer">Adobe Flash Player</a> installed to view this content</a>',
 			data = [],
 			key,
-			output = '<object';
+			out = '<object';
 		if ( msie ) {
 			attrs.classid = 'clsid:D27CDB6E-AE6D-11cf-96B8-444553540000';
 			params.movie = path;
@@ -55,25 +60,24 @@ extend( J, {
 		attrs.width = width;
 		attrs.height = height;
 		for ( key in attrs ) { 
-			output += ' ' + i + '="' + attr[i] + '"'; 
+			out += ' ' + key + '="' + attrs[ key ] + '"'; 
 		}
-		output += '>\n';
+		out += '>\n';
 		for ( key in vars ) { 
-			data.push( key + '=' + encodeURIComponent( vars[key] ) ); 
+			data.push( key + '=' + encodeURIComponent( vars[ key ] ) ); 
 		}
 		if ( data.length > 0 ) { 
 			params.flashvars = data.join('&'); 
 		} 
 		for ( key in params ) { 
-			output += '\t<param name="' + key + '" value="' + params[key] + '" />\n'; 
+			out += '\t<param name="' + key + '" value="' + params[ key ] + '" />\n'; 
 		}
-		return output + fallback + '\n</object>';
+		return out + fallback + '\n</object>';
 	},
 	
-	embedFlashObject: function ( el, path, width, height, params, vars, attributes ) {
-		el = getElement(el);
-		el.innerHTML = J.createFlashObject( 
-			path, width, height, el.innerHTML, params || {}, vars || {}, attributes || {} );
+	embedFlashObject: function ( el, obj ) {
+		el = getElement( el );
+		el.innerHTML = J.createFlashObject( obj );
 	}
 	
 });
