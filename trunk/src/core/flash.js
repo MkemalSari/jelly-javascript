@@ -78,6 +78,7 @@ extend( J, {
 	embedFlashObject: function ( el, obj ) {
 		el = getElement( el );
 		el.innerHTML = J.createFlashObject( obj );
+		return el;
 	}
 	
 });
