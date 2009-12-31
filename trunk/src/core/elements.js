@@ -8,20 +8,24 @@ Elements
 */
 
 var addClass = function ( el, cn ) {
-		el = getElement(el);
-		if ( hasClass( el, cn ) ) { return; }
+		el = getElement( el );
+		if ( !el || hasClass( el, cn ) ) { return; }
 		el.className += el.className ? ' ' + cn : cn;
 	}, 
 	
 	removeClass = function ( el, cn ) {
-		el = getElement(el);
-		if ( !el.className ) { return; } 
+		el = getElement( el );
+		if ( !el || el.className === '' ) { return; } 
 		var patt = new RegExp( '(^|\\s)' + cn + '(\\s|$)' );
 		el.className = normalize( el.className.replace( patt, ' ' ) );
 	},
 	
 	hasClass = function ( el, cn ) {
-		return (' ' + ( getElement(el) ).className + ' ').indexOf( cn ) !== -1;
+		el = getElement( el );
+		if ( !el ) { return; }
+		var elCn = el.className;
+		return elCn !== '' && 
+			( elCn === cn || new RegExp( '(^|\\s)' + cn + '(\\s|$)' ).test( elCn ) );
 	},
 	
 	toggleClass = function ( el, cn ) {
