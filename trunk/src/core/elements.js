@@ -38,14 +38,6 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
-	getElement = function ( obj ) { 
-		return typeof obj === 'string' ? doc.getElementById( obj ) : obj; 
-	},
-	
-	getElements = function ( a, b ) { 
-		return ( b ? getElement( a ) : doc ).getElementsByTagName( b || a ); 
-	},
-
 	createElement = function ( arg, attrs ) {
 		var el;
 		if ( !/[#:\.]/.test(arg) ) {
@@ -158,6 +150,36 @@ var addClass = function ( el, cn ) {
 			}
 		});
 		return res;
+	},
+	
+	getElement = function ( obj ) { 
+		if ( !msie || msie > 7 ) {
+			return function ( obj ) {
+				return isString( obj ) ? doc.getElementById( obj ) : obj; 
+			};
+		}
+		else {
+			return function ( obj ) {
+				if ( isString( obj ) ) { 
+					var el = doc.getElementById( obj ); 
+					if ( el && el.id !== obj ) {
+						var named = doc.getElementsByName( obj ), n = named.length, i = 0; 
+						for ( i; i < n; i++ ) {
+							if ( named[ i ].id === obj ) {
+								return named[ i ];
+							} 
+						}
+						return null;
+					}
+					return el;
+				}
+				return obj;
+			};
+		}
+	}(),
+	
+	getElements = function ( a, b ) { 
+		return ( b ? getElement( a ) : doc ).getElementsByTagName( b || a ); 
 	},
 	
 	wrapElement = function ( el, wrapper ) {
