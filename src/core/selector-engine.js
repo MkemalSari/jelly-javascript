@@ -680,9 +680,10 @@ Selector Engine
 
 J.Q = function () {
 	if ( querySelectorAll ) {
-		if ( !browser.ie ) { 
+		if ( !msie || msie > 8 ) { 
 			return nativeSelectorEngine; 
 		} 
+		// IE8 special case
 		return function ( a, b ) {
 			if ( /\:(nth|las|onl|not|tar|roo|emp|ena|dis|che)/.test( b || a ) ) { 
 				return execute( a, b ); 
