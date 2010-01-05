@@ -12,7 +12,10 @@
 // Shortcuts
 var win = window,
 	doc = document,
-	referrer = doc.referrer,
+	referrer = doc.referrer || win.location.href,
+	searchEngines = {
+	
+	},
 	
 	highlightWord = function ( node, word ) {
 		// Iterate into this nodes childNodes
@@ -61,9 +64,17 @@ var win = window,
 	},
 	
 	searchTermHighlight = function () {
+	
+		var testLink = doc.createElement( 'a' );
+		testLink.href = referrer;
+		alert( testLink.hostname )
+		
+	
 		var qsa = referrer.substr( referrer.indexOf( '?' ) + 1 ).split( '&' ), 
 			qsip,
 			i = 0; 
+		
+			
 		for ( i; i < qsa.length; i++ ) {
 			qsip = qsa[i].split( '=' );
 			if ( qsip.length === 1 ) {
@@ -79,7 +90,7 @@ var win = window,
 			}
 		}
 	};
-
+alert(12)
 
 if ( !referrer || referrer.indexOf( '?' ) === -1 ) {
 	return;
