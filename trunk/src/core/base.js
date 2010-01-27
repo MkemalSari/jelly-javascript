@@ -170,6 +170,20 @@ var J = this.JELLY = { __JELLY__: 1.12 },
 		return a;
 	},
 	
+	// generic iterator function: works for objects, arrays and nodelists
+	enumerate = function ( obj, callback ) {
+		if ( isObject( obj ) ) {
+			for ( var key in obj ) { 
+				callback.call( obj, key, obj[ key ] ); 
+			}
+		}
+		else {
+			for ( var i = 0; i < obj.length; i++ ) { 
+				callback.call( obj, obj[ i ], i ); 
+			}
+		}
+	},
+	
 	// defered function invocation wrapper
 	//
 	defer = function () {
@@ -218,6 +232,7 @@ extend( J, {
 	toArray: toArray,
 	empty: empty,
 	extend: extend,	
+	enumerate: enumerate,
 	defer: defer,
 	log: log,
 	logWarn: logWarn,
