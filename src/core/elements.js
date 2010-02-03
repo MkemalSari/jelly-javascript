@@ -374,6 +374,33 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
+	/*
+		
+	getStyle = function ( el, prop ) {
+		var val, 
+			prop = camelize( prop ), 
+			elStyle = el.style;
+		if ( prop === 'opacity' ) { 
+			if ( elStyle.opacity === '' || !isDefined( elStyle.opacity ) ) { 
+				elStyle.opacity = 1; 
+			}
+			return elStyle.opacity;
+		}
+		if ( elStyle[prop] !== '' ) { 
+			return elStyle[prop]; 
+		} 
+		else if ( 'getComputedStyle' in win ) { 
+			return win.getComputedStyle( el, null )[prop]; 
+		} 
+		else if ( 'currentStyle' in el ) { 
+			return el.currentStyle[prop]; 
+		}
+	},
+	
+	
+	*/
+
+	
 	setStyle = function ( el, a, b ) {
 		var set = function ( prop, value ) {
 				if ( prop === 'float' ) {
@@ -415,6 +442,29 @@ var addClass = function ( el, cn ) {
 			el.style.opacity = el.__opacity = val;
 		};
 	}(),
+	
+	/*
+	setOpacity = function () {
+		if ( 'opacity' in docRoot.style ) {
+			return function ( el, val ) {
+				var elStyle = el.style;
+				if ( elStyle.opacity === '' ) {
+					elStyle.opacity = 1;
+				}
+				elStyle.opacity = val;
+			};
+		}
+		return function ( el, val ) {
+			var elStyle = el.style;
+			if ( elStyle.opacity === undefined ) {
+				elStyle.opacity = 1;
+				elStyle.zoom = 1;
+			}
+			elStyle.filter = val === 1 ? '' : 'alpha(opacity=' + (val * 100) + ')';
+			elStyle.opacity = val;
+		};		
+	}(),
+	*/
 	
 	storeData = function ( el, name, value ) {
 		var cache = elementData, elementKey = cache.ns;
