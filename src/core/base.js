@@ -277,6 +277,7 @@ extend( J, {
 	docHead: docHead,
 	functionLit: functionLit,
 	browser: browser,
+	platform: platform,
 	isDefined: isDefined,
 	isUndefined: isUndefined,
 	isNull: isNull,
