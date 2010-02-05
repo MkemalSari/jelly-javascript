@@ -5,7 +5,7 @@
 #############################################################
 
 # define a base path for your dev directory
-define( 'BASE', 'C:\Documents and Settings\pboere\My Documents\jelly' ); 
+define( 'BASE', 'C:\wamp\www\jelly' ); 
 
 define( 'SRC_PATH', BASE . '/src' );
 define( 'BUILD_PATH', BASE . '/build' );

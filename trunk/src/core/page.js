@@ -1,14 +1,9 @@
 /**
 
-Page init
-
-@description  
-	Page load tasks
+Page load tasks
 
 */
-
 // fix background image flicker on ie6
-
 if ( browser.ie6 ) { 
 	try { 
 		doc.execCommand( 'BackgroundImageCache', false, true );
@@ -16,7 +11,6 @@ if ( browser.ie6 ) {
 }
 
 // adding informational css classes to the root element for convenience
-
 var classname = ['unknown'], key;
 for ( key in browser ) {
 	if ( browser[key] ) {

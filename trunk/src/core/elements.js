@@ -1,12 +1,8 @@
 /**
 
-Elements
-
-@description 
-	Utility functions for working with elements and manipulating the DOM
+Utility functions for working with elements and manipulating the DOM
 
 */
-
 var addClass = function ( el, cn ) {
 		el = getElement( el );
 		if ( !el || hasClass( el, cn ) ) { return; }
@@ -29,7 +25,7 @@ var addClass = function ( el, cn ) {
 	},
 	
 	toggleClass = function ( el, cn ) {
-		el = getElement(el);
+		el = getElement( el );
 		if ( hasClass( el, cn ) ) { 
 			removeClass( el, cn ); 
 		} 
@@ -40,24 +36,24 @@ var addClass = function ( el, cn ) {
 	
 	createElement = function ( arg, attrs ) {
 		var el;
-		if ( !/[#:\.]/.test(arg) ) {
-			el = doc.createElement(arg), key;
+		if ( !/[#:\.]/.test( arg ) ) {
+			el = doc.createElement( arg ), key;
 			for ( key in attrs ) {
 				switch (key) {
 					case 'html': 
-						el.innerHTML = attrs[key]; 
+						el.innerHTML = attrs[ key ]; 
 						break;
 					case 'text': 
-						el.appendChild( doc.createTextNode( attrs[key] ) ); 
+						el.appendChild( doc.createTextNode( attrs[ key ] ) ); 
 						break;
 					case 'class': 
-						el.className = attrs[key]; 
+						el.className = attrs[ key ]; 
 						break;
 					case 'style': 
-						el.style.cssText = attrs[key]; 
+						el.style.cssText = attrs[ key ]; 
 						break;
 					default: 
-						el.setAttribute( key, attrs[key] );
+						el.setAttribute( key, attrs[ key ] );
 				}
 			}
 		} 
@@ -71,31 +67,31 @@ var addClass = function ( el, cn ) {
 				stringTokens.push( m[2] );
 			}
 			arg = arg.replace( /\s*(:|,)\s*/g, '$1' );
-			var parts = arg.split(' '),
+			var parts = arg.split( ' ' ),
 				first = parts.shift(),
-				leadId = first.indexOf('#') !== -1,
-				leadClass = first.indexOf('.') !== -1,
+				leadId = first.indexOf( '#' ) !== -1,
+				leadClass = first.indexOf( '.' ) !== -1,
 				type = 'div',
 				attributes = {},
 				branchMapData = null,
 				tmp;
 			if ( leadId || leadClass ) {
-				tmp = leadId ? first.split('#') : first.split('.'); 
+				tmp = leadId ? first.split( '#' ) : first.split( '.' ); 
 				type = tmp.shift() || type;
-				attributes[leadId ? 'id':'class'] = tmp.join(' ');
+				attributes[ leadId ? 'id':'class' ] = tmp.join( ' ' );
 			} 
 			else {
 				type = first;
 			}
 			if ( parts[0] ) {
-				parts[0].split(',').each(function (tkn) {
-					tkn = tkn.split(':');
+				parts[0].split( ',' ).each(function (tkn) {
+					tkn = tkn.split( ':' );
 					var value = tkn[1] === stringKey ? stringTokens.shift() : tkn[1];
-					if (tkn[0] === '@') {
+					if ( tkn[0] === '@' ) {
 						branchMapData = value;
 					} 
 					else {
-						attributes[tkn[0]] = value;
+						attributes[ tkn[0] ] = value;
 					}
 				});
 			} 
@@ -112,40 +108,42 @@ var addClass = function ( el, cn ) {
 				if ( arg && isObject( arg ) ) {
 					if ( isElement( arg.root ) ) {
 						for ( var key in arg ) {
-							if ( isArray( arg[key] ) ) {
-								var nodeName = arg[key][0].nodeName.toLowerCase();
-								res[nodeName] = res[nodeName] || [];
-								arg[key].each( function (el) { 
-									res[nodeName].push(el); 
+							if ( isArray( arg[ key ] ) ) {
+								var nodeName = arg[ key ][0].nodeName.toLowerCase();
+								res[ nodeName ] = res[ nodeName ] || [];
+								arg[ key ].each( function ( el ) { 
+									res[ nodeName ].push( el ); 
 								});
 							} 
-							else if ( key !== 'root' ) { res[key] = arg[key]; }
+							else if ( key !== 'root' ) { 
+								res[ key ] = arg[ key ]; 
+							}
 						} 
 						return arg.root;
 					} 
 				}
-				else if ( isElement(arg) ) { 
+				else if ( isElement( arg ) ) { 
 					return arg; 
 				} 
-				else if ( !isString(arg) ) { 
+				else if ( !isString( arg ) ) { 
 					return; 
 				} 
-				var obj = createElement(arg, true),
+				var obj = createElement( arg, true ),
 					elem = obj.elem,
 					type = elem.nodeName.toLowerCase();
-				res[type] = res[type] || [];
-				res[type].push(elem);
-				if ( obj.ref ) { res[obj.ref] = elem; }
+				res[ type ] = res[ type ] || [];
+				res[ type ].push( elem );
+				if ( obj.ref ) { res[ obj.ref ] = elem; }
 				return elem;
 			};
 		res.root = context = parseToken( args.shift() );
-		args.each(function (feed) {
-			if ( !isArray(feed) ) { 
+		args.each( function ( feed ) {
+			if ( !isArray( feed ) ) { 
 				context = context.appendChild( parseToken( feed ) ); 
 			} 
 			else { 
-				feed.each( function (o) { 
-					context.appendChild( parseToken(o) ) 
+				feed.each( function ( o ) { 
+					context.appendChild( parseToken( o ) ) 
 				}); 
 			}
 		});
@@ -183,26 +181,26 @@ var addClass = function ( el, cn ) {
 	},
 	
 	wrapElement = function ( el, wrapper ) {
-		el = getElement(el);
+		el = getElement( el );
 		var pnt = el.parentNode, next = el.nextSibling;
-		wrapper.appendChild(el);
+		wrapper.appendChild( el );
 		return next ? pnt.insertBefore( wrapper, next ) : pnt.appendChild( wrapper );	
 	},
 	
 	withElement = function ( el, callback, scope ) {
-		el = getElement(el);
-		if (el) { return callback.call(scope || el, el); }
+		el = getElement( el );
+		if ( el ) { return callback.call( scope || el, el ); }
 		return el;
 	},
 	
 	replaceElement = function ( el, replacement ) {
-		el = getElement(el);
+		el = getElement( el );
 		return el.parentNode.replaceChild( replacement, el );
 	},
 	
-	removeElement = function (el) {
-		el = getElement(el);
-		return el.parentNode.removeChild(el);
+	removeElement = function ( el ) {
+		el = getElement( el );
+		return el.parentNode.removeChild( el );
 	},
 	
 	removeChildren = function ( parent ) {
@@ -213,36 +211,36 @@ var addClass = function ( el, cn ) {
 	
 	insertElement = function ( el, datum ) {
 		el = getElement(el);
-		return ( getElement(datum) || doc.body ).appendChild(el);
+		return ( getElement(datum) || doc.body ).appendChild( el );
 	},
 	
 	insertTop = function ( el, datum ) {
-		if ( !( el = getElement(el) ) || !( datum = getElement(datum) ) ) { return false; }
+		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) { return false; }
 		if ( datum.firstChild ) { 
 			return datum.insertBefore( el, datum.firstChild ); 
 		}
 		else { 
-			return datum.appendChild(el); 
+			return datum.appendChild( el ); 
 		}
 	},
 	
 	insertBefore = function ( el, datum ) {
-		datum = getElement(datum);
-		return datum.parentNode.insertBefore( getElement(el), datum );
+		datum = getElement( datum );
+		return datum.parentNode.insertBefore( getElement( el ), datum );
 	},
 	
 	insertAfter = function ( el, datum ) {
-		if ( !(el = getElement(el)) || !(datum = getElement(datum)) ) { return false; }
-		var next = J.getNext(datum);
+		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) { return false; }
+		var next = J.getNext( datum );
 		if ( next ) { 
-			return datum.parentNode.insertBefore(el, next); 
+			return datum.parentNode.insertBefore( el, next ); 
 		} 
 		else { 
-			return datum.parentNode.appendChild(el); 
+			return datum.parentNode.appendChild( el ); 
 		}
 	},
 	
-	getFirst = function (el) {
+	getFirst = function ( el ) {
 		el = el.firstChild;
 		while ( el && el.nodeType !== 1 ) {
 			el = el.nextSibling;
@@ -250,7 +248,7 @@ var addClass = function ( el, cn ) {
 		return el;
 	},
 	
-	getLast = function (el) {
+	getLast = function ( el ) {
 		el = el.lastChild;
 		while ( el && el.nodeType !== 1 ) {
 			el = el.previousSibling;
@@ -258,7 +256,7 @@ var addClass = function ( el, cn ) {
 		return el;
 	},
 	
-	getNext = function (el) {
+	getNext = function ( el ) {
 		el = el.nextSibling;
 		while ( el && el.nodeType !== 1 ) {
 			el = el.nextSibling;
@@ -266,7 +264,7 @@ var addClass = function ( el, cn ) {
 		return el;
 	},
 	
-	getPrevious = function (el) {
+	getPrevious = function ( el ) {
 		el = el.previousSibling;
 		while ( el && el.nodeType !== 1 ) {
 			el = el.previousSibling;
@@ -274,20 +272,20 @@ var addClass = function ( el, cn ) {
 		return el;
 	},
 	
-	getChildren = function (el) {
+	getChildren = function ( el ) {
 		var elements = [], el = el.firstChild;
 		while (el) {
-			if ( el.nodeType === 1 ) {
-				elements[elements.length] = el;
+			if ( el.nodeType == 1 ) {
+				elements[ elements.length ] = el;
 			}
 			el = el.nextSibling;
 		}
 		return elements;
 	},
 	
-	getXY = function (el) {
-		el = getElement(el);
-		var xy = [0, 0];
+	getXY = function ( el ) {
+		el = getElement( el );
+		var xy = [ 0, 0 ];
 		if ( !el ) {
 			return xy;
 		} 
@@ -311,26 +309,26 @@ var addClass = function ( el, cn ) {
 	},
 
 	setXY = function ( el, X, Y, unit ) {
-		el = getElement(el);
+		el = getElement( el );
 		unit = unit || 'px';
 		el.style.left = X + unit;
 		el.style.top = Y + unit;
 	},
 	
-	getX = function (el) {
-		return getXY(el)[0];
+	getX = function ( el ) {
+		return getXY( el )[0];
 	},
 	
 	setX = function ( el, X, unit ) {
-		( getElement(el) ).style.left = X + ( unit || 'px' );
+		( getElement( el ) ).style.left = X + ( unit || 'px' );
 	},
 	
 	getY = function (el) {
-		return getXY(el)[1];
+		return getXY( el )[1];
 	},
 	
 	setY = function ( el, Y, unit ) {
-		( getElement(el) ).style.top = Y + ( unit || 'px' );
+		( getElement( el ) ).style.top = Y + ( unit || 'px' );
 	},
 	
 	getAttribute = function () {
@@ -355,52 +353,31 @@ var addClass = function ( el, cn ) {
 		};
 	}(),
 	
-	getStyle = function ( el, prop ) {
-		var val, prop = camelize( prop );
-		if ( prop === 'opacity' ) { 
-			if ( !isDefined( el.__opacity ) ) { 
-				el.__opacity = 1; 
-			}
-			return el.__opacity;
+	getStyle = function () {
+		if ( 'getComputedStyle' in win ) {
+			return function ( el, prop ) {
+				prop = camelize( prop );
+				var elStyle = el.style;
+				if ( prop in elStyle && elStyle[ prop ] !== '' ) { 
+					return elStyle[ prop ]; 
+				} 
+				return win.getComputedStyle( el, null )[ prop ]; 
+			};
 		}
-		if ( el.style[prop] ) { 
-			return el.style[prop]; 
-		} 
-		else if ( 'getComputedStyle' in win ) { 
-			return win.getComputedStyle( el, null )[prop]; 
-		} 
-		else if ( 'currentStyle' in el ) { 
-			return el.currentStyle[prop]; 
-		}
-	},
-	
-	/*
-		
-	getStyle = function ( el, prop ) {
-		var val, 
-			prop = camelize( prop ), 
-			elStyle = el.style;
-		if ( prop === 'opacity' ) { 
-			if ( elStyle.opacity === '' || !isDefined( elStyle.opacity ) ) { 
+		return function ( el, prop ) {
+			prop = camelize( prop );
+			var elStyle = el.style;
+			if ( prop in elStyle && elStyle[ prop ] !== '' ) { 
+				return elStyle[ prop ]; 
+			} 
+			else if ( prop === 'opacity' ) { 
 				elStyle.opacity = 1; 
+				return 1;
 			}
-			return elStyle.opacity;
-		}
-		if ( elStyle[prop] !== '' ) { 
-			return elStyle[prop]; 
-		} 
-		else if ( 'getComputedStyle' in win ) { 
-			return win.getComputedStyle( el, null )[prop]; 
-		} 
-		else if ( 'currentStyle' in el ) { 
-			return el.currentStyle[prop]; 
-		}
-	},
-	
-	
-	*/
+			return el.currentStyle[ prop ]; 
+		};
+	}(),
 
-	
 	setStyle = function ( el, a, b ) {
 		var set = function ( prop, value ) {
 				if ( prop === 'float' ) {
@@ -410,7 +387,7 @@ var addClass = function ( el, cn ) {
 					setOpacity( el, value );	
 				}
 				else {
-					el.style[camelize( prop )] = value;
+					el.style[ camelize( prop ) ] = value;
 				}
 			},
 			prop;
@@ -424,26 +401,6 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
-	setOpacity = function () {
-		if ( 'filters' in docRoot ) {
-			return function ( el, val ) {
-				if ( el.__opacity === undefined ) {
-					el.__opacity = 1;
-					el.style.zoom = 1;
-				}
-				el.style.filter = val === 1 ? '' : 'alpha(opacity=' + (val * 100) + ')';
-				el.__opacity = val;
-			};
-		} 
-		return function ( el, val ) {
-			if ( el.__opacity === undefined ) {
-				el.__opacity = 1;
-			}
-			el.style.opacity = el.__opacity = val;
-		};
-	}(),
-	
-	/*
 	setOpacity = function () {
 		if ( 'opacity' in docRoot.style ) {
 			return function ( el, val ) {
@@ -464,7 +421,11 @@ var addClass = function ( el, cn ) {
 			elStyle.opacity = val;
 		};		
 	}(),
-	*/
+	
+	/*
+	setRotation = function () {
+
+	},*/
 	
 	storeData = function ( el, name, value ) {
 		var cache = elementData, elementKey = cache.ns;

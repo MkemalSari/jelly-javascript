@@ -1,71 +1,159 @@
-/**
+/** 
 
-Class
+Create new classes and bind them to the JELLY namespace.
+'special' members are prefixed with a double underscore
 
-@description 
-	Utilities for defining classes on the Jelly namespace
+@example 
+var Class = defineClass( 'Foo', {
 
+    // List class(es) to inherit; pass more than one as an Array
+    __extends: Bar,
+
+    // Constructor (optional)
+    __init: function ( x, y ) { 
+        this.left = x;
+        this.top = y;
+    },  
+     
+    // Static members
+    __static: {
+        counter: 0,
+        increment: function () {
+            Class.counter++;
+        }
+    },
+
+    getPosition: function () { ... },
+    moveTo: function () { ... }
+});
 */
-
 var	defineClass = function ( name, opts ) {
+
+		// Setup constructor, create shortcuts
 		var Class = opts.__init || function () {},
 			Static = opts.__static || {},
 			Extends = opts.__extends,
 			Prototype = Class.prototype; 
 		
-		extend( Prototype, defineClassAbstract );
+		// Copy over mixins
+		extend( Prototype, defineClassMixins );
 		
+		// Loop through parent class(es) prototypes and copy members
 		( isArray( Extends ) ? Extends : 
 			( Extends ? [ Extends ] : [] ) ).each( function ( obj ) {
 			extend( Prototype, obj.prototype ); 
 			Class.__parent = obj;
 		});
 		
+		// Add in static members to the constructor
 		extend( Class, Static );
 		
-		['__init', '__static', '__extends'].each( function ( mem ) {
-			delete opts[mem];
+		// Delete special members from <opts>
+		[ '__init', '__static', '__extends' ].each( function ( mem ) {
+			delete opts[ mem ];
 		});
-					
+			
+		// Explicitly reference the class in the prototype 
 		extend( Prototype, opts );
 		
+		// Explicitly reference the class in the prototype 
 		Prototype.constructor = Class;
 		
+		// Attach the class name to the constructor
 		Class.__name = name;
 		
-		J[name] = Class;
-		
+		// Parse the class name as a path and map it to the constructor
+		var path = J, 
+			parts = name.split( '.' ),
+			i = 0,
+			part; 
+		for ( ; i < parts.length; i++ ) {
+			var part = parts[i];
+			if ( !( part in path ) ) {
+				path[ part ] = Class;
+				break;
+			}
+			else {
+				path = path[ part ];
+			}
+		}
+		// Return constructor
 		return Class;
 	},
 	
-	// base methods which are automatically implemented
+	// Mixin' methods implemented by every class created with <defineClass> 
 	//
-	defineClassAbstract = {
+	defineClassMixins = {
 		
+		/** 
+		Generic handler for custom events
+		
+		@example 
+		var foo = new Bar;
+		  
+		// Internally
+		self.fire( 'complete' )
+		// In the callback instance is available as 'this' or as a named argument
+		foo.onComplete = function ( foo ) { ... }
+		
+		@example 
+		var foo = new Bar;
+		  
+		// Internally
+		self.fire( 'complete', foobar )
+		// The callback
+		foo.onComplete = function ( foobar ) { ... }
+		
+		*/
 		fire: function () {
 			var args = toArray( arguments ),
 				event = 'on' + capitalize( args.shift() ),
-				func = this[event];
-			
-			// If no argument is specified we just pass in the object as default
+				func = this[ event ];
 			if ( empty( args ) ) {
 				args.push( this );
 			}
 			return func ? func.apply( this, args ) : false;
 		},
+
 		
+		/** 
+		Simple introspection
+		*/
 		isInstanceOf: function () {
 			return this.constuctor.__name;
 		},
 		
-		set: function ( a, b ) {
-			var self = this;
-			if ( isObject( a ) ) {
-				return extend( self, a );;
-			} 
-			self[a] = b;
-			return self;
+
+		/** 
+		Set instance members dynamically by passing in an object literal.
+		If a named method is available for setting a member it is applied 
+		
+		@example 
+		var foo = new Bar;
+		foo.set( 'name', 'yoda' );
+		foo.set({
+		    'ears': 2,
+		    'nose': 1,
+		    'salutation': 'master'
+		});
+		*/
+		set: function ( obj ) {
+			var self = this, args = arguments;
+			if ( args.length > 1 ) {
+				obj = {};
+				obj[ args[0] ] = args[1];
+			}
+			enumerate( obj, function ( key, value ) {
+				var methodName = 'set' + capitalize( key );
+				if ( methodName in self ) {
+					self[ methodName ]( value );
+				}
+				else {
+					self[ key ] = value;
+				}
+			});
 		}
+
 	};
 
 J.defineClass = defineClass;

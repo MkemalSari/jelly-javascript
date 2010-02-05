@@ -1,25 +1,21 @@
 /**
 
-Loop
-
-@description 
-	Loops a tween object
+Loop a <Tween> instance
 
 */
-
 (function () {
 
-var Class = defineClass( 'Loop', {
+var Class = defineClass( 'Tween.Loop', {
 		
 		__static: {
-			loopCount: 1
+			loopCount: 2
 		},
 		
-		__init: function ( node, opts ) {
+		__init: function ( element, opts ) {
+			opts = opts || {};
 			this.loopCount = opts.loopCount || Class.loopCount;
 			delete opts.loopCount;
-			this.tween = isArray( node ) || isNodeList( node ) ? 
-				new J.MultiTween( node, opts ) : new J.Tween( node, opts );
+			this.tween = new J.Tween( element, opts );
         },
         
 		setLoopCount: function ( integer ) {
@@ -42,24 +38,21 @@ var Class = defineClass( 'Loop', {
 			self.cancel = false;
 			
 			(function looper () {
-
 				if ( self.cancel ) {
-					delete tween[onSequenceComplete];
+					delete tween[ onSequenceComplete ];
 					return;
 				}
 				else if ( --loopCount ) {
-					tween[onSequenceComplete] = looper;
+					tween[ onSequenceComplete ] = looper;
 				}				
 				else {
 					self.cancel = true;
-					tween[onSequenceComplete] = function () {
+					tween[ onSequenceComplete ] = function () {
 						self.fire( 'complete' );
 					};
 				}
 				tween.sequence.apply( self.tween, args );
-			
 			})();
-			
         },
         
 		stop: function ( stopCurrentLoop ) {

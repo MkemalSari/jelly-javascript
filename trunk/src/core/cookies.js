@@ -1,13 +1,9 @@
 /**
 
-Cookies
-
-@description 
-	Utility functions for working with cookies
+Utility functions for working with cookies
 
 */
-
-extend(J, { 
+extend( J, { 
 	
 	getCookie: function ( name ) {
 		var result = new RegExp( name + '=([^; ]+)' ).exec( doc.cookie );
@@ -16,7 +12,7 @@ extend(J, {
 	
 	setCookie: function ( name, value, expires, path, domain, secure ) {
 		if ( expires ) {
-			var expireTime = (+new Date) + ( ( 1000*60*60*24 ) * expires );
+			var expireTime = ( +new Date ) + ( ( 1000*60*60*24 ) * expires );
 			expires = new Date( expireTime ).toUTCString();
 		}
 		doc.cookie = name + '=' + escape( value ) +

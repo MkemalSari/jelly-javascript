@@ -1,12 +1,8 @@
 /**
 
-Flash
-
-@description 
-	Utility functions for working with flash objects
+Utility functions for working with flash objects
 
 */
-
 extend( J, {
 	
 	getFlashVersion: function () {

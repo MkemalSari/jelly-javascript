@@ -1,9 +1,6 @@
 /**
 
-Selector Engine
-
-@description 
-	A fast cross-browser interface for querying the DOM with CSS selectors
+A fast cross-browser interface for querying the DOM with CSS selectors
 
 */
 (function () {

@@ -1,12 +1,8 @@
 /**
 
-Request
-
-@description
-	XHR wrapper class
+XMLHttpRequest wrapper
 
 */
-
 (function () {
 
 var Class = defineClass( 'Request', {
@@ -53,7 +49,7 @@ var Class = defineClass( 'Request', {
 					clearTimeout(self.timer);
 					self.feedback.stop();
 					var status = xhr.status,
-						// cheers jQuery
+						// credit jQuery
 						statusOk = !xhr.status && location.protocol == "file:" ||
 							( xhr.status >= 200 && xhr.status < 300 ) || xhr.status == 304 || xhr.status == 1223;
 						
@@ -74,7 +70,7 @@ var Class = defineClass( 'Request', {
 			};
 						
 			for ( var key in self.requestHeaders ) {
-				xhr.setRequestHeader( key, self.requestHeaders[key] );
+				xhr.setRequestHeader( key, self.requestHeaders[ key ] );
 			}
 			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 			
@@ -100,7 +96,7 @@ var Class = defineClass( 'Request', {
 		},
 		
 		getXHR: function () {
-			if ('XMLHttpRequest' in win) {
+			if ( 'XMLHttpRequest' in win ) {
 				return function () {
 					return new XMLHttpRequest();
 				};

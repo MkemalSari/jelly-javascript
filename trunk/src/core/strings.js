@@ -1,12 +1,8 @@
 /**
 
-Strings
-
-@description 
-	Utility functions for working with strings
+Utility functions for working with strings
 
 */
-
 var	contains = function ( haystack, needle, caseInsensitive ) {
 		if ( caseInsensitive ) {
 			haystack = haystack.toLowerCase();
