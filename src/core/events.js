@@ -1,12 +1,8 @@
 /**
 
-Events
-
-@description 
-	Event utilities
+Utilities for working with events
 
 */
-
 var addEvent = function ( obj, type, fn ) {
 		obj = getElement(obj);
 		var mouseEnter = type === 'mouseenter',
@@ -122,10 +118,6 @@ extend( J, {
 });
 
 // IE garbage collection to prevent memory leaks
-//
 if ( browser.ie && browser.ie < 8 ) { 
 	addEvent( win, 'unload', purgeEventLog );
 }
-
-
-

@@ -1,12 +1,8 @@
 /**
 
-Misc
-
-@description 
-	Various utilities
+Various utilities
 
 */
-
 var getViewport = function () {
 		if ( isDefined( docRoot.clientWidth ) && docRoot.clientWidth !== 0 ) { 
 			return function () {

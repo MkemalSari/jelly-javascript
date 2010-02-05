@@ -1,16 +1,8 @@
 /**
 
-Load
-
-@description   
-	Singleton for managing the loading of assets: scripts, stylesheets and images
-	
-@api
-		
-@examples
+Singleton for managing the loading of assets: scripts, stylesheets and images
 	
 */
-
 (function () {
 
 var self = J.Load = {

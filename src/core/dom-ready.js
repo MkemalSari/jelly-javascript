@@ -1,12 +1,8 @@
 /**
 
-Dom ready
-
-@description 
-	Cross browser interface for the DOMContentLoaded event 
+Cross browser 'DOM ready' event 
 
 */
-
 (function () {
   
 	var self = J.DomReady = {
@@ -62,7 +58,6 @@ Dom ready
 		};
 	
 	//	The easy way and the convoluted way 
-	//
 	if ( standardEventModel ) {
 		addEvent( doc, 'DOMContentLoaded', self.fire );
 	} 
@@ -74,7 +69,6 @@ Dom ready
 	}
 
 	// Fallback catch all
-	//
 	addEvent( win, 'load', self.fire );
 	
 })();

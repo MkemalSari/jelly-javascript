@@ -1,40 +1,36 @@
 /**
 
-Poll
-
-@description   
-	Class for creating polling objects that can manage multiple subscribed callbacks
+Class for creating polling objects that can manage multiple subscribed callbacks
 
 @api
-	>> Instance mode
-	var obj = new Poll( (Integer) milliseconds )
-	** (Mixed) handle **  obj.subscribe( (Function) callback [, (String) handle] )
-	** void **  obj.unSubscribe( (Mixed) handle )
+>> Instance mode
+var obj = new Poll( (Integer) milliseconds )
+** (Mixed) handle **  obj.subscribe( (Function) callback [, (String) handle] )
+** void **  obj.unSubscribe( (Mixed) handle )
+
+>> Static mode
+** (Mixed) handle **  Poll.subscribe( (Integer|String) time/term , (Function) callback [, (String) handle] )
+** void **  Poll.unSubscribe( (Integer|String) time/term , (Mixed) handle )
 	
-	>> Static mode
-	** (Mixed) handle **  Poll.subscribe( (Integer|String) time/term , (Function) callback [, (String) handle] )
-	** void **  Poll.unSubscribe( (Integer|String) time/term , (Mixed) handle )
-	
-@examples
-	// Create a new polling object
-	var poller = new Poll( 200 );
-	
-	var handle = poller.subscribe( function () { ... } );
-	poller.unSubscribe( handle );
-	
-	poller.subscribe( function () { ... }, 'myref' );
-	poller.unSubscribe( 'myref' );
-	
-	
-	// Subscribe to a global polling object
-	var handle = Poll.subscribe( 100, function () { ... } );
-	Poll.unSubscribe( 100, handle );
-	
-	var handle = Poll.subscribe( 'fast', function () { ... } );
-	Poll.unSubscribe( 'fast', handle );
+@example
+// Create a new polling object
+var poller = new Poll( 200 );
+
+var handle = poller.subscribe( function () { ... } );
+poller.unSubscribe( handle );
+
+poller.subscribe( function () { ... }, 'myref' );
+poller.unSubscribe( 'myref' );
+
+@example 
+// Subscribe to a global polling object
+var handle = Poll.subscribe( 100, function () { ... } );
+Poll.unSubscribe( 100, handle );
+
+var handle = Poll.subscribe( 'fast', function () { ... } );
+Poll.unSubscribe( 'fast', handle );
 
 */
-
 (function () {
 
 var Class = defineClass( 'Poll', {

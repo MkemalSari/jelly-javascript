@@ -1,31 +1,27 @@
 /**
 
-Base
-
-@description 
-	Initialization of Jelly namespace
-	Base set of shortcuts and utility functions
+Initialization of JELLY namespace
+Base set of shortcuts and utility functions
 
 */
+var J = window.JELLY = { __JELLY__: 1.13 },
 
-var J = this.JELLY = { __JELLY__: 1.12 },
-
-	// shortcuts
-	//
-	win = this,
+	// Shortcuts
+	win = window,
 	doc = win.document,
+	nav = win.navigator,
+	ua = nav.userAgent,
 	docRoot = doc.documentElement,
 	docHead = doc.getElementsByTagName('head')[0],
 	standardEventModel = 'addEventListener' in doc,
 	querySelectorAll = 'querySelectorAll' in doc,
 	functionLit = function () {},
 	
-	// browser detection
-	//
+	/**
+	Browser detection
+	*/	
 	browser = function () {
-		var nav = win.navigator,
-			ua = nav.userAgent,
-			activex = 'ActiveXObject' in win,
+		var activex = 'ActiveXObject' in win,
 			xhr = 'XMLHttpRequest' in win,
 			securityPolicy = 'securityPolicy' in nav,
 			taintEnabled = 'taintEnabled' in nav,
@@ -47,59 +43,105 @@ var J = this.JELLY = { __JELLY__: 1.12 },
 	}(),
 	msie = browser.ie,
 	
-	// 'is' functions
-	//
+	/**
+	Platform detection
+	*/	
+	platform = function () {
+		var obj = {};
+		obj[ ( /mac|win|linux/i.exec( nav.platform ) || [ 'unknown' ] )[0].toLowerCase() ] = true;
+		return obj;
+	}(),
+	
 	objToString = {}.toString,
 	
+	/**
+	Check if object is defined
+	*/	
 	isDefined = function ( obj ) { 
 		return typeof obj !== 'undefined'; 
 	},
 	
+	/**
+	Check if object is <undefined>
+	*/	
 	isUndefined = function ( obj ) { 
 		return typeof obj === 'undefined'; 
 	},
 	
+	/**
+	Check if object is <null>
+	*/	
 	isNull = function ( obj ) { 
 		return obj === null; 
 	},
 	
+	/**
+	Check if object is a boolean
+	*/
 	isBoolean = function ( obj ) { 
 		return typeof obj === 'boolean'; 
 	},
 	
+	/**
+	Check if object is a string
+	*/
 	isString = function ( obj ) { 
 		return typeof obj === 'string'; 
 	},
 	
+	/**
+	Check if object is a number
+	*/
 	isNumber = function ( obj ) { 
 		return typeof obj === 'number'; 
 	},
 	
+	/**
+	Check if object is an integer
+	*/
 	isInteger = function ( obj ) { 
 		return isNumber( obj ) ? !( obj % 1 ) : false; 
 	}, 
 	
+	/**
+	Check if object is a floating number
+	*/
 	isFloat = function ( obj ) { 
 		return isNumber( obj ) ? !!( obj % 1 ) : false; 
 	}, 
 	
+	/**
+	Check if object is numeric; strings or numbers accepted
+	*/
 	isNumeric = function ( obj ) { 
 		return isString( obj ) || isNumber( obj ) ? /^\s*\d+\.?\d*?\s*$/.test( ( obj+'' ) ) : false; 
 	},
 	
+	/**
+	Check if object is an object literal (an instance of <Object>)
+	*/
 	isObject = function ( obj ) { 
 		return obj+'' === '[object Object]';
 	},
 	
+	/**
+	Check if object is an object (excluding <null>) and is not an instance of <Object>
+	*/
 	isObjectLike = function ( obj ) { 
 		return !!obj && !isObject( obj ) && ( typeof obj === 'object' || isFunction( obj ) );
 	},
 	
+	/**
+	Check if object is an instance of <Function>
+	*/
 	isFunction = function ( obj ) { 
 		// Opera can't handle a wrapped 'return typeof === "function"'
 		return objToString.call( obj ) === '[object Function]'; 
 	},
 	
+	/**
+	Check if object is an HTML Element
+	*/
 	isElement = function () {
 		if ( !msie ) {
 			return function ( obj ) {
@@ -112,6 +154,9 @@ var J = this.JELLY = { __JELLY__: 1.12 },
 
 	}(),
 	
+	/**
+	Check if object is an HTML Node List
+	*/
 	isNodeList = function () { 
 		if ( !msie ) {
 			return function ( obj ) {
@@ -119,23 +164,28 @@ var J = this.JELLY = { __JELLY__: 1.12 },
 			};
 		} 
 		return function ( obj ) {
-			return isArrayLike( obj ) && !!obj.item; 
+			return isObjectLike( obj ) && !isObject( obj ) && 
+				!isArray( obj ) && !isFunction( obj ) && isInteger( obj.length ) && !!obj.item; 
 		};
 	}(),
 	
+	/**
+	Check if object is an instance of <Array>
+	*/
 	isArray = function ( obj ) { 
 		return objToString.call( obj ) === '[object Array]'; 
 	},	
 	
-	isArrayLike = function ( obj ) { 
-		return isObjectLike( obj ) && !isObject( obj ) && 
-			!isArray( obj ) && !isFunction( obj ) && isInteger( obj.length ); 
-	},	
-	
+	/**
+	Check for the existance of an object in an array
+	*/
 	inArray = function ( obj, arr ) { 
 		return arr.indexOf( obj ) !== -1; 
 	},
-	
+
+	/**
+	Convert enumerable object to an array
+	*/
 	toArray = function ( obj ) {
 		var result = [], n = obj.length, i = 0;
 		for ( i; i < n; i++ ) { 
@@ -144,8 +194,9 @@ var J = this.JELLY = { __JELLY__: 1.12 },
 		return result;
 	},
 	
-	// return false for empty strings, arrays or objects
-	//
+	/**
+	Check to see if object is empty; works for instances of <Object>, <Array> and strings
+	*/
 	empty = function ( arg ) {
 		if ( isString( arg ) ) {
 			return /^\s*$/.test( arg );
@@ -159,33 +210,37 @@ var J = this.JELLY = { __JELLY__: 1.12 },
 		return !arg;
 	},
 	
-	// extend objects with the option to not overwrite defined members
-	//
+	/**
+	Extend objects with the option to not overwrite defined members
+	*/
 	extend = function ( a, b, overwrite ) {
 		for ( var mem in b ) {
-			if ( isUndefined( a[mem] ) || isDefined( a[mem] ) && overwrite !== false ) {
-				a[mem] = b[mem];
+			if ( isUndefined( a[ mem ] ) || isDefined( a[ mem ] ) && overwrite !== false ) {
+				a[ mem ] = b[ mem ];
 			}
 		}
 		return a;
 	},
 	
-	// generic iterator function: works for objects, arrays and nodelists
+	/**
+	Generic iterator function; works for objects, arrays and nodelists
+	*/
 	enumerate = function ( obj, callback ) {
 		if ( isObject( obj ) ) {
 			for ( var key in obj ) { 
 				callback.call( obj, key, obj[ key ] ); 
 			}
 		}
-		else {
+		else if ( obj.length ) {
 			for ( var i = 0; i < obj.length; i++ ) { 
 				callback.call( obj, obj[ i ], i ); 
 			}
 		}
 	},
 	
-	// defered function invocation wrapper
-	//
+	/**
+	Defer function calls; equivilant to setTimeout( myfunc, 0 )
+	*/
 	defer = function () {
 		var args = toArray( arguments ),
 			func = args.shift(),
@@ -193,20 +248,27 @@ var J = this.JELLY = { __JELLY__: 1.12 },
 		return setTimeout( function () { func.apply( scope, args ); }, 0 );
 	},
 	
-	// console api wrappers
-	//
 	createLogger = function ( method ) {
 		var console = win.console;
-		if ( console && console[method] ) {  	
+		if ( console && console[ method ] && console[ method ].apply ) {  	
 			return function () {
 				console[method].apply( console, toArray( arguments ) ); 
 			};
 		}
 		return functionLit;
 	},
-	log = createLogger('log'),
-	logWarn = createLogger('warn'),
-	logError = createLogger('error');
+	/**
+	console.log wrapper
+	*/
+	log = createLogger( 'log' ),
+	/**
+	console.warn wrapper
+	*/
+	logWarn = createLogger( 'warn' ),
+	/**
+	console.error wrapper
+	*/
+	logError = createLogger( 'error' );
 		
 extend( J, {
 	win: win,

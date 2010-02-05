@@ -1,15 +1,10 @@
 /**
 
-Native extensions
-
-@description 
-	Patching native support for standard object methods
-	Implementing ecmascript 5 features where possible	
+Patching native support for standard object methods
+Implementing ecmascript 5 features where possible	
 
 */
-
 // Array methods
-//
 extend( Array.prototype, {
 	
 	forEach: function ( fn, obj ) {
@@ -70,20 +65,16 @@ Array.prototype.each = Array.prototype.forEach;
 
 
 // String methods
-//
 extend( String.prototype, {
-	
 	trim: function () {
 		return this.replace( /^\s\s*/, '' ).replace( /\s\s*$/, '' );
 	}
-	
 }, false);
 
 
 // Function methods
 //
 extend( Function.prototype, {
-	
 	bind: function () {
 		if ( arguments.length < 2 && !isDefined( arguments[0] ) ) { 
 			return this; 
@@ -98,28 +89,20 @@ extend( Function.prototype, {
 			return fn.apply( scope, arr );
 		};
 	}
-	
 }, false);
 
 
 // HTMLElement methods
-//
 if ( win.HTMLElement && HTMLElement.prototype ) {
-	
 	extend( HTMLElement.prototype, {
-	
 		contains: function ( el ) {
 			return !!( this.compareDocumentPosition( el ) & 16 );
 		}
-	
 	}, false);
-	
 }
 
 // ecmascript 5
-//
 extend( Object, {
-	
 	keys: function ( obj ) {
 		var res = [], key;
 		for ( key in obj ) {
@@ -129,6 +112,5 @@ extend( Object, {
 		}
 		return res;
 	}
-	
 }, false);
 	
