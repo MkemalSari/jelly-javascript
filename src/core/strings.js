@@ -51,10 +51,25 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 		return array ? rgb : 'rgb(' + rgb.join(',') + ')';
 	},
 	
-	parseColour = function ( str, mode ) {
+	// http://dean.edwards.name/weblog/2009/10/convert-any-colour-value-to-hex-in-msie/
+	msieToHex = function ( color ) {
+		var body  = msieToHex.popup = msieToHex.popup || win.createPopup().document.body
+			range = body.createTextRange();
+		body.style.color = color;
+		var value = range.queryCommandValue( 'ForeColor' );
+		value = ( ( value & 0x0000ff ) << 16 ) | ( value & 0x00ff00 ) | ( ( value & 0xff0000 ) >>> 16 );
+		value = value.toString(16);
+		return "#000000".slice( 0, 7 - value.length ) + value;
+	},
+	
+	parseColor = function ( str, mode ) {
 		var hex = /^#/.test( str ), 
 			tempArray = [], 
 			temp;
+		if ( !hex && msie ) {
+			str = msieToHex( str );
+			hex = true;
+		} 
 		switch (mode) {
 			case 'hex':	
 				return hex ? str : rgbToHex( str );
@@ -106,7 +121,7 @@ extend( J, {
 	normalize: normalize,
 	capitalize: capitalize,
 	camelize: camelize,
-	parseColour: parseColour,
+	parseColor: parseColor,
 	stripTags: stripTags,
 	bindData: bindData,
 	evalScripts: evalScripts
