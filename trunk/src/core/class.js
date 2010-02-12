@@ -1,30 +1,36 @@
 /** 
 
 Create new classes and bind them to the JELLY namespace.
-'special' members are prefixed with a double underscore
+Special members are prefixed with a double underscore.
 
 @example 
 var Class = defineClass( 'Foo', {
 
-    // List class(es) to inherit; pass more than one as an Array
-    __extends: Bar,
+	// List class(es) to inherit; pass more than one as an Array
+	__extends: Bar,
 
-    // Constructor (optional)
-    __init: function ( x, y ) { 
-        this.left = x;
-        this.top = y;
-    },  
+	// Constructor (optional)
+	__init: function ( x, y ) { 
+		this.left = x;
+		this.top = y;
+	},  
      
-    // Static members
-    __static: {
-        counter: 0,
-        increment: function () {
-            Class.counter++;
-        }
-    },
+	// Static members
+	__static: {
+		counter: 0,
+		increment: function () {
+			Class.counter++;
+		}
+	},
 
-    getPosition: function () { ... },
-    moveTo: function () { ... }
+	// Setter methods
+	__set: {
+		prop1: function () { ... } // compiles to 'setProp1' public method
+	},
+
+	// Standard prototype methods
+	moveTo: function () { ... },
+	fireGun: function () { ... }
 });
 */
 var	defineClass = function ( name, opts ) {
@@ -48,9 +54,18 @@ var	defineClass = function ( name, opts ) {
 		// Add in static members to the constructor
 		extend( Class, Static );
 		
+		// Add in setter methods
+		if ( opts.__set ) {
+			enumerate( opts.__set, function ( mem, value ) {
+				Prototype[ 'set' + capitalize( mem ) ] = value;
+			})
+		}
+		
 		// Delete special members from <opts>
-		[ '__init', '__static', '__extends' ].each( function ( mem ) {
-			delete opts[ mem ];
+		enumerate( opts, function ( mem, value ) {
+			if ( mem.indexOf( '__' ) === 0 ) {
+				delete opts[ mem ];
+			} 
 		});
 			
 		// Explicitly reference the class in the prototype 
@@ -137,13 +152,17 @@ var	defineClass = function ( name, opts ) {
 		    'salutation': 'master'
 		});
 		*/
-		set: function ( obj ) {
-			var self = this, args = arguments;
-			if ( args.length > 1 ) {
-				obj = {};
-				obj[ args[0] ] = args[1];
+		set: function () {
+			var self = this, 
+				args = arguments,
+				feed = {};
+			if ( isObject( args[0] ) ) {
+				feed = args[0]; 
+			} 
+			else if ( args.length > 1 ) {
+				feed[ args[0] ] = args[1];
 			}
-			enumerate( obj, function ( key, value ) {
+			enumerate( feed, function ( key, value ) {
 				var methodName = 'set' + capitalize( key );
 				if ( methodName in self ) {
 					self[ methodName ]( value );

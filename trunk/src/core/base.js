@@ -1,7 +1,7 @@
 /**
 
-Initialization of JELLY namespace
-Base set of shortcuts and utility functions
+Initialization of JELLY namespace. 
+Base set of shortcuts and utility functions.
 
 */
 var J = window.JELLY = { __JELLY__: 1.13 },
@@ -195,7 +195,7 @@ var J = window.JELLY = { __JELLY__: 1.13 },
 	},
 	
 	/**
-	Check to see if object is empty; works for instances of <Object>, <Array> and strings
+	Check to see if object is empty; works for instances of <Object>, <Array> and <String>
 	*/
 	empty = function ( arg ) {
 		if ( isString( arg ) ) {
@@ -208,6 +208,35 @@ var J = window.JELLY = { __JELLY__: 1.13 },
 			return !Object.keys( arg ).length;
 		}
 		return !arg;
+	},
+	
+	/**
+	Returns a function wrapper with negated return values, useful for <Array> filter 
+	
+	@example 
+	' foo, 12.1 bar 101 '.split( ' ' ).map( parseFloat ).filter( negate( isNaN ) )
+	>>> [ 12.1, 101 ]
+	*/
+	negate = function ( method ) {
+		return function () {
+			return !method.apply( {}, arguments );
+		}
+	},	
+	
+	/**
+	Returns an object method wrapper, useful for <Array> map 
+	
+	@example 
+	' foo, bar '.split( ',' ).map( method( String.trim ) )
+	>>> [ 'foo', 'bar' ]
+	
+	*/
+	method = function () {
+		var args = toArray( arguments ),
+			meth = args.shift();
+		return function ( item ) {
+			return meth.apply( item, args );
+		}
 	},
 	
 	/**
@@ -252,7 +281,7 @@ var J = window.JELLY = { __JELLY__: 1.13 },
 		var console = win.console;
 		if ( console && console[ method ] && console[ method ].apply ) {  	
 			return function () {
-				console[method].apply( console, toArray( arguments ) ); 
+				console[ method ].apply( console, toArray( arguments ) ); 
 			};
 		}
 		return functionLit;
@@ -294,6 +323,8 @@ extend( J, {
 	isArray: isArray,
 	toArray: toArray,
 	empty: empty,
+	negate: negate,	
+	method: method,
 	extend: extend,	
 	enumerate: enumerate,
 	defer: defer,
