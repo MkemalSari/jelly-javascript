@@ -1,3 +1,4 @@
+
 /**
 
 Utility functions for working with strings
@@ -11,6 +12,14 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 		return haystack.indexOf( needle ) !== -1;
 	},
 	
+	startsWith = function ( str, find ) {
+		return str.indexOf( find ) === 0;
+	},
+	
+	endsWith = function ( str, find ) {
+		return str.indexOf( find ) === str.length - find.length;
+	},
+		
 	normalize = function ( str ) {
 		return str.replace( /\s{2,}/g, ' ' ).trim();
 	},
@@ -63,14 +72,22 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 	},
 	
 	parseColor = function ( str, mode ) {
-		var hex = /^#/.test( str ), 
-			tempArray = [], 
-			temp;
-		if ( !hex && msie ) {
-			str = msieToHex( str );
-			hex = true;
+		mode = mode || 'rgb';
+		var hex = startsWith( str, '#' ); 
+		if ( !hex ) {
+			if ( msie ) {
+				str = msieToHex( str );
+				hex = true;
+			}
+			else if ( !startsWith( str, 'rgb' ) ) {
+				var test = createElement( 't', { style: 'display:none;color:' + str } );
+				insertElement( test );
+				str = getStyle( test, 'color' );
+				removeElement( test );
+				hex = startsWith( str, '#' );
+			}
 		} 
-		switch (mode) {
+		switch ( mode ) {
 			case 'hex':	
 				return hex ? str : rgbToHex( str );
 			case 'rgb': 
@@ -80,11 +97,7 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 					return hexToRgb( str, true ); 
 				} 
 				else {
-					temp = str.replace( /rgb| |\(|\)/g, '' ).split(',');
-					temp.each( function ( item ) { 
-						tempArray.push( parseInt( item, 10 ) ); 
-					});
-					return tempArray;
+					return str.replace( /rgb| |\(|\)/g, '' ).split( ',' ).map( parseFloat );
 				}
 		}
 	},
@@ -93,16 +106,16 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 		if ( !allow ) { 
 			return str.replace( /<[^>]*>/g, '' ); 
 		} 
-		allow = allow.replace( /\s+/g, '' ).split(',').map( function (s) {
+		allow = allow.replace( /\s+/g, '' ).split( ',' ).map( function ( s ) {
 			return s +' |'+ s +'>|/'+ s +'>';   
-		}).join('|');
+		}).join( '|' );
 		return str.replace( new RegExp( '<(?!'+ allow +')[^>]+>', 'g' ), '' );
 	},
 	
 	bindData = function ( str, data ) {
 		var m;
 		while ( m = /%\{\s*([^\}\s]+)\s*\}/.exec( str ) ) {
-			str = str.replace( m[0], data[m[1]] || '??' );
+			str = str.replace( m[0], data[ m[1] ] || '??' );
 		}
 		return str;
 	},
@@ -118,6 +131,8 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 	
 extend( J, { 
 	contains: contains,
+	startsWith: startsWith,
+	endsWith: endsWith,
 	normalize: normalize,
 	capitalize: capitalize,
 	camelize: camelize,

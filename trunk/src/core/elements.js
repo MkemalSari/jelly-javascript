@@ -356,21 +356,13 @@ var addClass = function ( el, cn ) {
 	getStyle = function () {
 		if ( 'getComputedStyle' in win ) {
 			return function ( el, prop ) {
-				prop = camelize( prop );
-				var elStyle = el.style;
-				if ( prop in elStyle && elStyle[ prop ] !== '' ) { 
-					return elStyle[ prop ]; 
-				} 
-				return win.getComputedStyle( el, null )[ prop ]; 
+				return win.getComputedStyle( el, null )[ camelize( prop ) ]; 
 			};
 		}
 		return function ( el, prop ) {
 			prop = camelize( prop );
 			var elStyle = el.style;
-			if ( prop in elStyle && elStyle[ prop ] !== '' ) { 
-				return elStyle[ prop ]; 
-			} 
-			else if ( prop === 'opacity' ) { 
+			if ( prop === 'opacity' && elStyle.opacity === '' ) { 
 				elStyle.opacity = 1; 
 				return 1;
 			}
@@ -417,7 +409,7 @@ var addClass = function ( el, cn ) {
 				elStyle.opacity = 1;
 				elStyle.zoom = 1;
 			}
-			elStyle.filter = val === 1 ? '' : 'alpha(opacity=' + (val * 100) + ')';
+			elStyle.filter = val === 1 ? '' : 'alpha(opacity=' + ( val * 100 ) + ')';
 			elStyle.opacity = val;
 		};		
 	}(),
@@ -429,32 +421,32 @@ var addClass = function ( el, cn ) {
 	
 	storeData = function ( el, name, value ) {
 		var cache = elementData, elementKey = cache.ns;
-		if ( !( el = getElement(el) ) ) { return; }
+		if ( !( el = getElement( el ) ) ) { return; }
 		if ( !( elementKey in el ) ) { 
-			el[elementKey] = elementUid(); 
-			cache[el[elementKey]] = {};
+			el[ elementKey ] = elementUid(); 
+			cache[ el[ elementKey ] ] = {};
 		}
-		cache[el[elementKey]][name] = value;
+		cache[ el[ elementKey ] ][ name ] = value;
 	},
 	
 	retrieveData = function ( el, name ) {
 		var cache = elementData, elementKey = cache.ns;
-		if ( !( el = getElement(el) ) ) { return; }
-		if ( elementKey in el && el[elementKey] in cache ) {
-			return cache[el[elementKey]][name];
+		if ( !( el = getElement( el ) ) ) { return; }
+		if ( elementKey in el && el[ elementKey ] in cache ) {
+			return cache[ el[ elementKey ] ][ name ];
 		}
 		return null;
 	},
 	
 	removeData = function ( el, name ) {
 		var cache = elementData, elementKey = cache.ns;
-		if ( !( el = getElement(el) ) ) { return; }
-		if ( elementKey in el && el[elementKey] in cache ) {  
-			delete cache[el[elementKey]][name];
+		if ( !( el = getElement( el ) ) ) { return; }
+		if ( elementKey in el && el[ elementKey ] in cache ) {  
+			delete cache[ el[ elementKey ] ][ name ];
 		}
 	},
 	
-	elementData = { ns:'jelly_' + (+new Date) },
+	elementData = { ns:'jelly_' + ( +new Date ) },
 	
 	elementUid = function () { 
 		var uid = 0;

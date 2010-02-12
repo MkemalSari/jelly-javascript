@@ -8,13 +8,15 @@ Tween.js
 var Class = defineClass( 'Tween', {
 
 		__init: function ( element, opts ) {
-			this.setElement( element );
-			this.set( opts || {} );
+			var self = this;
+			self.setElement( element );
+			self.set( opts || {} );
 		},
 
 		__static: {
 			uid: 0,
 			tweens: {},
+			
 			timerSpeed: 20,
 
 			subscribe: function ( inst ) {
@@ -53,18 +55,18 @@ var Class = defineClass( 'Tween', {
 			}			
 		},
 
+		// Instance default values
 		easing: J.easings.sineInOut,
 		duration: 500,
 		unit: 'px',
 		
 		__set: {
-		
-			easing: function (val) {
-				this.easing = J.easings[val];
+			easing: function ( val ) {
+				this.easing = J.easings[ val ];
 				return this;
 			},
 			
-			duration: function (val) {
+			duration: function ( val ) {
 				this.duration = val;
 				return this;
 			},
@@ -139,7 +141,7 @@ var Class = defineClass( 'Tween', {
 					delete obj[ prop ];
 				}
 			});
-			
+
 			// Delay value for the current tween
 			var delay = obj[ 'delay' ] || 0;
 			delete obj[ 'delay' ];
@@ -156,10 +158,6 @@ var Class = defineClass( 'Tween', {
 				// Deal with object format arguments
 				if ( isObject( value ) ) {
 					feed = value;
-				}
-				else if ( isArray( value ) ) {
-					feed.from = value[0]; 
-					feed.to = value[1]; 
 				}
 				else {
 					feed.to = value; 
@@ -339,7 +337,7 @@ var	_default = {
 				return feed;
 			},
 			step: function ( self, feed, element ) {
-				var result = self.compute( feed, feed.from, feed.to )
+				var result = self.compute( feed, feed.from, feed.to );
 				element.style.filter = result === 1 ? '' : 'alpha(opacity=' + ( result * 100 ) + ')';
 				return result;
 			},
@@ -362,15 +360,19 @@ Class.parsers = {
 
 /* 2D Transformation parsers */
 
-var	transformProperty = function () {
-		var cases = [ 'transform', 'WebkitTransform', 'MozTransform' ];
+var	getVendorProperty = function ( prop ) {
+		var prop = camelize( prop ), 
+			cases = [ prop ].concat( 
+				[ 'Webkit', 'Moz', 'O', 'Ms' ].map( method( ''.concat, capitalize( prop ) ) ) );
 		for ( var i = 0; i < cases.length; i++ ) {
 			if ( cases[i] in docRoot.style ) {
 				return cases[i];
 			}
 		}
 		return cases[0];
-	}(),
+	},
+	
+	transformProperty = getVendorProperty( 'transform' ),
 	
 	transformParser = function ( prop, obj ) {
 		var unit = obj.unit || '',
@@ -411,7 +413,6 @@ var	transformProperty = function () {
 				if ( !isArray( feed.to ) ) {
 					feed.to = [ feed.to ];
 				}
-				log(feed)
 				return feed;
 			},
 			
@@ -462,13 +463,12 @@ enumerate({
 	skewY(-10deg)
 	
 	translate(10px,100px)
-	translateX(tx[, ty])
-	translateY(tx[, ty])
+	translateX(tx)
+	translateY(tx)
 	
 	matrix(1, -0.2, 0, 1, 0, 0)
 	
 */
-	
 
 	
 })();
