@@ -63,7 +63,7 @@ var	defineClass = function ( name, opts ) {
 		
 		// Delete special members from <opts>
 		enumerate( opts, function ( mem, value ) {
-			if ( mem.indexOf( '__' ) === 0 ) {
+			if ( startsWith( mem, '__' ) ) {
 				delete opts[ mem ];
 			} 
 		});
@@ -96,7 +96,7 @@ var	defineClass = function ( name, opts ) {
 		return Class;
 	},
 	
-	// Mixin' methods implemented by every class created with <defineClass> 
+	// Mixin methods implemented by every class created with <defineClass> 
 	//
 	defineClassMixins = {
 		

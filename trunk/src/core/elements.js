@@ -69,8 +69,8 @@ var addClass = function ( el, cn ) {
 			arg = arg.replace( /\s*(:|,)\s*/g, '$1' );
 			var parts = arg.split( ' ' ),
 				first = parts.shift(),
-				leadId = first.indexOf( '#' ) !== -1,
-				leadClass = first.indexOf( '.' ) !== -1,
+				leadId = contains( first, '#' ),
+				leadClass = contains( first, '.' ),
 				type = 'div',
 				attributes = {},
 				branchMapData = null,
@@ -405,7 +405,7 @@ var addClass = function ( el, cn ) {
 		}
 		return function ( el, val ) {
 			var elStyle = el.style;
-			if ( elStyle.opacity === undefined ) {
+			if ( isUndefined( elStyle.opacity ) ) {
 				elStyle.opacity = 1;
 				elStyle.zoom = 1;
 			}

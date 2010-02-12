@@ -67,7 +67,7 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 		body.style.color = color;
 		var value = range.queryCommandValue( 'ForeColor' );
 		value = ( ( value & 0x0000ff ) << 16 ) | ( value & 0x00ff00 ) | ( ( value & 0xff0000 ) >>> 16 );
-		value = value.toString(16);
+		value = value.toString( 16);
 		return "#000000".slice( 0, 7 - value.length ) + value;
 	},
 	
@@ -123,8 +123,8 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 	evalScripts = function ( str ) {
 		var wrapper = createElement( 'div', { html: str } ), 
 			res = [];
-		toArray( getElements( wrapper, 'script' ) ).each( function (el) {
-			res.push( win['eval']( el.innerHTML ) );
+		toArray( getElements( wrapper, 'script' ) ).each( function ( el ) {
+			res.push( win[ 'eval' ]( el.innerHTML ) );
 		});
 		return res;
 	};

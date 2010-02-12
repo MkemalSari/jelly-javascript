@@ -1,6 +1,49 @@
 /**
 
-Tween.js
+Tweening engine
+
+@example
+var tween = new Tween( Q( '.box' ), {
+	duration: 1000,
+	easing: 'sineInOut'
+});
+
+// Fade to 0
+tween.start( 'opacity', 0 );  
+
+// Fade from .5 to 1
+tween.start( 'opacity', { from: .5, to: 1 }); 
+
+// Multiple properties
+tween.start({
+	duration: 1000,
+	marginTop: {
+		to: 12,
+		unit: 'em'
+	},
+	marginLeft: 100,
+	'background-position': [100, 100],
+	rotation: {
+		to: 720,
+		easing: 'bounceOut'
+	},
+	skew: 10,
+	color: 'red'
+});
+
+// Sequences
+tween.sequence({
+	marginLeft: 120
+},{
+	delay: 400,
+	marginLeft: 0
+}, function ( tween ) {
+	if ( confirm( 'Do you wish to continue?' ) ) {
+		tween.callSequence();
+	}
+},{
+	opacity: 0
+});
 
 */
 (function () {
@@ -39,7 +82,7 @@ var Class = defineClass( 'Tween', {
 			},
 
 			startTimer: function () {
-                var handler = function () {
+				var handler = function () {
 						for ( var key in Class.tweens ) {
 							Class.tweens[ key ]();
 						}
@@ -152,9 +195,9 @@ var Class = defineClass( 'Tween', {
 					// We pass in the first element as a basis for all unspecified start value calculations
 					referenceElement = self.element[0],
 					parsers = Class.parsers,
-					parser = prop in parsers && parsers[ prop ].get ? prop : '_default',
+					parser = key in parsers && parsers[ key ].get ? key : '_default',
 					feed = {};
-				
+
 				// Deal with object format arguments
 				if ( isObject( value ) ) {
 					feed = value;
@@ -170,7 +213,7 @@ var Class = defineClass( 'Tween', {
 				// Parse from/to values from the referenceElement 
 				feed = parser.get( self, key, feed, referenceElement );
 				
-                self.stack.push( feed );
+				self.stack.push( feed );
 			});
 						
 			self.tweenId = ++( Class.uid );
@@ -187,19 +230,19 @@ var Class = defineClass( 'Tween', {
 		step: function () {
 			var self = this,
 				currentTime = +( new Date );
-            if ( currentTime < self.startTime + self.duration ) {
+			if ( currentTime < self.startTime + self.duration ) {
 				self.elapsedTime = currentTime - self.startTime;
 			}
-            else {
+			else {
 				self.cancel();
-                self.tidyUp();
+				self.tidyUp();
 				setTimeout(	function () {
-                    self.fire( 'complete' );
+					self.fire( 'complete' );
 					self.callSequence();
 				}, 0 );
-                return;
+				return;
 			}
-            self.increase();
+			self.increase();
 		},
 		
 		increase: function () {
@@ -292,9 +335,6 @@ var	_default = {
 		
 	_backgroundPosition = {
 		get: function ( self, key, feed, referenceElement ) {
-			// from: [0, 0]
-			// to: [100, 200]
-			// [[0,0], [100,200]]
 			if ( isUndefined( feed.from ) ) {
 				var startX = 0,
 					startY = 0,
@@ -353,8 +393,8 @@ Class.parsers = {
 	_unitless: _unitless,
 	'opacity': _opacity,
 	'color': _color,
-	'background-color': _color,
-	'background-position': _backgroundPosition
+	'backgroundColor': _color,
+	'backgroundPosition': _backgroundPosition
 };
 	
 
@@ -363,7 +403,7 @@ Class.parsers = {
 var	getVendorProperty = function ( prop ) {
 		var prop = camelize( prop ), 
 			cases = [ prop ].concat( 
-				[ 'Webkit', 'Moz', 'O', 'Ms' ].map( method( ''.concat, capitalize( prop ) ) ) );
+				[ 'Webkit', 'Moz', 'O', 'Ms' ].map( preset( String.concat, capitalize( prop ) ) ) );
 		for ( var i = 0; i < cases.length; i++ ) {
 			if ( cases[i] in docRoot.style ) {
 				return cases[i];
@@ -430,7 +470,6 @@ var	getVendorProperty = function ( prop ) {
 		}
 	};
 
-
 enumerate({
 	'matrix': { },
 	'translate': { unit: 'px' },
@@ -446,30 +485,6 @@ enumerate({
 }, function ( prop, obj ) {
 	Class.parsers[ obj.parserName || prop ] = transformParser( prop, obj );
 })
-
-
-	
-/*	
-	rotate(10deg)
-	
-	scale(2)
-	scale(2.1,4)
-	scaleX(2.1)
-	scaleY(21.4)
-	
-	skew(30deg)
-	skew(30.1deg,-10deg)
-	skewX(30.1deg)
-	skewY(-10deg)
-	
-	translate(10px,100px)
-	translateX(tx)
-	translateY(tx)
-	
-	matrix(1, -0.2, 0, 1, 0, 0)
-	
-*/
-
 	
 })();
 

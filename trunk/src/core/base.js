@@ -217,28 +217,27 @@ var J = window.JELLY = { __JELLY__: 1.13 },
 	' foo, 12.1 bar 101 '.split( ' ' ).map( parseFloat ).filter( negate( isNaN ) )
 	>>> [ 12.1, 101 ]
 	*/
-	negate = function ( method ) {
+	negate = function ( fn ) {
 		return function () {
-			return !method.apply( {}, arguments );
+			return !fn.apply( this, arguments );
 		}
 	},	
 	
 	/**
-	Returns an object method wrapper, useful for <Array> map 
+	Returns function wrapper with optional preset arguments, useful for <Array> map 
 	
 	@example 
-	' foo, bar '.split( ',' ).map( method( String.trim ) )
-	>>> [ 'foo', 'bar' ]
-	
+	' foo, bar '.split( ',' ).map( String.trim ).map( preset( String.split, '' ) )
+	>>> [ ['f','o','o'], ['b','a','r'] ]
 	*/
-	method = function () {
+	preset = function () {
 		var args = toArray( arguments ),
-			meth = args.shift();
+			fn = args.shift();
 		return function ( item ) {
-			return meth.apply( item, args );
-		}
-	},
-	
+			return fn.apply( this, [ item ].concat( args ) );
+		};
+	}
+		
 	/**
 	Extend objects with the option to not overwrite defined members
 	*/
@@ -324,7 +323,7 @@ extend( J, {
 	toArray: toArray,
 	empty: empty,
 	negate: negate,	
-	method: method,
+	preset: preset,
 	extend: extend,	
 	enumerate: enumerate,
 	defer: defer,
