@@ -4,16 +4,40 @@ Patching native support for standard object methods
 Implementing ecmascript 5 features where possible	
 
 */
-// Array methods
-extend( Array.prototype, {
-	
+var makeGenerics = function ( constructor, methodNames ) {
+	methodNames.each( function ( name ) {
+		if ( !constructor[ name ] ) {
+			constructor[ name ] = function () {
+				var args = toArray( arguments ),
+					subject = args.shift();
+				return constructor.prototype[ name ].apply( subject, args );
+			};
+		} 
+	});
+};
+
+/* ECMA script 5 */
+extend( Object, {
+	keys: function ( obj ) {
+		var res = [], key;
+		for ( key in obj ) {
+			if ( obj.hasOwnProperty( key ) ) {
+				res.push( key );
+			}
+		}
+		return res;
+	}
+}, false);
+
+
+/* Array methods */
+var arrayMethods = {
 	forEach: function ( fn, obj ) {
 		for ( var i = 0, n = this.length; i < n; i++ ) { 
 			fn.call( obj, this[i], i, this ); 
 		}
 	},
-	
-	indexOf: function (obj, from) {
+	indexOf: function ( obj, from ) {
 		from = isDefined(from) ? 
 			( from < 0 ? Math.max( 0, this.length + from ) : from ) : 0;
 		for ( var i = from, n = this.length; i < n; i++ ) { 
@@ -23,8 +47,7 @@ extend( Array.prototype, {
 		}
 		return -1;
 	},
-	
-	filter: function (fn, obj) {
+	filter: function ( fn, obj ) {
 		for ( var i = 0, n = this.length, arr = []; i < n; i++ ) { 
 			if ( fn.call( obj, this[i], i, this ) ) { 
 				arr.push( this[i] ); 
@@ -32,15 +55,13 @@ extend( Array.prototype, {
 		}
 		return arr;
 	},
-	
-	map: function (fn, obj) {
+	map: function ( fn, obj ) {
 		for ( var i = 0, n = this.length, arr = []; i < n; i++ ) { 
 			arr.push( fn.call( obj, this[i], i, this ) ); 
 		}
 		return arr;
 	},
-	
-	some: function (fn, obj) {
+	some: function ( fn, obj ) {
 		for ( var i = 0, n = this.length; i < n; i++ ) { 
 			if ( fn.call( obj, this[i], i, this ) ) { 
 				return true; 
@@ -48,8 +69,7 @@ extend( Array.prototype, {
 		}
 		return false;
 	},
-	
-	every: function (fn, obj) {
+	every: function ( fn, obj ) {
 		for ( var i = 0, n = this.length; i < n; i++ ) { 
 			if ( !fn.call( obj, this[i], i, this ) ) { 
 				return false; 
@@ -57,23 +77,29 @@ extend( Array.prototype, {
 		}
 		return true;
 	}
-	
-}, false);
+};
+extend( Array.prototype, arrayMethods, false );
 
-// common alias for convenience
+// Common alias for convenience
 Array.prototype.each = Array.prototype.forEach;
 
+// Add Array methods as generics
+makeGenerics( Array, Object.keys( arrayMethods ).concat( 'each concat join pop push reverse shift splice sort splice toString unshift valueOf'.split( '' ) ) );
 
-// String methods
-extend( String.prototype, {
+
+/* String methods */
+var stringMethods = {
 	trim: function () {
 		return this.replace( /^\s\s*/, '' ).replace( /\s\s*$/, '' );
 	}
-}, false);
+}
+extend( String.prototype, stringMethods, false );
+
+// Add String methods as generics
+makeGenerics( String, Object.keys( stringMethods ).concat( 'charAt charCodeAt concat fromCharCode indexOf lastIndexOf match replace search slice split substr substring toLowerCase toUpperCase valueOf'.split( ' ' ) ) );
 
 
-// Function methods
-//
+/* Function methods */
 extend( Function.prototype, {
 	bind: function () {
 		if ( arguments.length < 2 && !isDefined( arguments[0] ) ) { 
@@ -92,25 +118,11 @@ extend( Function.prototype, {
 }, false);
 
 
-// HTMLElement methods
+/* HTMLElement methods */
 if ( win.HTMLElement && HTMLElement.prototype ) {
 	extend( HTMLElement.prototype, {
 		contains: function ( el ) {
 			return !!( this.compareDocumentPosition( el ) & 16 );
 		}
 	}, false);
-}
-
-// ecmascript 5
-extend( Object, {
-	keys: function ( obj ) {
-		var res = [], key;
-		for ( key in obj ) {
-			if ( obj.hasOwnProperty( key ) ) {
-				res.push( key );
-			}
-		}
-		return res;
-	}
-}, false);
-	
+}	
