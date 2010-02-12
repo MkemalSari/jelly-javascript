@@ -19,7 +19,7 @@ var Class = defineClass( 'Tween', {
 
 			subscribe: function ( inst ) {
 				Class.tweens[ inst.tweenId ] = function () {
-						inst.step.call(inst);
+						inst.step.call( inst );
 					};
 				if ( !Class.timerHandle ) {
 					Class.startTimer();
@@ -57,26 +57,36 @@ var Class = defineClass( 'Tween', {
 		duration: 500,
 		unit: 'px',
 		
-		setEasing: function (val) {
-			this.easing = J.easings[val];
-			return this;
-		},
+		__set: {
+		
+			easing: function (val) {
+				this.easing = J.easings[val];
+				return this;
+			},
+			
+			duration: function (val) {
+				this.duration = val;
+				return this;
+			},
 
-		setDuration: function (val) {
-			this.duration = val;
-			return this;
-		},
+			opacity: function ( val ) {
+				this.element.each( function ( element ) {
+					setOpacity( element, val );
+				});
+				return this;
+			},
 
-		setOpacity: function ( val ) {
-			this.element.each( function ( element ) {
-				setOpacity( element, val );
-			});
-			return this;
-		},
-
-		setElement: function ( element ) {
-			this.element = isArray( element ) ? element.map( getElement ) : [ getElement( element ) ];
-			return this;
+			origin: function ( val ) {
+				this.element.each( function ( element ) {
+					element.style[ transformProperty + 'Origin' ] = val;
+				});
+				return this;
+			},
+			
+			element: function ( element ) {
+				this.element = isArray( element ) ? element.map( getElement ) : [ getElement( element ) ];
+				return this;
+			}
 		},
 
 		sequence: function () {
@@ -101,7 +111,8 @@ var Class = defineClass( 'Tween', {
 			}
 		},
 
-		stop: function () {
+		cancel: function () {
+			clearTimeout( self.delayTimer );
 			Class.unSubscribe( this );
 			return this;
 		},
@@ -114,64 +125,75 @@ var Class = defineClass( 'Tween', {
 				obj = {};
 				obj[ args[0] ] = args[1];
 			}
-			self.stop();
+			self.cancel();
 			self.stack = [];
 
 			// Meta properties
-			if ( 'element' in obj ) {
-				self.setElement( obj.element );
-				delete obj.element;
-			}
-			if ( 'duration' in obj ) {
-				self.setDuration( obj.duration );
-				delete obj.duration;
-			}
-			if ( 'easing' in obj ) {
-				self.setEasing( obj.easing );
-				delete obj.easing;
-			}
+			[ 'element', 
+			  'duration', 
+			  'easing',
+			  'origin'
+			].each( function ( prop ) {
+				if ( prop in obj ) { 
+					self.set( prop, obj[ prop ] )
+					delete obj[ prop ];
+				}
+			});
+			
+			// Delay value for the current tween
+			var delay = obj[ 'delay' ] || 0;
+			delete obj[ 'delay' ];
 			
 			// Parse the start object to create the effect stack
 			enumerate( obj, function ( prop, value ) {
 				var key = camelize( prop ), 
-					element = self.element[0],
+					// We pass in the first element as a basis for all unspecified start value calculations
+					referenceElement = self.element[0],
 					parsers = Class.parsers,
 					parser = prop in parsers && parsers[ prop ].get ? prop : '_default',
-					customEasing = null;
+					feed = {};
 				
 				// Deal with object format arguments
 				if ( isObject( value ) ) {
-					customEasing = J.easings[ value.easing ];
-					value = 'from' in value ? [ value.from, value.to ] : value.to;
+					feed = value;
 				}
+				else if ( isArray( value ) ) {
+					feed.from = value[0]; 
+					feed.to = value[1]; 
+				}
+				else {
+					feed.to = value; 
+				}
+				var parser = feed.parser = parsers[ parser ];
+				feed.prop = parser.prop || key;
+				feed.easing = feed.easing ? J.easings[ feed.easing ] : self.easing;
+				feed.unit = isDefined( feed.unit ) ? feed.unit : self.unit;
 				
-				// Parse from/to values from the element 
-				var from_to = parsers[ parser ].get( self, key, value, element );
+				// Parse from/to values from the referenceElement 
+				feed = parser.get( self, key, feed, referenceElement );
 				
-                self.stack.push({
-					parser: parsers[ parser ], 
-                    prop: parsers[ parser ].prop || key,
-                    from: from_to[0],
-                    to: from_to[1],
-					easing: customEasing || self.easing
-                });
+                self.stack.push( feed );
 			});
-			log(self.stack)
-			self.startTime = +( new Date );
+						
 			self.tweenId = ++( Class.uid );
-            Class.subscribe( self );
-            self.fire( 'start' );
+			
+			self.delayTimer = setTimeout( function () {
+				self.startTime = +( new Date );
+				Class.subscribe( self );
+				self.fire( 'start' );
+			}, delay );
+			
 			return self;
 		},
 
 		step: function () {
 			var self = this,
-				currentTime = +(new Date);
+				currentTime = +( new Date );
             if ( currentTime < self.startTime + self.duration ) {
 				self.elapsedTime = currentTime - self.startTime;
 			}
             else {
-				self.stop();
+				self.cancel();
                 self.tidyUp();
 				setTimeout(	function () {
                     self.fire( 'complete' );
@@ -223,78 +245,80 @@ var Class = defineClass( 'Tween', {
 	});
 
 
-// Parsers 
+/* Parsers */
+
 var	_default = {
-		get: function ( self, key, value, element ) {
-			if ( !isArray( value ) ) {
-				var currentStyle = parseFloat( getStyle( element, key ) );
-				return [ currentStyle, value ];
+		get: function ( self, key, feed, referenceElement ) {
+			if ( isUndefined( feed.from ) ) {
+				feed.from = parseFloat( getStyle( referenceElement, key ) ) || 0;
 			}
-			return value;
+			return feed;
 		},
-		step: function ( self, obj ) {	
-			return self.compute( obj, obj.from, obj.to ) + self.unit;
+		step: function ( self, feed ) {	
+			return self.compute( feed, feed.from, feed.to ) + feed.unit;
 		},
-		finish: function ( self, obj ) { 
-			return obj.to + self.unit;
+		finish: function ( self, feed ) { 
+			return feed.to + feed.unit;
 		}
 	},
 
 	_unitless = {
 		get: _default.get,
-		step: function ( self, obj ) {
-			return self.compute( obj, obj.from, obj.to );
+		step: function ( self, feed ) {
+			return self.compute( feed, feed.from, feed.to );
 		},
-		finish: function ( self, obj ) {
-			return obj.to;
+		finish: function ( self, feed ) {
+			return feed.to;
 		}
 	},
 	
 	_color = {
-		get: function ( self, key, value, element ) {
-			if ( isArray( value ) ) {
-				return [
-					parseColor( value[0], 'rgb-array' ),
-					parseColor( value[1], 'rgb-array' ) ];
-			}
-			var currentStyle = getStyle( element, key );
-			return [
-				parseColor( currentStyle, 'rgb-array' ),
-				parseColor( value, 'rgb-array' ) ];
+		get: function ( self, key, feed, referenceElement ) {
+			if ( isUndefined( feed.from ) ) {
+				feed.from = parseColor( getStyle( referenceElement, key ), 'rgb-array' );
+			} 
+			feed.to = parseColor( feed.to, 'rgb-array' );
+			return feed;
 		},
-		step: function ( self, obj, element ) {
+		step: function ( self, feed, element ) {
 			var round = Math.round;
 			return 'rgb(' +
-					round( self.compute( obj, obj.from[0], obj.to[0] ) ) + ',' +
-					round( self.compute( obj, obj.from[1], obj.to[1] ) ) + ',' +
-					round( self.compute( obj, obj.from[2], obj.to[2] ) ) + ')';
+					round( self.compute( feed, feed.from[0], feed.to[0] ) ) + ',' +
+					round( self.compute( feed, feed.from[1], feed.to[1] ) ) + ',' +
+					round( self.compute( feed, feed.from[2], feed.to[2] ) ) + ')';
 		},
-		finish: function ( self, obj ) {
-			return 'rgb(' + obj.to.join( ',' ) + ')';
+		finish: function ( self, feed ) {
+			return 'rgb(' + feed.to.join( ',' ) + ')';
 		}
 	},
 		
 	_backgroundPosition = {
-		get: function ( self, key, value, element ) {
-			if ( isArray( value[0] ) ) {
-				return [ value[0][0], value[0][1]], [value[1][0], value[1][1] ];
+		get: function ( self, key, feed, referenceElement ) {
+			// from: [0, 0]
+			// to: [100, 200]
+			// [[0,0], [100,200]]
+			if ( isUndefined( feed.from ) ) {
+				var startX = 0,
+					startY = 0,
+					currentStyle = getStyle( referenceElement, key );
+				if ( currentStyle ) {
+					currentStyle = currentStyle.
+						split( ' ' ).
+						filter( negate( empty ) ).
+						map( parseFloat );
+					startX = currentStyle[0] || startX; 
+					startY = currentStyle[1] || startY;
+				}
+				feed.from = [ startX, startY ]; 
 			}
-			var startX = 0,
-				startY = 0,
-				currentStyle = getStyle( elem, key ),
-				m = /(\d+)[\w%]{1,2}\s+(\d+)[\w%]{1,2}/.exec( currentStyle );
-			if ( currentStyle && m ) {
-				startX = parseInt( m[1], 10 );
-				startY = parseInt( m[2], 10 );
-			}
-			return [ [ startX, value[0] ], [ startY, value[1] ] ];
+			return feed;
 		},
-		step: function ( self, obj ) {
-			return 	self.compute( obj, obj.from[0], obj.to[0] ) + self.unit + ' ' + 
-					self.compute( obj, obj.from[1], obj.to[1] ) + self.unit;
+		step: function ( self, feed ) {
+			return 	self.compute( feed, feed.from[0], feed.to[0] ) + feed.unit + ' ' + 
+					self.compute( feed, feed.from[1], feed.to[1] ) + feed.unit;
 		},
-		finish: function ( self, obj ) {
-			return obj.to[0] + self.unit + ' ' + obj.to[1] + self.unit;
+		finish: function ( self, feed ) {
+			return feed.to.join( feed.unit + ' ' ) + feed.unit;
 		}
 	},
 
@@ -303,30 +327,42 @@ var	_default = {
 			return _unitless;
 		}
 		return {
-			get: function ( self, key, value, element ) {
-				if ( !isArray( value ) ) {
-					var elStyle = element.style;
+			get: function ( self, key, feed, referenceElement ) {
+				if ( isUndefined( feed.from ) ) {
+					var elStyle = referenceElement.style;
 					if ( elStyle.opacity === undefined ) {
 						elStyle.opacity = 1;
 						elStyle.zoom = 1;
 					}
-					return [ elStyle.opacity, value ];
+					feed.from = elStyle.opacity;
 				}
-				return value;
+				return feed;
 			},
-			step: function ( self, obj, element ) {
-				var result = self.compute( obj, obj.from, obj.to )
+			step: function ( self, feed, element ) {
+				var result = self.compute( feed, feed.from, feed.to )
 				element.style.filter = result === 1 ? '' : 'alpha(opacity=' + ( result * 100 ) + ')';
 				return result;
 			},
-			finish: function ( self, obj, element ) {
-				element.style.filter = obj.to === 1 ? '' : 'alpha(opacity=' + ( obj.to * 100 ) + ')';
-				return obj.to;
+			finish: function ( self, feed, element ) {
+				element.style.filter = feed.to === 1 ? '' : 'alpha(opacity=' + ( feed.to * 100 ) + ')';
+				return feed.to;
 			}
 		}
-	}(),
+	}();
 	
-	transformProperty = function () {
+Class.parsers = {
+	_default: _default,
+	_unitless: _unitless,
+	'opacity': _opacity,
+	'color': _color,
+	'background-color': _color,
+	'background-position': _backgroundPosition
+};
+	
+
+/* 2D Transformation parsers */
+
+var	transformProperty = function () {
 		var cases = [ 'transform', 'WebkitTransform', 'MozTransform' ];
 		for ( var i = 0; i < cases.length; i++ ) {
 			if ( cases[i] in docRoot.style ) {
@@ -336,47 +372,104 @@ var	_default = {
 		return cases[0];
 	}(),
 	
-	_rotation = function () {
-		var rotationRe = /((?:^|\s)rotate\()([0-9]+\.?[0-9]*)(deg\))/;
+	transformParser = function ( prop, obj ) {
+		var unit = obj.unit || '',
+			defaultValue = obj.def || 0,
+			multiValue = isArray( defaultValue ),
+			re = new RegExp( '((?:^|\\s)' + prop + '\\()([^\\)]+)(\\))' ),
+			parseValue = function ( val ) {
+				return val.split( ',' ).map( parseFloat );
+			},
+			joinValue = function ( val ) {
+				return val.join( unit + ',' ) + unit;
+			};
 		return { 
 			prop: transformProperty,
-			get: function ( self, key, value, element ) {
-				if ( !isArray( value ) ) {
-					var elStyle = element.style,
-						currentStyle = elStyle[ transformProperty ] || 0, 
-						m = rotationRe.exec( currentStyle );
-					if ( currentStyle ) {
-						currentStyle = m ? m[2] : 0;
-					}
-					if ( !m ) { 
-						self.element.each( function ( el ) {
-							el.style[ transformProperty ] += ' rotate(' + currentStyle + 'deg)';
-						});
-					}
-					return [ currentStyle, value ];
+
+			// Return multi-dimensional array 
+			// [ [ 1, 2.. ], [ 50, 100.. ] ]
+			get: function ( self, key, feed, referenceElement ) {
+				var elStyle = referenceElement.style,
+					startValue = elStyle[ transformProperty ], 
+					// Is the property already on the style attribute?
+					m = re.exec( startValue );				
+				
+				// Pick a start value
+				if ( isUndefined( feed.from ) ) {
+					feed.from = m ? 
+						parseValue( m[2] ) : 
+						( isArray( feed.to ) ? 
+							feed.to.map( function () {return defaultValue;} ) : 
+							[ defaultValue ] );
+				} 
+				// Need to initialize the style attribute if it's not already
+				if ( !m ) { 
+					self.element.each( function ( el ) {
+						el.style[ transformProperty ] += ' ' + prop + '(' + joinValue( feed.from ) + ')';
+					});
 				}
-				return value;
+				if ( !isArray( feed.to ) ) {
+					feed.to = [ feed.to ];
+				}
+				log(feed)
+				return feed;
 			},
-			step: function ( self, obj, element ) {	
-				var result = self.compute( obj, obj.from, obj.to );
-				return element.style[ transformProperty ].replace( rotationRe, '$1' + result + '$3' ); 
+			
+			step: function ( self, feed, element ) {	
+				var result = [], i = 0;
+				for ( ; i < feed.from.length; i++ ) {
+					result.push( self.compute( feed, feed.from[i], feed.to[i] ) );
+				} 
+				return element.style[ transformProperty ].replace( re, '$1' + joinValue( result ) + '$3' ); 
 			},
-			finish: function ( self, obj, element ) { 
-				return element.style[ transformProperty ].replace( rotationRe, '$1' + obj.to + '$3' ); 
+			
+			finish: function ( self, feed, element ) { 
+				return element.style[ transformProperty ].replace( re, '$1' + joinValue( feed.to ) + '$3' ); 
 			}
 		}
-	}();
+	};
+
+
+enumerate({
+	'matrix': { },
+	'translate': { unit: 'px' },
+	'translateX': { unit: 'px' },
+	'translateY': { unit: 'px' },
+	'scale': { def: 1 },
+	'scaleX': { def: 1 },
+	'scaleY': { def: 1 },
+	'rotate': { unit: 'deg', parserName: 'rotation' },
+	'skew': { unit: 'deg' },
+	'skewX': { unit: 'deg' },
+	'skewY': { unit: 'deg' }
+}, function ( prop, obj ) {
+	Class.parsers[ obj.parserName || prop ] = transformParser( prop, obj );
+})
+
 
 	
-Class.parsers = {
-	_default: _default,
-	_unitless: _unitless,
-	'opacity': _opacity,
-	'color': _color,
-	'background-color': _color,
-	'background-position': _backgroundPosition,
-	'rotation': _rotation
-};
+/*	
+	rotate(10deg)
+	
+	scale(2)
+	scale(2.1,4)
+	scaleX(2.1)
+	scaleY(21.4)
+	
+	skew(30deg)
+	skew(30.1deg,-10deg)
+	skewX(30.1deg)
+	skewY(-10deg)
+	
+	translate(10px,100px)
+	translateX(tx[, ty])
+	translateY(tx[, ty])
+	
+	matrix(1, -0.2, 0, 1, 0, 0)
+	
+*/
+	
+
 	
 })();
 
