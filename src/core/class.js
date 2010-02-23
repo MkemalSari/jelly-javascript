@@ -41,6 +41,10 @@ var	defineClass = function ( name, opts ) {
 			Extends = opts.__extends,
 			Prototype = Class.prototype; 
 		
+		Class.toString = function () {
+			return 'JELLY.' + name;
+		};
+		
 		// Copy over mixins
 		extend( Prototype, defineClassMixins );
 		
@@ -69,10 +73,9 @@ var	defineClass = function ( name, opts ) {
 		});
 			
 		// Explicitly reference the class in the prototype 
-		extend( Prototype, opts );
+		opts.constructor = Class;
 		
-		// Explicitly reference the class in the prototype 
-		Prototype.constructor = Class;
+		extend( Prototype, opts );
 		
 		// Attach the class name to the constructor
 		Class.__name = name;
@@ -99,6 +102,12 @@ var	defineClass = function ( name, opts ) {
 	// Mixin methods implemented by every class created with <defineClass> 
 	//
 	defineClassMixins = {
+		/**
+		Simple <toString> method to improve on the default
+		*/
+		toString: function () {
+			return '<JELLY.' + this.constructor.__name + '>';
+		},
 		
 		/** 
 		Generic handler for custom events
@@ -129,15 +138,6 @@ var	defineClass = function ( name, opts ) {
 			}
 			return func ? func.apply( this, args ) : false;
 		},
-
-		
-		/** 
-		Simple introspection
-		*/
-		isInstanceOf: function () {
-			return this.constuctor.__name;
-		},
-		
 
 		/** 
 		Set instance members dynamically by passing in an object literal.
