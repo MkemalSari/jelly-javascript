@@ -106,7 +106,7 @@ var	defineClass = function ( name, opts ) {
 		Simple <toString> method to improve on the default
 		*/
 		toString: function () {
-			return '<JELLY.' + this.constructor.__name + '>';
+			return 'JELLY.' + this.constructor.__name + ' (inst)';
 		},
 		
 		/** 
