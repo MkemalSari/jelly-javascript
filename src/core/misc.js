@@ -93,9 +93,32 @@ var getViewport = function () {
 		return data.join('&');
 	},
 	
-	// Library loading function
+	/**
+	Convert a pixel value into typographical ems; requires a base font-size (in pixels) for calculation, 
+	which can be passed as a literal value or as a reference element to be parsed for computed font-size
+	*/
+	pxToEm = function ( pixel, base ) {
+		var defaultBase = 16, 
+			parsedBase;
+		base = base || defaultBase;
+		parsedBase = parseInt( base );
+		if ( isNaN( parsedBase ) ) {
+			base = getComputedFontSize( el ) || defaultBase;
+		} 
+		return pixel / base;
+	},
+	
+	/**
+	Utility for importing all symbols under the JELLY namespace into the current scope
+
+	@example
+	(function () {
+		window[ 'eval' ]( JELLY.unpack() )
+		...
+	})();
+	*/
 	unpack = function () {
-		if ( typeof __JELLY__ !== 'undefined' ) { 
+		if ( typeof __J !== 'undefined' ) { 
 			return null; 
 		}
 		var stack = [ 'var J=JELLY' ], mem, i = 1;
@@ -108,6 +131,7 @@ var getViewport = function () {
 extend( J, {
 	getViewport: getViewport,
 	getWindowScroll: getWindowScroll,
+	pxToEm: pxToEm,
 	parseQuery: parseQuery,
 	buildQuery: buildQuery,
 	unpack: unpack

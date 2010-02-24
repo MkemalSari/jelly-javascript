@@ -4,7 +4,7 @@ Initialization of JELLY namespace.
 Base set of shortcuts and utility functions.
 
 */
-var J = window.JELLY = { __JELLY__: 1.13 },
+var J = window.JELLY = { __J: 1.13 },
 
 	// Shortcuts
 	win = window,
@@ -236,7 +236,7 @@ var J = window.JELLY = { __JELLY__: 1.13 },
 		return function ( item ) {
 			return fn.apply( this, [ item ].concat( args ) );
 		};
-	}
+	},
 		
 	/**
 	Extend objects with the option to not overwrite defined members

@@ -10,7 +10,7 @@ define( 'BASE', 'C:\wamp\www\jelly' );
 define( 'SRC_PATH', BASE . '/src' );
 define( 'BUILD_PATH', BASE . '/build' );
 define( 'TOOLS_PATH', BASE . '/tools' );
-define( 'YUI_COMPRESSOR', TOOLS_PATH . '/yuicompressor-2.4.2.jar' );
+define( 'COMPRESSOR', TOOLS_PATH . '/yuicompressor-2.4.2.jar' );
 
 $ini_file = BASE . "/build.conf";
 
@@ -51,7 +51,7 @@ function print_build ( $build, $show_file_tags = true ) {
 			continue;
 		}
 		if ( $show_file_tags ) {
-			echo "\n\n/*! {$file[0]} */";
+			//echo "\n\n/* {$file[0]} */";
 		}
 		$contents = trim( file_get_contents( SRC_PATH . "/" . $file[1] . ".js" ) );
 		echo "\n\n{$contents}";
@@ -157,9 +157,10 @@ foreach( $config['compression options'] as $k => $v ) {
 	}
 	echo $k . '=' . $v;
 }
-$compressor_path = YUI_COMPRESSOR;
+$compressor_path = COMPRESSOR;
 $tmp_file = tempnam( TOOLS_PATH, 'JS_' );
 file_put_contents( $tmp_file, $prod_build ); 
+
 $command = <<<CMD
 java -jar "{$compressor_path}" --type=js{$options} "{$tmp_file}"
 CMD;
