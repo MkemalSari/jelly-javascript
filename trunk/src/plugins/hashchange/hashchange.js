@@ -1,82 +1,80 @@
 /**
 
-HashChange
-
-@description   
-	An 'onhashchange' event handler 
+An 'onhashchange' event handler 
 	
 @dependencies   
-	Poll
+Poll
 
 @api
-	** (Mixed) handle **  HashChange.subscribe( (Function) callback [, (String) reference] )
-	** void **  HashChange.unsubscribe( (Mixed) handle )
+** handle **  HashChange.subscribe( <fn> handler )
+** void **  HashChange.unsubscribe( handle )
 	
-@examples
-	var handle = HashChange.subscribe( function ( newHash ) { ... } );
-	HashChange.unsubscribe( handle );
+@example
+var handle = HashChange.subscribe( function () { ... } );
+HashChange.unsubscribe( handle );
 
 */
-
 (function () {
 
 var self = J.HashChange = {
 
-	handlers: {},
+		subscribe: function ( fn ) {
+			if ( !_nativeSupport ) {
+				_handlers[ ++_uid ] = fn;
+				_start();
+				return _uid;
+			}
+			else {
+				return addEvent( win, 'hashchange', fn );
+			}
+		},
+		
+		unSubscribe: function ( handle ) {
+			var self = this;
+			if ( !_nativeSupport ) { 
+				delete _handlers[ handle ];
+				if ( empty( _handlers ) ) {
+					_stop();
+				}
+			}
+			else {
+				removeEvent( handle );
+			}
+		}	
+	},
 	
-	href: location.href,
+	_nativeSupport = 'onhashchange' in win,
+	_uid = 0,
+	_handlers = {},
+	_hash = '',
+	_poller = null,
 	
-	loop: function () {
-		var href = location.href;
-		if ( href !== self.href ) { 
-			var hashIndex = href.indexOf( '#' ), 
-				hash = hashIndex > -1 ? href.substr( hashIndex + 1 ) : '';
-			for ( var key in self.handlers ) {
+	_cycle = function () {
+		var hash = location.hash;
+		if ( hash !== _hash ) { 
+			for ( var id in _handlers ) {
 				try {
-					self.handlers[key].call( {}, hash );
+					_handlers[ id ]();
 				} catch ( ex ) {
 					logError( ex );
 				}
 			}
-			self.href = href;
+			_hash = hash;
 		}
 	},
 	
-	start: function () {
-		if ( !self.poller ) {
-			self.poller = Poll.subscribe( 'fast', self.loop );
+	_start = function () {
+		if ( !_poller ) {
+			_hash = location.hash;
+			_poller = Poll.subscribe( 'fast', _cycle );
 		}
 	},
 	
-	stop: function () {
-		if ( self.poller ) {
-			Poll.unsubscribe( 'fast', self.poller );
-			self.poller = null;
+	_stop = function () {
+		if ( _poller ) {
+			Poll.unsubscribe( 'fast', _poller );
+			_poller = null;
 		}
-	},
-	
-	subscribe: function ( fn, ref ) {
-		var self = this, handlerId;
-		self.uid = self.uid || 0;
-		handlerId = ref || ++self.uid;
-		if ( self.handlers[handlerId] ) {
-			return false;
-		}
-		self.handlers[handlerId] = fn;
-		if ( !self.poller ) {
-			self.start();
-		}
-		return handlerId;
-	},
-	
-	unSubscribe: function ( handlerId ) {
-		var self = this;
-		delete self.handlers[handlerId];
-		if ( empty( self.handlers ) ) {
-			self.stop();
-		}
-	}	
-
-};
+	};
 	
 })();

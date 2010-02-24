@@ -124,5 +124,5 @@ if ( win.HTMLElement && HTMLElement.prototype ) {
 		contains: function ( el ) {
 			return !!( this.compareDocumentPosition( el ) & 16 );
 		}
-	}, false);
+	}, false );
 }	

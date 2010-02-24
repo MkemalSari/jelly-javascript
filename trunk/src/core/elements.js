@@ -370,6 +370,26 @@ var addClass = function ( el, cn ) {
 		};
 	}(),
 
+	/**
+	Get the computed font-size for an element in pixels
+	*/
+	getComputedFontSize = function ( el ) {
+		el = getElement( el );
+		if ( el ) {
+			if ( 'getComputedStyle' in win ) {
+				return parseInt( win.getComputedStyle( el, null ).fontSize );	
+			}
+			else {
+				var testElement = getComputedFontSize.el = 
+						getComputedFontSize.el || createElement( 'foo text:x,style:"line-height:1;font-size:100%;position:absolute"' );
+				insertElement( testElement, el );
+				var result = testElement.offsetHeight;
+				removeElement( testElement );
+				return result;
+			}
+		}
+	},
+
 	setStyle = function ( el, a, b ) {
 		var set = function ( prop, value ) {
 				if ( prop === 'float' ) {
@@ -413,11 +433,6 @@ var addClass = function ( el, cn ) {
 			elStyle.opacity = val;
 		};		
 	}(),
-	
-	/*
-	setRotation = function () {
-
-	},*/
 	
 	storeData = function ( el, name, value ) {
 		var cache = elementData, elementKey = cache.ns;
@@ -483,6 +498,7 @@ extend( J, {
 	setY: setY,
 	getAttribute: getAttribute,
 	getStyle: getStyle,
+	getComputedFontSize: getComputedFontSize,
 	setStyle: setStyle,
 	setOpacity: setOpacity,
 	storeData: storeData,
