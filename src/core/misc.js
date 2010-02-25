@@ -101,7 +101,7 @@ var getViewport = function () {
 		var defaultBase = 16, 
 			parsedBase;
 		base = base || defaultBase;
-		parsedBase = parseInt( base );
+		parsedBase = parseInt( base, 10 );
 		if ( isNaN( parsedBase ) ) {
 			base = getComputedFontSize( el ) || defaultBase;
 		} 
