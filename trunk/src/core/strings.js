@@ -80,7 +80,7 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 				hex = true;
 			}
 			else if ( !startsWith( str, 'rgb' ) ) {
-				var test = createElement( 't', { style: 'display:none;color:' + str } );
+				var test = createElement( 't style:"display:none;color:' + str );
 				insertElement( test );
 				str = getStyle( test, 'color' );
 				removeElement( test );
