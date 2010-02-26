@@ -118,7 +118,7 @@ var getViewport = function () {
 	})();
 	*/
 	unpack = function () {
-		if ( typeof __J !== 'undefined' ) { 
+		if ( typeof __JELLY !== 'undefined' ) { 
 			return null; 
 		}
 		var stack = [ 'var J=JELLY' ], mem, i = 1;
