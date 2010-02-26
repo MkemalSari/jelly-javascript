@@ -29,6 +29,12 @@ extend( Object, {
 	}
 }, false);
 
+extend( Array, {
+	isArray: function ( obj ) {
+		return objToString.call( obj ) === '[object Array]';
+	}
+}, false);
+
 
 /* Array methods */
 var arrayMethods = {

@@ -4,15 +4,14 @@ Initialization of JELLY namespace.
 Base set of shortcuts and utility functions.
 
 */
-var J = window.JELLY = { __J: 1.13 },
-
+var J = window.JELLY = { __JELLY: 1.13 },
 	// Shortcuts
 	win = window,
 	doc = win.document,
 	nav = win.navigator,
 	ua = nav.userAgent,
 	docRoot = doc.documentElement,
-	docHead = doc.getElementsByTagName('head')[0],
+	docHead = doc.getElementsByTagName( 'head' )[0],
 	standardEventModel = 'addEventListener' in doc,
 	querySelectorAll = 'querySelectorAll' in doc,
 	functionLit = function () {},
@@ -173,7 +172,7 @@ var J = window.JELLY = { __J: 1.13 },
 	Check if object is an instance of <Array>
 	*/
 	isArray = function ( obj ) { 
-		return objToString.call( obj ) === '[object Array]'; 
+		return Array.isArray( obj ); 
 	},	
 	
 	/**
