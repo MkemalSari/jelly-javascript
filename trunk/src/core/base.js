@@ -319,6 +319,7 @@ extend( J, {
 	isElement: isElement,
 	isNodeList: isNodeList,
 	isArray: isArray,
+   	inArray: inArray,
 	toArray: toArray,
 	empty: empty,
 	negate: negate,	
