@@ -120,6 +120,30 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 		return str;
 	},
 	
+	/**
+	Useful for parsing string sub-languages
+	
+	@example
+	extractLiterals( 'Hello World, "This is a quoted string", this is not' )
+	// {
+	//	literals: [ 'This is a quoted string' ],
+	//  string: 'Hello World, _STR_, this is not',
+	//  marker: '_STR_'
+	// }
+	*/
+	extractLiterals = function ( str, marker ) {
+		var literals = [], m, marker = marker || '_STR_';
+		while ( m = /('|")(?:\\1|[^\1])*?\1/.exec( str ) ) {	
+			literals.push( m[0].substring( 1, m[0].length-1 ) );
+			str = str.substring( 0, m.index ) + marker + str.substring( m.index + m[0].length );
+		}
+		return {
+			string: str,
+			literals: literals,
+			marker: marker
+		};
+	},
+	
 	evalScripts = function ( str ) {
 		var wrapper = createElement( 'div', { html: str } ), 
 			res = [];
