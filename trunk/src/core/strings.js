@@ -124,23 +124,39 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 	Useful for parsing string sub-languages
 	
 	@example
-	extractLiterals( 'Hello World, "This is a quoted string", this is not' )
+	var extract = extractLiterals( 'Hello World, "quoted string" foobar "another quoted string"' )
 	// {
-	//	literals: [ 'This is a quoted string' ],
-	//  string: 'Hello World, _STR_, this is not',
-	//  marker: '_STR_'
+	//	literals: { 
+	//		_LIT1_: 'quoted string',
+	//		_LIT2_: 'another quoted string'
+	//	}
+	//  string: 'Hello World, _LIT1_, foobar _LIT2_',
+	//  prefix: 'LIT'
 	// }
 	*/
-	extractLiterals = function ( str, marker ) {
-		var literals = [], m, marker = marker || '_STR_';
+	extractLiterals = function ( str, prefix ) {
+		var literals = {}, 
+			prefix = prefix || 'LIT',
+			counter = 0,
+			label,
+			m; 
 		while ( m = /('|")(?:\\1|[^\1])*?\1/.exec( str ) ) {	
-			literals.push( m[0].substring( 1, m[0].length-1 ) );
-			str = str.substring( 0, m.index ) + marker + str.substring( m.index + m[0].length );
+			label = '_' + prefix + ( ++counter ) + '_';
+			literals[ label ] = m[0].substring( 1, m[0].length-1 );
+			str = str.substring( 0, m.index ) + label + str.substring( m.index + m[0].length );
 		}
 		return {
 			string: str,
 			literals: literals,
-			marker: marker
+			prefix: prefix,
+			match: function ( test ) {
+				if ( test in literals ) {
+					var value = literals[ test ];
+					delete literals[ test ];
+					return value;
+				} 
+				return test;
+			}
 		};
 	},
 	
@@ -163,5 +179,6 @@ extend( J, {
 	parseColor: parseColor,
 	stripTags: stripTags,
 	bindData: bindData,
+	extractLiterals: extractLiterals,
 	evalScripts: evalScripts
 });

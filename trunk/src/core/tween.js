@@ -190,7 +190,7 @@ var Class = defineClass( 'Tween', {
 			delete obj[ 'delay' ];
 			
 			// Parse the start object to create the effect stack
-			enumerate( obj, function ( prop, value ) {
+			each( obj, function ( prop, value ) {
 				var key = camelize( prop ), 
 					// We pass in the first element as a basis for all unspecified start value calculations
 					referenceElement = self.element[0],
@@ -470,7 +470,7 @@ var	getVendorProperty = function ( prop ) {
 		}
 	};
 
-enumerate({
+each({
 	'matrix': { },
 	'translate': { unit: 'px' },
 	'translateX': { unit: 'px' },

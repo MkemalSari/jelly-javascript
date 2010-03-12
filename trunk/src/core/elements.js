@@ -58,16 +58,8 @@ var addClass = function ( el, cn ) {
 			}
 		} 
 		else {
-			var arg = arg.trim(),
-				stringKey = '__JELLY_CE__',
-				stringTokens = [], 
-				m;
-			while ( m = /('|")([^\1]*?)\1/.exec( arg ) ) {
-				arg = arg.replace( m[0], stringKey );
-				stringTokens.push( m[2] );
-			}
-			arg = arg.replace( /\s*(:|,)\s*/g, '$1' );
-			var parts = arg.split( ' ' ),
+			var extract = extractLiterals( arg ),
+				parts = extract.string.trim().replace( /\s*(:|,)\s*/g, '$1' ).split( ' ' ),
 				first = parts.shift(),
 				leadId = contains( first, '#' ),
 				leadClass = contains( first, '.' ),
@@ -84,9 +76,9 @@ var addClass = function ( el, cn ) {
 				type = first;
 			}
 			if ( parts[0] ) {
-				parts[0].split( ',' ).each(function (tkn) {
+				parts[0].split( ',' ).each( function ( tkn ) {
 					tkn = tkn.split( ':' );
-					var value = tkn[1] === stringKey ? stringTokens.shift() : tkn[1];
+					var value = extract.match( tkn[1] );
 					if ( tkn[0] === '@' ) {
 						branchMapData = value;
 					} 

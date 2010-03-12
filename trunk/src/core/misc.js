@@ -44,14 +44,16 @@ var getViewport = function () {
 		return data;
 	},
 	
+	/**
+	Handle multiple input types from the argument list and return a queryString
+	*/
 	buildQuery = function () {
 		var append = function ( name, value ) {
 				if ( !name ) { return; } 
-				if ( callbackFilter ) { value = callbackFilter.call(value, value); } 
 				data.push( name + '=' + encodeURIComponent(value).replace(/%20/g, '+') );
 			}, 
 			parseElement = function ( el ) {
-				if ( !isElement(el) || !/^(input|textarea|select)$/i.test(el.nodeName) ) {
+				if ( !isElement( el ) || !/^(input|textarea|select)$/i.test(el.nodeName) ) {
 					return; 
 				}
 				var type = el.type.toLowerCase(),
@@ -67,30 +69,35 @@ var getViewport = function () {
 					default: 
 						append( name, value );
 				}
-			}
+			},
 			args = toArray( arguments ),
-			callbackFilter = isFunction( args[args.length-1] ) ? args.pop() : null;
 			data = [];
 			
-		args.each(function ( arg ) {
-			if ( isObject(arg) && isInteger(arg.length) ) {
-				( isArray(arg) ? arg : toArray(arg) ).each( parseElement );
+		args.each( function ( arg ) {
+			// Object literals
+			if ( isObject( arg ) ) {
+				for ( var key in arg ) { 
+					append( key, arg[key] ); 
+				}
 			}
-			else if ( isObject(arg, true) ) {
-				for ( var key in arg ) { append( key, arg[key] ); }
+			// Arrays and NodeLists
+			else if ( arg.length ) {
+				( isArray( arg ) ? arg : toArray( arg ) ).each( parseElement );
 			}
-			else if ( isString(arg) || isElement(arg) ) {
-				var el = getElement(arg);
-				if (el) {
-					parseElement(el);
-					J.Q( el, 'textarea, input, select' ).each( parseElement );
+			// Element ID's, elements, or raw query data
+			else if ( isString( arg ) || isElement( arg ) ) {
+				var el = getElement( arg );
+				if ( el ) {
+					// Parse element and all its children
+					parseElement( el );
+					J.Q( el, 'textarea,input,select' ).each( parseElement );
 				}
 				else {
-					data.push( arg );	
+					data.push( arg );
 				}
 			}
 		});
-		return data.join('&');
+		return data.join( '&' );
 	},
 	
 	/**

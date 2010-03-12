@@ -18,7 +18,6 @@ var Class = defineClass( 'Request', {
 		noCache: true,
 		async: true,
 		cleanUp: true,
-		feedback: { start: functionLit, stop: functionLit },
 		requestHeaders: {},
 		
 		send: function ( method, request, callback ) {
@@ -46,13 +45,12 @@ var Class = defineClass( 'Request', {
 			xhr.onreadystatechange = function () {
 				if ( xhr.readyState === 4 ) {
 					self.fire( 'complete', xhr );
+					self.fire( 'stop', xhr );
 					clearTimeout(self.timer);
-					self.feedback.stop();
 					var status = xhr.status,
 						// credit jQuery
 						statusOk = !xhr.status && location.protocol == "file:" ||
 							( xhr.status >= 200 && xhr.status < 300 ) || xhr.status == 304 || xhr.status == 1223;
-						
 					if ( statusOk ) {
 						self.fire( 'success', xhr );
 						if ( callback ) {
@@ -74,10 +72,11 @@ var Class = defineClass( 'Request', {
 			}
 			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 			
-			self.feedback.start();
+			self.fire( 'start', xhr );
 			self.timer = setTimeout( function () {
 				xhr.abort();
 				self.fire( 'timeout', xhr );               
+				self.fire( 'stop', xhr );
 				self.inProgress = false;
 			}, self.timeout || Class.timeout );
 			
@@ -88,7 +87,7 @@ var Class = defineClass( 'Request', {
 		},
 		
 		post: function ( file, data, callback ) {
-			return this.send( 'post', file + '?' + (data || 'empty'), callback );
+			return this.send( 'post', file + '?' + ( data || 'empty' ), callback );
 		},
 		
 		get: function ( request, callback ) {
