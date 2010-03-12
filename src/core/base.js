@@ -120,7 +120,7 @@ var J = window.JELLY = { __JELLY: 1.13 },
 	Check if object is an object literal (an instance of <Object>)
 	*/
 	isObject = function ( obj ) { 
-		return obj+'' === '[object Object]';
+		return objToString.call( obj ) === '[object Object]';
 	},
 	
 	/**
@@ -252,7 +252,7 @@ var J = window.JELLY = { __JELLY: 1.13 },
 	/**
 	Generic iterator function; works for objects, arrays and nodelists
 	*/
-	enumerate = function ( obj, callback ) {
+	each = function ( obj, callback ) {
 		if ( isObject( obj ) ) {
 			for ( var key in obj ) { 
 				callback.call( obj, key, obj[ key ] ); 
@@ -262,7 +262,7 @@ var J = window.JELLY = { __JELLY: 1.13 },
 			for ( var i = 0; i < obj.length; i++ ) { 
 				callback.call( obj, obj[ i ], i ); 
 			}
-		}
+		}		
 	},
 	
 	/**
@@ -325,7 +325,7 @@ extend( J, {
 	negate: negate,	
 	preset: preset,
 	extend: extend,	
-	enumerate: enumerate,
+	each: each,
 	defer: defer,
 	log: log,
 	logWarn: logWarn,

@@ -60,13 +60,13 @@ var	defineClass = function ( name, opts ) {
 		
 		// Add in setter methods
 		if ( opts.__set ) {
-			enumerate( opts.__set, function ( mem, value ) {
+			each( opts.__set, function ( mem, value ) {
 				Prototype[ 'set' + capitalize( mem ) ] = value;
 			})
 		}
 		
 		// Delete special members from <opts>
-		enumerate( opts, function ( mem, value ) {
+		each( opts, function ( mem, value ) {
 			if ( startsWith( mem, '__' ) ) {
 				delete opts[ mem ];
 			} 
@@ -162,7 +162,7 @@ var	defineClass = function ( name, opts ) {
 			else if ( args.length > 1 ) {
 				feed[ args[0] ] = args[1];
 			}
-			enumerate( feed, function ( key, value ) {
+			each( feed, function ( key, value ) {
 				var methodName = 'set' + capitalize( key );
 				if ( methodName in self ) {
 					self[ methodName ]( value );
