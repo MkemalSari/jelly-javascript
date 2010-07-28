@@ -90,7 +90,7 @@ extend( Array.prototype, arrayMethods, false );
 Array.prototype.each = Array.prototype.forEach;
 
 // Add Array methods as generics
-makeGenerics( Array, Object.keys( arrayMethods ).concat( 'each concat join pop push reverse shift splice sort splice toString unshift valueOf'.split( '' ) ) );
+makeGenerics( Array, Object.keys( arrayMethods ).concat( 'each concat join pop push reverse shift splice sort splice toString unshift valueOf'.split( ' ' ) ) );
 
 
 /* String methods */
