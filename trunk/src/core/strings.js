@@ -150,12 +150,7 @@ var	contains = function ( haystack, needle, caseInsensitive ) {
 			literals: literals,
 			prefix: prefix,
 			match: function ( test ) {
-				if ( test in literals ) {
-					var value = literals[ test ];
-					delete literals[ test ];
-					return value;
-				} 
-				return test;
+				return ( test in literals ) ? literals[ test ] : test;
 			}
 		};
 	},
