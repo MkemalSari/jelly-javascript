@@ -32,7 +32,7 @@ Taking things one step further, you can use the `unpack` utility which returns a
 (function () { // Start closure
 
 // import library
-eval( JELLY.unpack() );
+eval( JELLY() );
 
 var navPageTop = createBranch( 
     'li.pager', 
