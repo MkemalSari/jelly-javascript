@@ -113,7 +113,7 @@ var getViewport = function () {
 			base = getComputedFontSize( el ) || defaultBase;
 		} 
 		return pixel / base;
-	},
+	};
 	
 	/**
 	Utility for importing all symbols under the JELLY namespace into the current scope
@@ -124,7 +124,7 @@ var getViewport = function () {
 		...
 	})();
 	*/
-	unpack = function () {
+	/*unpack = function () {
 		if ( typeof __JELLY !== 'undefined' ) { 
 			return null; 
 		}
@@ -133,13 +133,13 @@ var getViewport = function () {
 			stack[ i++ ] = mem + '=J.' + mem;
 		}
 		return stack.join(',') + ';';
-	};
+	};*/
 
 extend( J, {
 	getViewport: getViewport,
 	getWindowScroll: getWindowScroll,
 	pxToEm: pxToEm,
 	parseQuery: parseQuery,
-	buildQuery: buildQuery,
-	unpack: unpack
+	buildQuery: buildQuery
+	//unpack: unpack
 });

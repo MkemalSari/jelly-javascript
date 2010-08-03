@@ -534,9 +534,9 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 		execute = function ( a, b ) {
 		
 			var contextMode = !!b,
-				selector = contextMode ? b : a;
+				selector = a;
 			
-			collection = contextMode ? [ getElement( a ) ] : [];
+			collection = contextMode ? [ getElement( b ) ] : [];
 
 			if ( firstRun ) {
 				var m;
@@ -560,7 +560,7 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 				return filterUnique( combo );
 			}
 			
-			firstRun = !b;
+			//firstRun = !b;
 			
 			var tokens = parseSelector( selector ),
 				children = null; 
@@ -617,7 +617,9 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 		
 		nativeSelectorEngine = function ( a, b ) {
 			try { 
-				return addSugar( toArray( b ? ( getElement( a ) ).querySelectorAll( b ) : doc.querySelectorAll( a ) ) );
+				return addSugar( toArray(  
+					( b ? getElement( b ) : doc ).querySelectorAll( a )
+				));
 			} catch ( ex ) { 
 				logWarn( ex ); 
 			}

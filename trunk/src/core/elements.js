@@ -169,7 +169,7 @@ var addClass = function ( el, cn ) {
 	}(),
 	
 	getElements = function ( a, b ) { 
-		return ( b ? getElement( a ) : doc ).getElementsByTagName( b || a ); 
+		return ( b ? getElement( b ) : doc ).getElementsByTagName( a ); 
 	},
 	
 	wrapElement = function ( el, wrapper ) {
