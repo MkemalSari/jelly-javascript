@@ -4,7 +4,18 @@ Initialization of JELLY namespace.
 Base set of shortcuts and utility functions.
 
 */
-var J = window.JELLY = { __JELLY: 1.13 },
+var J = window.JELLY = function () {
+		if ( typeof __JELLY !== 'undefined' ) { 
+			return null; 
+		}
+		J.__JELLY = 1.14; // Version
+		var stack = [ 'var J=JELLY' ], mem, i = 1;
+		for ( mem in J ) { 
+			stack[ i++ ] = mem + '=J.' + mem;
+		}
+		return stack.join( ',' ) + ';';
+	},
+	
 	// Shortcuts
 	win = window,
 	doc = win.document,
