@@ -332,6 +332,32 @@ var	_default = {
 			return 'rgb(' + feed.to.join( ',' ) + ')';
 		}
 	},
+	
+	
+	_colorRgba = {
+		get: function ( self, key, feed, referenceElement ) {
+			if ( isUndefined( feed.from ) ) {
+				feed.from = getStyle( referenceElement, key );
+			} 
+			feed.from = parseColor( feed.from, 'rgb-array' ); 
+			feed.to = parseColor( feed.to, 'rgb-array' );
+			
+			feed.from.push( feed.fromAlpha || 1 );
+			feed.to.push( feed.toAlpha || 1 );
+			return feed;
+		},
+		step: function ( self, feed, element ) {
+			var round = Math.round;
+			return 'rgba(' +
+					round( self.compute( feed, feed.from[0], feed.to[0] ) ) + ',' +
+					round( self.compute( feed, feed.from[1], feed.to[1] ) ) + ',' +
+					round( self.compute( feed, feed.from[2], feed.to[2] ) ) + ',' + 
+					round( self.compute( feed, feed.from[3], feed.to[3] ) ) + ')';;
+		},
+		finish: function ( self, feed ) {
+			return 'rgba(' + feed.to.join( ',' ) + ')';
+		}
+	},
 		
 	_backgroundPosition = {
 		get: function ( self, key, feed, referenceElement ) {

@@ -167,9 +167,10 @@ var addClass = function ( el, cn ) {
 			};
 		}
 	}(),
-	
+		
 	getElements = function ( a, b ) { 
-		return ( b ? getElement( b ) : doc ).getElementsByTagName( a ); 
+		var context = b ? getElement( b ) : doc;
+		return context && context.getElementsByTagName( a ); 
 	},
 	
 	wrapElement = function ( el, wrapper ) {

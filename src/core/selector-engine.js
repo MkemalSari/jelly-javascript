@@ -187,7 +187,7 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 			} 
 			else {
 				for ( var i = 0, n = collection.length; i < n; i++ ) {
-					var tags = getElements( collection[i], tkn.val ), 
+					var tags = getElements( tkn.val, collection[i]  ), 
 						n2 = tags.length, 
 						j = 0;
 					for ( j; j < n2; j++ ) {
@@ -418,7 +418,7 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 				return !getNext(el) && !getPrevious(el);
 			},
 			'only-of-type': function (el) {
-				var tags = getElements( el.parentNode, el.nodeName );
+				var tags = getElements( el.nodeName, el.parentNode );
 				if ( tags.length === 1 && tags[0].parentNode === el.parentNode ) {
 					return true;
 				} 
