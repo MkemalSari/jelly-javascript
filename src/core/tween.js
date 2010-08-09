@@ -114,9 +114,9 @@ var Class = defineClass( 'Tween', {
 				return this;
 			},
 
-			opacity: function ( val ) {
+			style: function ( val1, val2 ) {
 				this.element.each( function ( element ) {
-					setOpacity( element, val );
+					setStyle( element, val1, val2 );
 				});
 				return this;
 			},
