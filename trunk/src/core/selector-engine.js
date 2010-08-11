@@ -80,7 +80,7 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 				// Seperate out the combinators + > ~, then split
 				parts = normalize( selector.replace( /(>|~(?!=)|\+(?!\d))/g, ' $1 ' ) ).split( ' ' ),
 				universal = { mode: _fetch_, type: _tag_, val: '*' },
-				getByClass = 'getElementsByClassName' in doc,
+				getByClass = 'getElementsByClassName' in docRoot,
 				sibling = false;
 
 			for ( var i = 0, tmp; i < parts.length; i++ ) { 
