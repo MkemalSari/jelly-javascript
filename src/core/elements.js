@@ -13,7 +13,7 @@ var addClass = function ( el, cn ) {
 		el = getElement( el );
 		if ( !el || el.className === '' ) { return; } 
 		var patt = new RegExp( '(^|\\s)' + cn + '(\\s|$)' );
-		el.className = normalize( el.className.replace( patt, ' ' ) );
+		el.className = el.className.replace( patt, ' ' );
 	},
 	
 	hasClass = function ( el, cn ) {
@@ -34,30 +34,31 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
-	createElement = function ( arg, attrs ) {
+	/**
+	Versatile element creation 
+	
+	@example 
+	createElement( 'div' );
+	>>> <div></div>
+	
+	createElement( '#foo', 'Hello!' );
+	>>> <div id="foo">Hello!</div>
+	
+	createElement( 'img#bar', {src:'path/to/img.jpg', alt:''});
+	>>> <img id="foo" src="path/to/img.jpg" alt="" />
+	
+	createElement( 'img#bar src:path/to/img.jpg, alt:""' );
+	>>> <img id="foo" src="path/to/img.jpg" alt="" />
+	
+	*/
+	createElement = function ( arg, arg2 ) {
 		var el;
 		if ( !/[#:\.]/.test( arg ) ) {
-			el = doc.createElement( arg ), key;
-			for ( key in attrs ) {
-				switch (key) {
-					case 'html': 
-						el.innerHTML = attrs[ key ]; 
-						break;
-					case 'text': 
-						el.appendChild( doc.createTextNode( attrs[ key ] ) ); 
-						break;
-					case 'class': 
-						el.className = attrs[ key ]; 
-						break;
-					case 'style': 
-						el.style.cssText = attrs[ key ]; 
-						break;
-					default: 
-						el.setAttribute( key, attrs[ key ] );
-				}
-			}
+			// Simple tag
+			el = doc.createElement( arg );
 		} 
 		else {
+			// CSS selector string
 			var extract = extractLiterals( arg ),
 				parts = extract.string.trim().replace( /\s*(:|,)\s*/g, '$1' ).split( ' ' ),
 				first = parts.shift(),
@@ -89,9 +90,48 @@ var addClass = function ( el, cn ) {
 			} 
 			el = createElement( type.toLowerCase(), attributes );
 		}
-		return attrs === true ? { elem: el, ref: branchMapData } : el;
+		
+		// Options for second argument:
+		if ( !arg2 ) {
+			return el;
+		}
+		else if ( arg2 === true ) {
+			// Called from createBranch if boolean 'true'
+			return { elem: el, ref: branchMapData };
+		}
+		else if ( isString( arg2 ) ) {
+			// Text argument
+			el.innerHTML = arg2; 
+		}
+		else if ( isObject( arg2 ) ) {
+			// Properties object
+			for ( var key in arg2 ) {
+				switch ( key ) {
+					case 'html': 
+					case 'text': 
+						el.innerHTML = arg2[ key ]; 
+						break;
+					case 'class': 
+						el.className = arg2[ key ]; 
+						break;
+					case 'style': 
+						el.style.cssText = arg2[ key ]; 
+						break;
+					default: 
+						el.setAttribute( key, arg2[ key ] );
+				}
+			}
+		}
+		return el;
 	},
 
+	/**
+	DOM branching 
+	
+	@example 
+	See: http://the-echoplex.net/log/dom-branching
+	
+	*/
 	createBranch = function () {
 		var args = toArray( arguments ),
 			res = {},

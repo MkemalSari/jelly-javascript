@@ -10,6 +10,8 @@ if ( browser.ie6 ) {
 	} catch (ex) {}; 
 }
 
+removeClass( docRoot, 'no-js' );
+
 // adding informational css classes to the root element for convenience
 var classname = ['unknown'], key;
 for ( key in browser ) {
@@ -22,4 +24,5 @@ for ( key in browser ) {
 		}
 	}
 }
-addClass( docRoot, 'js ' + classname.join(' ') );
+classname.push( 'js' );
+addClass( docRoot, classname.join(' ') );
