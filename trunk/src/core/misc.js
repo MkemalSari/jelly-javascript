@@ -113,33 +113,46 @@ var getViewport = function () {
 			base = getComputedFontSize( el ) || defaultBase;
 		} 
 		return pixel / base;
-	};
-	
-	/**
-	Utility for importing all symbols under the JELLY namespace into the current scope
+	},
 
+
+	/**
+	Get a supported CSS property using vendor prefix or not. Returns false if no property is found
+		
 	@example
-	(function () {
-		window[ 'eval' ]( JELLY.unpack() )
-		...
-	})();
+	var borderRadius = getVendorStyleProperty( 'border-radius' );
+	>>> something like 'borderRadius' or 'MozBorderRadius'
+	
 	*/
-	/*unpack = function () {
-		if ( typeof __JELLY !== 'undefined' ) { 
-			return null; 
+	getVendorStyleProperty = function ( prop ) {
+		var self = getVendorStyleProperty;
+		self.cache = self.cache || {};
+		if ( prop in self.cache ) {
+			return self.cache[ prop ];
+		} 
+		var propCamel = camelize( prop ), 
+			cases = [ propCamel ].concat( 
+				[ 'Webkit', 'Moz', 'O', 'Ms' ].map( function ( prefix ) {
+					return prefix + capitalize( propCamel );
+				})),
+			result = false,
+			i = 0;
+		for ( ; i < cases.length; i++ ) {
+			if ( cases[i] in docRoot.style ) {
+				result = cases[i];
+				break;
+			}
 		}
-		var stack = [ 'var J=JELLY' ], mem, i = 1;
-		for ( mem in J ) { 
-			stack[ i++ ] = mem + '=J.' + mem;
-		}
-		return stack.join(',') + ';';
-	};*/
+		self.cache[ prop ] = result;
+		return result;
+	};
+
 
 extend( J, {
 	getViewport: getViewport,
 	getWindowScroll: getWindowScroll,
 	pxToEm: pxToEm,
 	parseQuery: parseQuery,
-	buildQuery: buildQuery
-	//unpack: unpack
+	buildQuery: buildQuery,
+	getVendorStyleProperty: getVendorStyleProperty
 });
