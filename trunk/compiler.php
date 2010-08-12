@@ -5,14 +5,13 @@
 #############################################################
 
 # define a base path for your dev directory
-define( 'BASE', 'C:\wamp\www\jelly' ); 
-
+define( 'BASE', '/Users/peteboere/Sites/jelly' ); 
 define( 'SRC_PATH', BASE . '/src' );
-define( 'BUILD_PATH', BASE . '/build' );
+define( 'BUILD_PATH', BASE . '/_/build' );
 define( 'TOOLS_PATH', BASE . '/tools' );
 define( 'COMPRESSOR', TOOLS_PATH . '/yuicompressor-2.4.2.jar' );
 
-$ini_file = BASE . "/build.conf";
+$ini_file = BASE . "/_/build.conf";
 
 # Accept alternative ini files when called from the command line
 if ( isset( $argv ) && isset( $argv[1] ) ) {
