@@ -156,7 +156,7 @@ var	defineClass = function ( name, opts ) {
 			var self = this, 
 				args = arguments,
 				feed = {};
-			if ( isObject( args[0] ) ) {
+			if ( isObjLiteral( args[0] ) ) {
 				feed = args[0]; 
 			} 
 			else if ( args.length > 1 ) {

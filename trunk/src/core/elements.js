@@ -103,7 +103,7 @@ var addClass = function ( el, cn ) {
 			// Text argument
 			el.innerHTML = arg2; 
 		}
-		else if ( isObject( arg2 ) ) {
+		else if ( isObjLiteral( arg2 ) ) {
 			// Properties object
 			for ( var key in arg2 ) {
 				switch ( key ) {
@@ -137,7 +137,13 @@ var addClass = function ( el, cn ) {
 			res = {},
 			context,
 			parseToken = function ( arg ) {
-				if ( arg && isObject( arg ) ) {
+				if ( !arg ) {
+					return;
+				}
+				else if ( isElement( arg ) ) { 
+					return arg; 
+				}
+				else if ( isObjLiteral( arg ) ) {
 					if ( isElement( arg.root ) ) {
 						for ( var key in arg ) {
 							if ( isArray( arg[ key ] ) ) {
@@ -154,9 +160,6 @@ var addClass = function ( el, cn ) {
 						return arg.root;
 					} 
 				}
-				else if ( isElement( arg ) ) { 
-					return arg; 
-				} 
 				else if ( !isString( arg ) ) { 
 					return; 
 				} 
@@ -436,7 +439,7 @@ var addClass = function ( el, cn ) {
 				}
 			},
 			prop;
-		if ( isObject( a ) ) {	
+		if ( isObjLiteral( a ) ) {	
 			for ( prop in a ) {
 				set( prop, a[prop] );
 			}

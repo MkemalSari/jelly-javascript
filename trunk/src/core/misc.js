@@ -75,7 +75,7 @@ var getViewport = function () {
 			
 		args.each( function ( arg ) {
 			// Object literals
-			if ( isObject( arg ) ) {
+			if ( isObjLiteral( arg ) ) {
 				for ( var key in arg ) { 
 					append( key, arg[key] ); 
 				}

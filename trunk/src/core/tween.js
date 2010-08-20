@@ -199,7 +199,7 @@ var Class = defineClass( 'Tween', {
 					feed = {};
 
 				// Deal with object format arguments
-				if ( isObject( value ) ) {
+				if ( isObjLiteral( value ) ) {
 					feed = value;
 				}
 				else {

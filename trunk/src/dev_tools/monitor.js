@@ -60,7 +60,7 @@ var self = J.Monitor = {
 				if ( isNumber( obj ) ) {
 					format.color = 'orange';
 				}
-				else if ( isObject( obj ) ) {
+				else if ( isObjLiteral( obj ) ) {
 					format.color = 'lime';
 					format.value ='Object';
 				}

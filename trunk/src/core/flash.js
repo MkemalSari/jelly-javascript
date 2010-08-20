@@ -11,7 +11,7 @@ extend( J, {
 			desc,
 			versionString,
 			testString = 'Shockwave Flash';
-		if ( plugins && isObject( plugins[ testString ] ) ) {
+		if ( plugins && isObjectLike( plugins[ testString ] ) ) {
 			desc = plugins[ testString ].description;
 			if ( desc !== null ) {
 				versionString = desc.replace( /^[^\d]+/, '' );
