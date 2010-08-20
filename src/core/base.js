@@ -23,8 +23,8 @@ var J = window.JELLY = function () {
 	ua = nav.userAgent,
 	docRoot = doc.documentElement,
 	docHead = doc.getElementsByTagName( 'head' )[0],
-	standardEventModel = 'addEventListener' in doc,
-	querySelectorAll = 'querySelectorAll' in doc,
+	standardEventModel = 'addEventListener' in docRoot,
+	querySelectorAll = 'querySelectorAll' in docRoot,
 	functionLit = function () {},
 	
 	/**
@@ -36,7 +36,7 @@ var J = window.JELLY = function () {
 			securityPolicy = 'securityPolicy' in nav,
 			taintEnabled = 'taintEnabled' in nav,
 			opera = /opera/i.test(ua),
-			firefox = /firefox/i.test(ua),				
+			firefox = /firefox/i.test(ua),
 			webkit = /webkit/i.test(ua),
 			ie = activex ? ( querySelectorAll ? 8 : ( xhr ? 7 : 6 ) ) : 0;
 		return {
@@ -62,60 +62,38 @@ var J = window.JELLY = function () {
 		return obj;
 	}(),
 	
-	objToString = {}.toString,
+	goodTypeDetection = !msie;
 	
-	/**
-	Check if object is defined
-	*/	
+	
+	
+var	objToString = {}.toString,
+	objTestString = '[object Object]',
+	
+	
 	isDefined = function ( obj ) { 
-		return typeof obj !== 'undefined'; 
+		return typeof obj != 'undefined'; 
 	},
 	
-	/**
-	Check if object is <undefined>
-	*/	
 	isUndefined = function ( obj ) { 
-		return typeof obj === 'undefined'; 
+		return typeof obj == 'undefined'; 
 	},
 	
-	/**
-	Check if object is <null>
-	*/	
-	isNull = function ( obj ) { 
-		return obj === null; 
-	},
-	
-	/**
-	Check if object is a boolean
-	*/
 	isBoolean = function ( obj ) { 
-		return typeof obj === 'boolean'; 
+		return typeof obj == 'boolean'; 
 	},
 	
-	/**
-	Check if object is a string
-	*/
 	isString = function ( obj ) { 
-		return typeof obj === 'string'; 
+		return typeof obj == 'string'; 
 	},
 	
-	/**
-	Check if object is a number
-	*/
 	isNumber = function ( obj ) { 
-		return typeof obj === 'number'; 
+		return typeof obj == 'number'; 
 	},
 	
-	/**
-	Check if object is an integer
-	*/
 	isInteger = function ( obj ) { 
 		return isNumber( obj ) ? !( obj % 1 ) : false; 
 	}, 
 	
-	/**
-	Check if object is a floating number
-	*/
 	isFloat = function ( obj ) { 
 		return isNumber( obj ) ? !!( obj % 1 ) : false; 
 	}, 
@@ -124,64 +102,60 @@ var J = window.JELLY = function () {
 	Check if object is numeric; strings or numbers accepted
 	*/
 	isNumeric = function ( obj ) { 
-		return isString( obj ) || isNumber( obj ) ? /^\s*\d+\.?\d*?\s*$/.test( ( obj+'' ) ) : false; 
+		return isString( obj ) || isNumber( obj ) ? 
+			/^\s*\d+\.?\d*?\s*$/.test( ( obj+'' ) ) : false; 
+	},
+	
+	isObjectLike = function ( obj ) {
+		return !!obj && typeof obj == 'object';
 	},
 	
 	/**
-	Check if object is an object literal (an instance of <Object>)
+	Check if object is an object literal
 	*/
-	isObject = function ( obj ) { 
-		return objToString.call( obj ) === '[object Object]';
-	},
+	isObjLiteral = function () { 
+		if ( goodTypeDetection ) {
+			return function ( obj ) {
+				return objToString.call( obj ) == objTestString && obj.constructor === Object;
+			};
+		}
+		return function ( obj ) {
+			return !!obj && objToString.call( obj ) == objTestString && 
+				!obj.nodeType && !obj.item;
+		};
+	}(),
 	
-	/**
-	Check if object is an object (excluding <null>) and is not an instance of <Object>
-	*/
-	isObjectLike = function ( obj ) { 
-		return !!obj && !isObject( obj ) && ( typeof obj === 'object' || isFunction( obj ) );
-	},
-	
-	/**
-	Check if object is an instance of <Function>
-	*/
 	isFunction = function ( obj ) { 
 		// Opera can't handle a wrapped 'return typeof === "function"'
-		return objToString.call( obj ) === '[object Function]'; 
+		return objToString.call( obj ) == '[object Function]'; 
 	},
 	
-	/**
-	Check if object is an HTML Element
-	*/
 	isElement = function () {
-		if ( !msie ) {
+		if ( goodTypeDetection ) {
 			return function ( obj ) {
-				return /^\[object HTML[A-Za-z]*Element\]$/.test( objToString.call( obj ) );
+				return !!isObjectLike( obj ) && 
+					objToString.call( obj ).indexOf( '[object HTML' ) == 0 &&
+					obj.nodeType == 1;
 			};
 		} 
 		return function ( obj ) {
-			return isObjectLike( obj ) && !!obj.nodeName && obj.nodeType === 1; 
+			return !!isObjectLike( obj ) && obj.nodeType == 1; 
 		};
-
 	}(),
 	
-	/**
-	Check if object is an HTML Node List
-	*/
 	isNodeList = function () { 
-		if ( !msie ) {
+		if ( goodTypeDetection ) {
 			return function ( obj ) {
-				return /^\[object (HTMLCollection|NodeList)\]$/.test( objToString.call( obj ) );
+				return !!isObjectLike( obj ) &&
+					/^\[object (HTMLCollection|NodeList)\]$/.test( objToString.call( obj ) );
 			};
 		} 
 		return function ( obj ) {
-			return isObjectLike( obj ) && !isObject( obj ) && 
-				!isArray( obj ) && !isFunction( obj ) && isInteger( obj.length ) && !!obj.item; 
+			return !!isObjectLike( obj ) && isDefined( obj.length ) && 
+				!isArray( obj ) && !!obj.item; 
 		};
 	}(),
 	
-	/**
-	Check if object is an instance of <Array>
-	*/
 	isArray = function ( obj ) { 
 		return Array.isArray( obj ); 
 	},	
@@ -190,7 +164,7 @@ var J = window.JELLY = function () {
 	Check for the existance of an object in an array
 	*/
 	inArray = function ( obj, arr ) { 
-		return arr.indexOf( obj ) !== -1; 
+		return arr.indexOf( obj ) != -1; 
 	},
 
 	/**
@@ -205,7 +179,7 @@ var J = window.JELLY = function () {
 	},
 	
 	/**
-	Check to see if object is empty; works for instances of <Object>, <Array> and <String>
+	Check to see if object is empty; works for instances of Object, Array and String
 	*/
 	empty = function ( arg ) {
 		if ( isString( arg ) ) {
@@ -214,7 +188,7 @@ var J = window.JELLY = function () {
 		else if ( isArray( arg ) ) {
 			return !arg.length;
 		}
-		else if ( isObject( arg ) ) {
+		else if ( isObjLiteral( arg ) ) {
 			return !Object.keys( arg ).length;
 		}
 		return !arg;
@@ -264,7 +238,7 @@ var J = window.JELLY = function () {
 	Generic iterator function; works for objects, arrays and nodelists
 	*/
 	each = function ( obj, callback ) {
-		if ( isObject( obj ) ) {
+		if ( isObjLiteral( obj ) ) {
 			for ( var key in obj ) { 
 				callback.call( obj, key, obj[ key ] ); 
 			}
@@ -318,14 +292,14 @@ extend( J, {
 	platform: platform,
 	isDefined: isDefined,
 	isUndefined: isUndefined,
-	isNull: isNull,
 	isBoolean: isBoolean,
 	isString: isString,
 	isNumber: isNumber,
 	isInteger: isInteger,
 	isFloat: isFloat,
 	isNumeric: isNumeric,
-	isObject: isObject,	
+	isObjLiteral: isObjLiteral,
+	isObjectLike: isObjectLike,
 	isFunction: isFunction,
 	isElement: isElement,
 	isNodeList: isNodeList,

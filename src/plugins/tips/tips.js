@@ -68,7 +68,7 @@ var Class = defineClass( 'Tips', {
 			}
 			
 			if ( opts.fade ) {
-				var fadeOpts = extend( { duration: 200 }, ( isObject( opts.fade ) ? opts.fade : {} ) );
+				var fadeOpts = extend( { duration: 200 }, ( isObjLiteral( opts.fade ) ? opts.fade : {} ) );
 				self.tween = new Tween( self.tip, fadeOpts );
 			}
 			if ( opts.linebreak === false ) {

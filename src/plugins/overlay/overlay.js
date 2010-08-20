@@ -48,7 +48,7 @@ var Class = defineClass( 'Overlay', {
 				delete self.style;
 			} 
 			if ( opts.tween ) {
-				self.tween = new Tween( screen, ( isObject( opts.tween ) ? opts.tween : {} ) );
+				self.tween = new Tween( screen, ( isObjLiteral( opts.tween ) ? opts.tween : {} ) );
 			} 
 		},
 		
