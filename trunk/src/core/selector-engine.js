@@ -684,7 +684,7 @@ J.Q = function () {
 		} 
 		// IE8 special case
 		return function ( a, b ) {
-			if ( /\:(nth|las|onl|not|tar|roo|emp|ena|dis|che)/.test( b || a ) ) { 
+			if ( /\:(nth|las|onl|not|tar|roo|emp|ena|dis|che)/.test( a ) ) { 
 				return execute( a, b ); 
 			}
 			return nativeSelectorEngine( a, b );
@@ -693,7 +693,7 @@ J.Q = function () {
 	return execute;
 }();
 	
-J.Q = execute;
+//J.Q = execute;
 	
 	
 })();
