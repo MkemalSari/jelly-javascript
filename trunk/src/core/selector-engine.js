@@ -148,7 +148,7 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 				if ( !firstRun && stack[0] ) {
 					var flag = false;
 					for ( var i = 0, n = collection.length; i < n; i++ ) {
-						if ( stack[0].contains( collection[i] ) ) {
+						if ( collection[i].contains( stack[0] ) ) {
 							flag = true;
 							break;
 						}
@@ -554,23 +554,23 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 					part;
 				firstRun = 0;
 				while ( part = parts.shift() ) {
-					combo = combo.concat( contextMode ? execute( a, part ) : execute( part ) );
+					combo = combo.concat( contextMode ? execute( part, b ) : execute( part ) );
 				}
 				firstRun = 1;
 				return filterUnique( combo );
 			}
 			
-			//firstRun = !b;
+			// If context is provided, we're not starting from an empty stack
+			firstRun = !b;
 			
 			var tokens = parseSelector( selector ),
 				children = null; 
 				
-			// log(tokens)
-		
 			for ( var i = 0, n = tokens.length, token; i < n; i++ ) {
 			
 				stack = []; 
 				token = tokens[i];
+
 				switch ( token.type ) {
 					case _id_: 
 						mergeId( token ); 
@@ -588,17 +588,17 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 						mergePseudo( token ); 
 						break
 					case _combi_: 
-						if ( token.val === '+' ) {
+						if ( token.val == '+' ) {
 							mergeDirectSibling( token );
 						} 
-						else if ( token.val === '~' ) {
+						else if ( token.val == '~' ) {
 							mergeAdjacentSibling( token );
 						}
 				}
 				if ( children ) { 
 					filterChildren(); 
 				}
-				if ( token.val === '>' ) {
+				if ( token.val == '>' ) {
 					children = true;
 					continue;
 				}
@@ -692,6 +692,9 @@ J.Q = function () {
 	} 
 	return execute;
 }();
+	
+J.Q = execute;
+	
 	
 })();
 

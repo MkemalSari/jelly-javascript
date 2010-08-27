@@ -20,7 +20,6 @@ var J = window.JELLY = function () {
 	win = window,
 	doc = win.document,
 	nav = win.navigator,
-	ua = nav.userAgent,
 	docRoot = doc.documentElement,
 	docHead = doc.getElementsByTagName( 'head' )[0],
 	standardEventModel = 'addEventListener' in docRoot,
@@ -31,15 +30,16 @@ var J = window.JELLY = function () {
 	Browser detection
 	*/	
 	browser = function () {
-		var activex = 'ActiveXObject' in win,
+		var ua = nav.userAgent, 
+			activex = 'ActiveXObject' in win,
 			xhr = 'XMLHttpRequest' in win,
 			securityPolicy = 'securityPolicy' in nav,
 			taintEnabled = 'taintEnabled' in nav,
 			opera = /opera/i.test(ua),
 			firefox = /firefox/i.test(ua),
 			webkit = /webkit/i.test(ua),
-			ie = activex ? ( querySelectorAll ? 8 : ( xhr ? 7 : 6 ) ) : 0;
-		return {
+			ie = activex ? ( querySelectorAll ? 8 : ( xhr ? 7 : 6 ) ) : NaN;
+		 return {
 			ie: ie,
 			ie6: ie === 6,
 			ie7: ie === 7,
@@ -49,8 +49,9 @@ var J = window.JELLY = function () {
 			webkit: webkit || ( !taintEnabled && !activex && !opera ),
 			safariMobile: /safari/i.test( ua ) && /mobile/i.test( ua ),
 			chrome: webkit && /chrome/i.test( ua )
-		};
+		 };
 	}(),
+	
 	msie = browser.ie,
 	
 	/**
