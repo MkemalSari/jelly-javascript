@@ -5,14 +5,16 @@ Utilities for working with events
 */
 var standardEventModel = isFunction( docRoot.addEventListener ),
 
+	eventLog = [], 
+
 	addEvent = function ( obj, type, fn ) {
 		obj = getElement( obj );
-		var mouseEnter = type === 'mouseenter',
-			mouseLeave = type === 'mouseleave',
+		var mouseEnter = type == 'mouseenter',
+			mouseLeave = type == 'mouseleave',
 			wrapper, 
 			handle;
 			
-		if ( obj === doc && type === 'domready' ) {
+		if ( obj == doc && type == 'domready' ) {
 			return addDomReady( fn );
 		} 
 		if ( !standardEventModel ) {
@@ -42,6 +44,7 @@ var standardEventModel = isFunction( docRoot.addEventListener ),
 	removeEvent = function ( handle ) {
 		if ( handle ) { 
 			if ( !isArray( handle ) ) {
+				// Usually expect an Array handle
 				return removeDomReady( handle );
 			} 
 			if ( standardEventModel ) {
@@ -53,11 +56,9 @@ var standardEventModel = isFunction( docRoot.addEventListener ),
 		}
 	},
 	
-	eventLog = [], 
-	
 	purgeEventLog = function () {
 		for ( var i = 0, handle; eventLog[i]; i++ ) {
-			handle = eventLog[i];					
+			handle = eventLog[i];
 			if ( handle[0] !== win && handle[1] !== 'unload' ) {
 				removeEvent( handle );
 			}
@@ -119,7 +120,7 @@ extend( J, {
 	fixEvent: fixEvent
 });
 
-// IE garbage collection to prevent memory leaks
-if ( browser.ie && browser.ie < 8 ) { 
+// IE garbage collection
+if ( browser.ie < 8 ) { 
 	addEvent( win, 'unload', purgeEventLog );
 }

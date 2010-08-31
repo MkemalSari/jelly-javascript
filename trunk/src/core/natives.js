@@ -1,7 +1,7 @@
 /**
 
 Patching native support for standard object methods
-Implementing ecmascript 5 features where possible	
+Implementing ECMAScript 5 features where possible	
 
 */
 var makeGenerics = function ( constructor, methodNames ) {
@@ -16,7 +16,7 @@ var makeGenerics = function ( constructor, methodNames ) {
 	});
 };
 
-/* ECMA script 5 */
+/* ECMAScript 5 */
 merge( Object, {
 	keys: function ( obj ) {
 		var res = [], key;
@@ -31,7 +31,7 @@ merge( Object, {
 
 merge( Array, {
 	isArray: function ( obj ) {
-		return objToString.call( obj ) === '[object Array]';
+		return objToString.call( obj ) == '[object Array]';
 	}
 });
 
