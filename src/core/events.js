@@ -3,8 +3,10 @@
 Utilities for working with events
 
 */
-var addEvent = function ( obj, type, fn ) {
-		obj = getElement(obj);
+var standardEventModel = isFunction( docRoot.addEventListener ),
+
+	addEvent = function ( obj, type, fn ) {
+		obj = getElement( obj );
 		var mouseEnter = type === 'mouseenter',
 			mouseLeave = type === 'mouseleave',
 			wrapper, 

@@ -625,6 +625,8 @@ A fast cross-browser interface for querying the DOM with CSS selectors
 			}
 		},
 		
+		querySelectorAll = isFunction( docRoot.querySelectorAll ),
+		
 		/*====================================
 			sugar methods
 		=====================================*/
