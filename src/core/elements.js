@@ -470,16 +470,22 @@ var addClass = function ( el, cn ) {
 	}(),
 	
 	/**
-	Enable tabbing of any element
+	Enable keyboard tabbing of any element
+	
+	@example 
+	makeTabbable( el );
+	
+	// reverse previous action (does not make natively tabbable elements un-tabbable)
+	makeTabbable( el, false );
 	*/
-	setTabbable = function ( el, bool ) {
-		if ( bool ) { 
-			el.setAttribute( 'tabindex', 0 );
-			el.setAttribute( 'tabIndex', 0 );
-		}
-		else {
+	makeTabbable = function ( el, bool ) {
+		if ( bool === false ) { 
 			el.removeAttribute( 'tabindex' );
 			el.removeAttribute( 'tabIndex' );
+		}
+		else {
+			el.setAttribute( 'tabindex', 0 );
+			el.setAttribute( 'tabIndex', 0 );
 		}
 	},
 	
@@ -550,6 +556,7 @@ extend( J, {
 	getComputedFontSize: getComputedFontSize,
 	setStyle: setStyle,
 	setOpacity: setOpacity,
+	makeTabbable: makeTabbable,
 	storeData: storeData,
 	retrieveData: retrieveData,
 	removeData: removeData
