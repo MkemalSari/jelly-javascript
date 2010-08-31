@@ -469,6 +469,20 @@ var addClass = function ( el, cn ) {
 		};		
 	}(),
 	
+	/**
+	Enable tabbing of any element
+	*/
+	setTabbable = function ( el, bool ) {
+		if ( bool ) { 
+			el.setAttribute( 'tabindex', 0 );
+			el.setAttribute( 'tabIndex', 0 );
+		}
+		else {
+			el.removeAttribute( 'tabindex' );
+			el.removeAttribute( 'tabIndex' );
+		}
+	},
+	
 	storeData = function ( el, name, value ) {
 		var cache = elementData, elementKey = cache.ns;
 		if ( !( el = getElement( el ) ) ) return; 

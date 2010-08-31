@@ -50,8 +50,7 @@ var J = window.JELLY = function () {
 		var result = {},
 			ua = nav.userAgent, 
 			webkit = /webkit/i.test( ua ),
-			activex = 'ActiveXObject' in win,
-			ie = ( activex && +( /msie\s(\d+)/i.exec( ua )[1] ) ) || NaN;
+			ie = ( 'ActiveXObject' in win && +( /msie\s(\d+)/i.exec( ua )[1] ) ) || NaN;
 		if ( ie ) {
 			result[ 'ie' + ie ] = true;
 		} 
