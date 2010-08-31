@@ -22,50 +22,53 @@ var J = window.JELLY = function () {
 	nav = win.navigator,
 	docRoot = doc.documentElement,
 	docHead = doc.getElementsByTagName( 'head' )[0],
-	standardEventModel = 'addEventListener' in docRoot,
-	querySelectorAll = 'querySelectorAll' in docRoot,
 	functionLit = function () {},
+	
+	extend = function ( a, b ) {
+		for ( var mem in b ) {
+			a[ mem ] = b[ mem ];
+		}
+		return a;
+	},
+	
+	/**
+	Extend objects, not overwriting existing members
+	*/
+	merge = function ( a, b ) {
+		for ( var mem in b ) {
+			if ( isUndefined( a[ mem ] ) ) {
+				a[ mem ] = b[ mem ];
+			}
+		}
+		return a;
+	},
 	
 	/**
 	Browser detection
 	*/	
 	browser = function () {
-		var ua = nav.userAgent, 
+		var result = {},
+			ua = nav.userAgent, 
+			webkit = /webkit/i.test( ua ),
 			activex = 'ActiveXObject' in win,
-			xhr = 'XMLHttpRequest' in win,
-			securityPolicy = 'securityPolicy' in nav,
-			taintEnabled = 'taintEnabled' in nav,
-			opera = /opera/i.test(ua),
-			firefox = /firefox/i.test(ua),
-			webkit = /webkit/i.test(ua),
-			ie = activex ? ( querySelectorAll ? 8 : ( xhr ? 7 : 6 ) ) : NaN;
-		 return {
+			ie = ( activex && +( /msie\s(\d+)/i.exec( ua )[1] ) ) || NaN;
+		if ( ie ) {
+			result[ 'ie' + ie ] = true;
+		} 
+		return extend( result, {
 			ie: ie,
-			ie6: ie === 6,
-			ie7: ie === 7,
-			ie8: ie === 8,
-			opera: opera,
-			firefox: firefox || ( securityPolicy && !activex && !opera ),
-			webkit: webkit || ( !taintEnabled && !activex && !opera ),
-			safariMobile: /safari/i.test( ua ) && /mobile/i.test( ua ),
+			firefox: /firefox/i.test( ua ),
+			opera: !!win.opera && /opera/i.test( ua ),
+			webkit: webkit,
+			safariMobile: /Apple.*Mobile/.test( ua ),
 			chrome: webkit && /chrome/i.test( ua )
-		 };
+		});
 	}(),
 	
 	msie = browser.ie,
 	
-	/**
-	Platform detection
-	*/	
-	platform = function () {
-		var obj = {};
-		obj[ ( /mac|win|linux/i.exec( nav.platform ) || [ 'unknown' ] )[0].toLowerCase() ] = true;
-		return obj;
-	}(),
-	
 	goodTypeDetection = !msie;
-	
-	
+
 	
 var	objToString = {}.toString,
 	objTestString = '[object Object]',
@@ -77,6 +80,10 @@ var	objToString = {}.toString,
 	
 	isUndefined = function ( obj ) { 
 		return typeof obj == 'undefined'; 
+	},
+	
+	isNull = function ( obj ) { 
+		return obj === null; 
 	},
 	
 	isBoolean = function ( obj ) { 
@@ -224,18 +231,6 @@ var	objToString = {}.toString,
 	},
 		
 	/**
-	Extend objects with the option to not overwrite defined members
-	*/
-	extend = function ( a, b, overwrite ) {
-		for ( var mem in b ) {
-			if ( isUndefined( a[ mem ] ) || isDefined( a[ mem ] ) && overwrite !== false ) {
-				a[ mem ] = b[ mem ];
-			}
-		}
-		return a;
-	},
-	
-	/**
 	Generic iterator function; works for objects, arrays and nodelists
 	*/
 	each = function ( obj, callback ) {
@@ -290,9 +285,9 @@ extend( J, {
 	docHead: docHead,
 	functionLit: functionLit,
 	browser: browser,
-	platform: platform,
 	isDefined: isDefined,
 	isUndefined: isUndefined,
+	isNull: isNull,
 	isBoolean: isBoolean,
 	isString: isString,
 	isNumber: isNumber,
@@ -310,7 +305,8 @@ extend( J, {
 	empty: empty,
 	negate: negate,	
 	preset: preset,
-	extend: extend,	
+	extend: extend,
+	merge: merge,	
 	each: each,
 	defer: defer,
 	log: log,

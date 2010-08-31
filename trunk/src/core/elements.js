@@ -4,28 +4,27 @@ Utility functions for working with elements and manipulating the DOM
 
 */
 var addClass = function ( el, cn ) {
-		el = getElement( el );
-		if ( !el || hasClass( el, cn ) ) { return; }
+		if ( !( el = getElement( el ) ) ) return;
+		if ( hasClass( el, cn ) ) return;
 		el.className += el.className ? ' ' + cn : cn;
 	}, 
 	
 	removeClass = function ( el, cn ) {
-		el = getElement( el );
-		if ( !el || el.className === '' ) { return; } 
+		if ( !( el = getElement( el ) ) ) return;
+		if ( el.className == '' ) return;
 		var patt = new RegExp( '(^|\\s)' + cn + '(\\s|$)' );
 		el.className = el.className.replace( patt, ' ' );
 	},
 	
 	hasClass = function ( el, cn ) {
-		el = getElement( el );
-		if ( !el ) { return; }
+		if ( !( el = getElement( el ) ) ) return; 
 		var elCn = el.className;
-		return elCn !== '' && 
-			( elCn === cn || new RegExp( '(^|\\s)' + cn + '(\\s|$)' ).test( elCn ) );
+		return elCn != '' && 
+			( elCn == cn || new RegExp( '(^|\\s)' + cn + '(\\s|$)' ).test( elCn ) );
 	},
 	
 	toggleClass = function ( el, cn ) {
-		el = getElement( el );
+		if ( !( el = getElement( el ) ) ) return;
 		if ( hasClass( el, cn ) ) { 
 			removeClass( el, cn ); 
 		} 
@@ -91,7 +90,7 @@ var addClass = function ( el, cn ) {
 			el = createElement( type.toLowerCase(), attributes );
 		}
 		
-		// Options for second argument:
+		// Second argument options:
 		if ( !arg2 ) {
 			return el;
 		}
@@ -140,27 +139,28 @@ var addClass = function ( el, cn ) {
 				if ( !arg ) {
 					return;
 				}
-				else if ( isElement( arg ) ) { 
-					return arg; 
-				}
-				else if ( isObjLiteral( arg ) ) {
-					if ( isElement( arg.root ) ) {
-						for ( var key in arg ) {
-							if ( isArray( arg[ key ] ) ) {
-								var nodeName = arg[ key ][0].nodeName.toLowerCase();
-								res[ nodeName ] = res[ nodeName ] || [];
-								arg[ key ].each( function ( el ) { 
-									res[ nodeName ].push( el ); 
-								});
+				if ( !isString( arg ) ) { 
+					if ( isElement( arg ) ) { 
+						return arg; 
+					}
+					else if ( isObjLiteral( arg ) ) {
+						if ( isElement( arg.root ) ) {
+							// It's another branch so merge it
+							for ( var key in arg ) {
+								if ( isArray( arg[ key ] ) ) {
+									var nodeName = arg[ key ][0].nodeName.toLowerCase();
+									res[ nodeName ] = res[ nodeName ] || [];
+									arg[ key ].each( function ( el ) { 
+										res[ nodeName ].push( el ); 
+									});
+								} 
+								else if ( key !== 'root' ) { 
+									res[ key ] = arg[ key ]; 
+								}
 							} 
-							else if ( key !== 'root' ) { 
-								res[ key ] = arg[ key ]; 
-							}
-						} 
-						return arg.root;
+							return arg.root;
+						}
 					} 
-				}
-				else if ( !isString( arg ) ) { 
 					return; 
 				} 
 				var obj = createElement( arg, true ),
@@ -217,41 +217,41 @@ var addClass = function ( el, cn ) {
 	},
 	
 	wrapElement = function ( el, wrapper ) {
-		el = getElement( el );
+		if ( !( el = getElement( el ) ) ) return;
 		var pnt = el.parentNode, next = el.nextSibling;
 		wrapper.appendChild( el );
 		return next ? pnt.insertBefore( wrapper, next ) : pnt.appendChild( wrapper );	
 	},
 	
 	withElement = function ( el, callback, scope ) {
-		el = getElement( el );
-		if ( el ) { return callback.call( scope || el, el ); }
-		return el;
+		if ( !( el = getElement( el ) ) ) return;
+		return callback.call( scope || el, el );
 	},
 	
 	replaceElement = function ( el, replacement ) {
-		el = getElement( el );
+		if ( !( el = getElement( el ) ) ) return;
 		return el.parentNode.replaceChild( replacement, el );
 	},
 	
 	removeElement = function ( el ) {
-		el = getElement( el );
+		if ( !( el = getElement( el ) ) ) return;
 		return el.parentNode.removeChild( el );
 	},
 	
-	removeChildren = function ( parent ) {
-		var children = getChildren( getElement( parent ) );
+	removeChildren = function ( el ) {
+		if ( !( el = getElement( el ) ) ) return;
+		var children = getChildren( el );
 		children.each( removeElement );
 		return children;
 	}, 
 	
 	insertElement = function ( el, datum ) {
-		el = getElement(el);
+		if ( !( el = getElement( el ) ) ) return;
 		return ( getElement(datum) || doc.body ).appendChild( el );
 	},
 	
 	insertTop = function ( el, datum ) {
-		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) { return false; }
+		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) return;
 		if ( datum.firstChild ) { 
 			return datum.insertBefore( el, datum.firstChild ); 
 		}
@@ -261,12 +261,12 @@ var addClass = function ( el, cn ) {
 	},
 	
 	insertBefore = function ( el, datum ) {
-		datum = getElement( datum );
+		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) return;
 		return datum.parentNode.insertBefore( getElement( el ), datum );
 	},
 	
 	insertAfter = function ( el, datum ) {
-		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) { return false; }
+		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) return;
 		var next = J.getNext( datum );
 		if ( next ) { 
 			return datum.parentNode.insertBefore( el, next ); 
@@ -320,7 +320,7 @@ var addClass = function ( el, cn ) {
 	},
 	
 	getXY = function ( el ) {
-		el = getElement( el );
+		if ( !( el = getElement( el ) ) ) return;
 		var xy = [ 0, 0 ];
 		if ( !el ) {
 			return xy;
@@ -345,7 +345,7 @@ var addClass = function ( el, cn ) {
 	},
 
 	setXY = function ( el, X, Y, unit ) {
-		el = getElement( el );
+		if ( !( el = getElement( el ) ) ) return;
 		unit = unit || 'px';
 		el.style.left = X + unit;
 		el.style.top = Y + unit;
@@ -375,7 +375,7 @@ var addClass = function ( el, cn ) {
 						return node.className || null;
 					case 'href': 
 					case 'src': 
-						return node.getAttribute( attr, 2 ) || null;						
+						return node.getAttribute( attr, 2 ) || null;
 					case 'style': 
 						return node.getAttribute( attr ).cssText.toLowerCase() || null;
 					case 'for': 
@@ -410,23 +410,22 @@ var addClass = function ( el, cn ) {
 	Get the computed font-size for an element in pixels
 	*/
 	getComputedFontSize = function ( el ) {
-		el = getElement( el );
-		if ( el ) {
-			if ( 'getComputedStyle' in win ) {
-				return parseInt( win.getComputedStyle( el, null ).fontSize );	
-			}
-			else {
-				var testElement = getComputedFontSize.el = 
-						getComputedFontSize.el || createElement( 'foo text:x,style:"line-height:1;font-size:100%;position:absolute"' );
-				insertElement( testElement, el );
-				var result = testElement.offsetHeight;
-				removeElement( testElement );
-				return result;
-			}
+		if ( !( el = getElement( el ) ) ) return;
+		if ( 'getComputedStyle' in win ) {
+			return parseInt( win.getComputedStyle( el, null ).fontSize );	
+		}
+		else {
+			var testElement = getComputedFontSize.el = 
+					getComputedFontSize.el || createElement( 'foo text:x,style:"line-height:1;font-size:100%;position:absolute"' );
+			insertElement( testElement, el );
+			var result = testElement.offsetHeight;
+			removeElement( testElement );
+			return result;
 		}
 	},
 
 	setStyle = function ( el, a, b ) {
+		if ( !( el = getElement( el ) ) ) return;
 		var set = function ( prop, value ) {
 				if ( prop === 'float' ) {
 					prop = 'cssFloat';
@@ -472,7 +471,7 @@ var addClass = function ( el, cn ) {
 	
 	storeData = function ( el, name, value ) {
 		var cache = elementData, elementKey = cache.ns;
-		if ( !( el = getElement( el ) ) ) { return; }
+		if ( !( el = getElement( el ) ) ) return; 
 		if ( !( elementKey in el ) ) { 
 			el[ elementKey ] = elementUid(); 
 			cache[ el[ elementKey ] ] = {};
@@ -482,7 +481,7 @@ var addClass = function ( el, cn ) {
 	
 	retrieveData = function ( el, name ) {
 		var cache = elementData, elementKey = cache.ns;
-		if ( !( el = getElement( el ) ) ) { return; }
+		if ( !( el = getElement( el ) ) ) return;
 		if ( elementKey in el && el[ elementKey ] in cache ) {
 			return cache[ el[ elementKey ] ][ name ];
 		}
@@ -491,7 +490,7 @@ var addClass = function ( el, cn ) {
 	
 	removeData = function ( el, name ) {
 		var cache = elementData, elementKey = cache.ns;
-		if ( !( el = getElement( el ) ) ) { return; }
+		if ( !( el = getElement( el ) ) ) return;
 		if ( elementKey in el && el[ elementKey ] in cache ) {  
 			delete cache[ el[ elementKey ] ][ name ];
 		}

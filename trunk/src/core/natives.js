@@ -17,7 +17,7 @@ var makeGenerics = function ( constructor, methodNames ) {
 };
 
 /* ECMA script 5 */
-extend( Object, {
+merge( Object, {
 	keys: function ( obj ) {
 		var res = [], key;
 		for ( key in obj ) {
@@ -27,13 +27,13 @@ extend( Object, {
 		}
 		return res;
 	}
-}, false);
+});
 
-extend( Array, {
+merge( Array, {
 	isArray: function ( obj ) {
 		return objToString.call( obj ) === '[object Array]';
 	}
-}, false);
+});
 
 
 /* Array methods */
@@ -84,7 +84,7 @@ var arrayMethods = {
 		return true;
 	}
 };
-extend( Array.prototype, arrayMethods, false );
+merge( Array.prototype, arrayMethods );
 
 // Common alias for convenience
 Array.prototype.each = Array.prototype.forEach;
@@ -99,14 +99,14 @@ var stringMethods = {
 		return this.replace( /^\s\s*/, '' ).replace( /\s\s*$/, '' );
 	}
 }
-extend( String.prototype, stringMethods, false );
+merge( String.prototype, stringMethods );
 
 // Add String methods as generics
 makeGenerics( String, Object.keys( stringMethods ).concat( 'charAt,charCodeAt,concat,fromCharCode,indexOf,lastIndexOf,match,replace,search,slice,split,substr,substring,toLowerCase,toUpperCase,valueOf'.split( ',' ) ) );
 
 
 /* Function methods */
-extend( Function.prototype, {
+merge( Function.prototype, {
 	bind: function () {
 		if ( arguments.length < 2 && !isDefined( arguments[0] ) ) { 
 			return this; 
@@ -121,14 +121,14 @@ extend( Function.prototype, {
 			return fn.apply( scope, arr );
 		};
 	}
-}, false);
+});
 
 
 /* HTMLElement methods */
 if ( win.HTMLElement && HTMLElement.prototype ) {
-	extend( HTMLElement.prototype, {
+	merge( HTMLElement.prototype, {
 		contains: function ( el ) {
 			return !!( this.compareDocumentPosition( el ) & 16 );
 		}
-	}, false );
+	});
 }	
