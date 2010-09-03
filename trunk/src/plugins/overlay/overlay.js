@@ -34,7 +34,7 @@ Overlay
 
 (function () {
 
-// this['eval']( JELLY.unpack() );
+// this['eval']( JELLY() );
 
 var Class = defineClass( 'Overlay', {
 
@@ -106,7 +106,8 @@ var Class = defineClass( 'Overlay', {
 			width: '100%',
 			height: '100%',
 			background: '#fff',
-			opacity: .5 
+			opacity: .5,
+			zIndex: 10
 		};
 
 // Set up default overlay styles

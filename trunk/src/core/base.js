@@ -50,7 +50,7 @@ var J = window.JELLY = function () {
 		var result = {},
 			ua = nav.userAgent, 
 			webkit = /webkit/i.test( ua ),
-			ie = ( 'ActiveXObject' in win && +( /msie\s(\d+)/i.exec( ua )[1] ) ) || NaN;
+			ie = ( !!win.ActiveXObject && +( /msie\s(\d+)/i.exec( ua )[1] ) ) || NaN;
 		if ( ie ) {
 			result[ 'ie' + ie ] = true;
 		} 
@@ -66,10 +66,10 @@ var J = window.JELLY = function () {
 	
 	msie = browser.ie,
 	
-	goodTypeDetection = !msie;
-
+	goodTypeDetection = !msie,
 	
-var	objToString = {}.toString,
+	
+	objToString = {}.toString,
 	objTestString = '[object Object]',
 	
 	
