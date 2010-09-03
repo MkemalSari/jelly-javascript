@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set( 'Europe/London' );
 
 #############################################################
 #    Configuration
@@ -19,7 +20,6 @@ if ( isset( $argv ) && isset( $argv[1] ) ) {
 } 
 
 $config = parse_ini_file( $ini_file, true );
-
 
 #############################################################
 #    Helpers
@@ -147,7 +147,7 @@ $prod_build = ob_get_clean();
 # Compress the production build
 #
 $options = '';
-foreach( $config['compression options'] as $k => $v ) {
+foreach( $config[ 'compression_options' ] as $k => $v ) {
 	if ( $v == 1 ) { 
 		$options .= " --{$k}";
 	}
@@ -156,6 +156,7 @@ foreach( $config['compression options'] as $k => $v ) {
 	}
 	echo $k . '=' . $v;
 }
+
 $compressor_path = COMPRESSOR;
 $tmp_file = tempnam( TOOLS_PATH, 'JS_' );
 file_put_contents( $tmp_file, $prod_build ); 
@@ -175,7 +176,7 @@ unlink( $tmp_file );
 #   Output files
 #############################################################
 
-$output_config = $config['output options'];
+$output_config = $config['output_options'];
 $output_dirs = !empty( $output_config['dir'] ) ? $output_config['dir'] : array();
 
 if ( !empty( $output_config['archive'] ) ) { 
@@ -198,7 +199,9 @@ foreach ( $output_dirs as $dir ) {
 		$prefix = $datetime_stamp;
 		$dir = $dir[0];
 	} 
-	file_put_contents( "{$dir}/{$prefix}min.js", $prod_build );	
+	if ( !file_put_contents( "{$dir}/{$prefix}min.js", $prod_build ) ) {
+		echo "{$dir}/{$prefix}: write fail";
+	}	
 	file_put_contents( "{$dir}/{$prefix}debug.js", $debug_build );	
 }
 
