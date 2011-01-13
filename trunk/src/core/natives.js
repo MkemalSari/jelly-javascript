@@ -14,7 +14,10 @@ Implementing ECMAScript 5 features where possible
 	Array.every      : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
 	String.trim      : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String/Trim
 	Function.bind    : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind
+	
+	// Non-standard but widely supported
 	Element.contains : http://msdn.microsoft.com/en-us/library/ms536377%28VS.85%29.aspx
+	Element.innerText : http://msdn.microsoft.com/en-us/library/ms533899%28v=vs.85%29.aspx
 */
 var makeGenerics = function ( constructor, methodNames ) {
 	methodNames.each( function ( name ) {
@@ -141,20 +144,11 @@ merge( Function.prototype, {
 // http://ejohn.org/blog/javascript-getters-and-setters/
 var defineProperty = Object.defineProperty,
 	defineGetter = function ( obj, prop, fn ) {
-		// if ( !!defineProperty ) {
-		// 	alert('defined')
-		// 	defineProperty( obj, prop, { get : fn });
-		// }
-		// else 
 		if ( !!obj.__defineGetter__ ) {
 			obj.__defineGetter__( prop, fn );  
 		} 
 	},
 	defineSetter = function ( obj, prop, fn ) {
-		// if ( !!defineProperty ) {
-		// 		defineProperty( obj, prop, { set : fn });
-		// 	}
-		// 	else 
 		if ( !!obj.__defineSetter__ ) {
 			obj.__defineSetter__( prop, fn );  
 		} 
@@ -174,7 +168,7 @@ if ( win.HTMLElement && HTMLElement.prototype ) {
 		}
 	});
 	
-	http://www.quirksmode.org/dom/w3c_html.html
+	// http://www.quirksmode.org/dom/w3c_html.html
 	if ( !elementPrototype.innerText ) {
 		defineGetter( elementPrototype, 'innerText', function () {
 			return this.textContent || this.innerHTML.replace( /<[^>]*>/g, '' );
