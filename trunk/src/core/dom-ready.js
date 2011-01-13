@@ -1,6 +1,9 @@
 /**
 
-Cross browser 'DOM ready' event 
+Cross browser DOMContentLoaded event 
+
+@static
+@class JELLY.DomReady
 
 */
 (function () {
@@ -11,12 +14,21 @@ Cross browser 'DOM ready' event
 			
 			handlers: {},
 			
-			add: function ( callback, ref ) {
-				var ref = ref || ++uid;
+			/**
+			 Add a DomReady event handler
+			 @param {function} callback
+			 @return {uid} handle
+			 */
+			add: function ( callback ) {
+				var ref = ++uid;
 				self.handlers[ref] = callback;
 				return ref;
 			},
 			
+			/**
+			 Remove a DomReady event handler
+			 @param {uid} handle
+			 */
 			remove: function ( ref ) {
 				delete self.handlers[ ref ];
 			},
@@ -58,7 +70,7 @@ Cross browser 'DOM ready' event
 		};
 	
 	//	The easy way and the convoluted way 
-	if ( standardEventModel ) {
+	if ( isFunction( docRoot.addEventListener ) ) {
 		addEvent( doc, 'DOMContentLoaded', self.fire );
 	} 
 	else {
@@ -73,15 +85,5 @@ Cross browser 'DOM ready' event
 	
 })();
 
-var DomReady = J.DomReady,
-	addDomReady = function ( callback, ref ) {
-		return DomReady.add( callback, ref || null );
-	},
-	removeDomReady = function ( ref ) {
-		DomReady.remove( ref );
-	};
+var DomReady = J.DomReady;
 
-extend( J, {
-	addDomReady: addDomReady,
-	removeDomReady: removeDomReady
-});

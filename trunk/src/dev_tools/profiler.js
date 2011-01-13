@@ -1,12 +1,8 @@
-/**
+/*
 
-Profiler
-
-@description 
-	A simple profiling utility
+Profiling utility
 
 */
-
 (function () {
 
 var self = J.Profiler = {
@@ -53,7 +49,7 @@ var self = J.Profiler = {
 			} 
 			catch ( ex ) {
 				if ( !self.loadHandler ) {
-					self.loadHandler = addDomReady( function () {
+					self.loadHandler = DomReady.add( function () {
 						insertElement( self.container );
 					});
 				}

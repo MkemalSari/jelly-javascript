@@ -101,9 +101,20 @@ var getViewport = function () {
 	},
 	
 	/**
-	Convert a pixel value into typographical ems; requires a base font-size (in pixels) for calculation, 
-	which can be passed as a literal value or as a reference element to be parsed for computed font-size
-	*/
+	 Helper method for tidier code
+	 @param {mixed} value
+	 */
+	px = function ( value ) {
+		return value + 'px';
+	},
+	
+	/**
+	 Convert a pixel value into typographical ems; requires a base font-size (in pixels) for calculation, 
+	 which can be passed as a literal value or as a reference element to be parsed for computed font-size
+	
+	 @param {number} pixel
+	 @param {number} [base|16] The base font-size
+	 */
 	pxToEm = function ( pixel, base ) {
 		var defaultBase = 16, 
 			parsedBase;
@@ -115,15 +126,14 @@ var getViewport = function () {
 		return pixel / base;
 	},
 
-
 	/**
-	Get a supported CSS property using vendor prefix or not. Returns false if no property is found
-		
-	@example
-	var borderRadius = getVendorStyleProperty( 'border-radius' );
-	>>> something like 'borderRadius' or 'MozBorderRadius'
+	 Get a supported CSS property using vendor prefix or not. Returns false if no property is found
 	
-	*/
+	 @param {string} property The property name
+	 @example
+		 var borderRadius = getVendorStyleProperty( 'border-radius' );
+		 // something like 'borderRadius' or 'MozBorderRadius'
+	 */
 	getVendorStyleProperty = function ( prop ) {
 		var self = getVendorStyleProperty;
 		self.cache = self.cache || {};
@@ -145,14 +155,33 @@ var getViewport = function () {
 		}
 		self.cache[ prop ] = result;
 		return result;
-	};
+	},
 
+	testElement = createElement( 'p' ),
+	
+	/**
+	 Test CSS declarations
+	
+	 @param {string} property
+	 @param {object} [value]
+	 @example
+	     var runInSupported = hasStyleProperty( 'display', 'run-in' );
+	 */
+	testStyleProperty = function ( prop, value ) {
+		if ( isDefined( value ) ) { 
+			testElement.style[ prop ] = value;
+			return testElement.style[ prop ] === value;
+		}
+		return prop in testElement.style;
+	};
 
 extend( J, {
 	getViewport: getViewport,
 	getWindowScroll: getWindowScroll,
 	pxToEm: pxToEm,
+	px: px,
 	parseQuery: parseQuery,
 	buildQuery: buildQuery,
-	getVendorStyleProperty: getVendorStyleProperty
+	getVendorStyleProperty: getVendorStyleProperty,
+	testStyleProperty: testStyleProperty
 });

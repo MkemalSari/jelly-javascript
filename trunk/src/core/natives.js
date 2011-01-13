@@ -3,6 +3,18 @@
 Patching native support for standard object methods
 Implementing ECMAScript 5 features where possible	
 
+@links
+	Object.keys      : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
+	Array.isArray    : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
+	Array.forEach    : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach
+	Array.indexOf    : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf
+	Array.filter     : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/filter
+	Array.map        : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/map
+	Array.some       : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some
+	Array.every      : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
+	String.trim      : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String/Trim
+	Function.bind    : https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind
+	Element.contains : http://msdn.microsoft.com/en-us/library/ms536377%28VS.85%29.aspx
 */
 var makeGenerics = function ( constructor, methodNames ) {
 	methodNames.each( function ( name ) {
@@ -124,11 +136,58 @@ merge( Function.prototype, {
 });
 
 
-/* HTMLElement methods */
+// https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/defineProperty
+// https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Working_with_Objects#Defining_Getters_and_Setters
+// http://ejohn.org/blog/javascript-getters-and-setters/
+var defineProperty = Object.defineProperty,
+	defineGetter = function ( obj, prop, fn ) {
+		// if ( !!defineProperty ) {
+		// 	alert('defined')
+		// 	defineProperty( obj, prop, { get : fn });
+		// }
+		// else 
+		if ( !!obj.__defineGetter__ ) {
+			obj.__defineGetter__( prop, fn );  
+		} 
+	},
+	defineSetter = function ( obj, prop, fn ) {
+		// if ( !!defineProperty ) {
+		// 		defineProperty( obj, prop, { set : fn });
+		// 	}
+		// 	else 
+		if ( !!obj.__defineSetter__ ) {
+			obj.__defineSetter__( prop, fn );  
+		} 
+	};
+
+
+
+/* HTMLElement methods and properties */
+
+
 if ( win.HTMLElement && HTMLElement.prototype ) {
-	merge( HTMLElement.prototype, {
+	
+	var elementPrototype = HTMLElement.prototype;
+	merge( elementPrototype, {
 		contains: function ( el ) {
 			return !!( this.compareDocumentPosition( el ) & 16 );
 		}
 	});
-}	
+	
+	http://www.quirksmode.org/dom/w3c_html.html
+	if ( !elementPrototype.innerText ) {
+		defineGetter( elementPrototype, 'innerText', function () {
+			return this.textContent || this.innerHTML.replace( /<[^>]*>/g, '' );
+		});
+		defineSetter( elementPrototype, 'innerText', function ( value ) {
+			this.innerHTML = value; 
+		});
+	}
+}
+
+
+
+
+
+
+

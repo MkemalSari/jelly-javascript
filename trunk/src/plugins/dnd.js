@@ -1,15 +1,13 @@
 /**
 
-DragDrop
-
-@description 
+DnD — Drag and Drop
 
 @api
-	var dragger = new DragDrop( element [, options] );
+	var dragger = new DnD( element [, options] );
 
 @examples
 	
-	var dragger = new DragDrop( element, {} )
+	var dragger = new DnD( element, {} )
 	
 	dragger.onDrag = function () { ... }
 	
@@ -20,9 +18,7 @@ DragDrop
 
 (function () {
 
-// this['eval']( JELLY.unpack() );
-
-var Class = defineClass( 'DragDrop', {
+var Class = defineClass( 'DnD', {
 		
 		__init: function ( el, opts ) {
 			opts = opts || {};

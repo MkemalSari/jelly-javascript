@@ -1,12 +1,19 @@
 /**
+ @! Utilities for working with events
 
-Utilities for working with events
-
-*/
+ */
 var standardEventModel = isFunction( docRoot.addEventListener ),
 
 	eventLog = [], 
 
+	/**
+	 Subscribe an event handler
+	
+	 @param {element} element
+	 @param {string} eventType
+	 @param {function} eventHandler
+	 @return {array} handle
+	 */
 	addEvent = function ( obj, type, fn ) {
 		obj = getElement( obj );
 		var mouseEnter = type == 'mouseenter',
@@ -15,7 +22,7 @@ var standardEventModel = isFunction( docRoot.addEventListener ),
 			handle;
 			
 		if ( obj == doc && type == 'domready' ) {
-			return addDomReady( fn );
+			return DomReady.add( fn );
 		} 
 		if ( !standardEventModel ) {
 			wrapper = function ( e ) {
@@ -41,11 +48,16 @@ var standardEventModel = isFunction( docRoot.addEventListener ),
 		return handle;
 	},
 	
+	/**
+	 Unsubscribe an event handler
+	
+	 @param {array} handle
+	 */
 	removeEvent = function ( handle ) {
 		if ( handle ) { 
 			if ( !isArray( handle ) ) {
 				// Usually expect an Array handle
-				return removeDomReady( handle );
+				return DomReady.remove( handle );
 			} 
 			if ( standardEventModel ) {
 				handle[0].removeEventListener( handle[1], handle[2], false ); 
@@ -106,6 +118,17 @@ var standardEventModel = isFunction( docRoot.addEventListener ),
 		return true;
 	},
 	
+	/**
+	 Cancel event propagation and default event behaviour
+	
+	 @param {event} event
+	 @return {event}
+	 @example
+	    var eventHandler = function ( e ) { 
+		    stopEvent( e );
+		    // Rest of handler code
+		}
+	 */
 	stopEvent = function (e) {
 		e = fixEvent(e);
 		e.stopPropagation();

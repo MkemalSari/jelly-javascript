@@ -96,7 +96,7 @@ var Class = defineClass( 'Tips', {
 			self.el = currentElement;
 			
 			if ( self.fade ) {
-				self.tween.stop().setOpacity(1);
+				self.tween.cancel().setStyle( 'opacity', 1 );
 			}
 			insert( self );
 			self.fire( 'update', self, retrieveData( el, 'titleHTML' ) );
@@ -124,10 +124,11 @@ var Class = defineClass( 'Tips', {
 				return;
 			}
 			if ( self.fade ) {
-				self.tween.start( 'opacity', 0 ).onComplete = function ( tween ) {
-					tween.setOpacity(1);
-					remove( self );
-				};
+				self.tween.sequence( {'opacity': 0 }, 
+					function ( tween ) {
+						tween.setStyle( 'opacity', 1 );
+						remove( self );
+					});
 			}
 			else {
 				remove( self );
@@ -202,7 +203,7 @@ var Class = defineClass( 'Tips', {
 	},
 	
 	remove = function ( self ) {
-		if ( !self.inserted ) { 
+		if ( !self.inserted || !self.tip.parentNode ) { 
 			return; 
 		}
 		removeElement( self.tip );
