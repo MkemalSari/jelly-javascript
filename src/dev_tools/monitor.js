@@ -1,12 +1,8 @@
-/**
+/*
 
-Monitor
-
-@description 
-	A means to finding bugs when no decent console API is available
+A means to finding bugs when no decent console API is available
 
 */
-
 (function () {
 
 var self = J.Monitor = {
@@ -34,7 +30,7 @@ var self = J.Monitor = {
 	
 	enable: function () {
 		if ( !self.loadHandler ) {
-			self.loadHandler = addDomReady ( function () {
+			self.loadHandler = DomReady.add( function () {
 				insertElement( self.container );
 			});
 		} 
@@ -75,7 +71,7 @@ var self = J.Monitor = {
 				else if ( isFunction( obj ) ) {
 					format.color = 'yellow';
 				}
-				return bindData( tmpl, format );	
+				return formatString( tmpl, format );	
 			},
 			args = toArray( arguments ).map( function ( arg ) {
 				if ( isArray( arg ) ) {

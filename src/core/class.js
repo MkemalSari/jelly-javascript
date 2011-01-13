@@ -1,37 +1,38 @@
 /** 
 
-Create new classes and bind them to the JELLY namespace.
-Special members are prefixed with a double underscore.
+Create new classes and bind them to the library namespace.
 
+@param {string} name The class name
+@param {object} options
 @example 
-var Class = defineClass( 'Foo', {
+	var Class = defineClass( 'Foo', {
 
-	// List class(es) to inherit; pass more than one as an Array
-	__extends: Bar,
+		// List class(es) to inherit; pass more than one as an Array
+		__extends: Bar,
 
-	// Constructor (optional)
-	__init: function ( x, y ) { 
-		this.left = x;
-		this.top = y;
-	},  
+		// Constructor (optional)
+		__init: function ( x, y ) { 
+			this.left = x;
+			this.top = y;
+		},  
      
-	// Static members
-	__static: {
-		counter: 0,
-		increment: function () {
-			Class.counter++;
-		}
-	},
+		// Static members
+		__static: {
+			counter: 0,
+			increment: function () {
+				Class.counter++;
+			}
+		},
 
-	// Setter methods
-	__set: {
-		prop1: function () { ... } // compiles to 'setProp1' public method
-	},
+		// Setter methods
+		__set: {
+			prop1: function () { ... } // compiles to 'setProp1' public method
+		},
 
-	// Standard prototype methods
-	moveTo: function () { ... },
-	fireGun: function () { ... }
-});
+		// Standard prototype methods
+		moveTo: function () { ... },
+		fireGun: function () { ... }
+	});
 */
 var	defineClass = function ( name, opts ) {
 
@@ -109,7 +110,7 @@ var	defineClass = function ( name, opts ) {
 			return 'JELLY.' + this.constructor.__name + ' (inst)';
 		},
 		
-		/** 
+		/* 
 		Generic handler for custom events
 		
 		@example 
@@ -139,7 +140,7 @@ var	defineClass = function ( name, opts ) {
 			return func ? func.apply( this, args ) : false;
 		},
 
-		/** 
+		/* 
 		Set instance members dynamically by passing in an object literal.
 		If a named method is available for setting a member it is applied 
 		

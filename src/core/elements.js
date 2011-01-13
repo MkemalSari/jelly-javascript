@@ -1,14 +1,21 @@
 /**
+ @! Utilities for working with DOM elements 
 
-Utility functions for working with elements and manipulating the DOM
-
-*/
+ Add a class to an element's classList
+ @param {element} element
+ @param {string} classname
+ */
 var addClass = function ( el, cn ) {
 		if ( !( el = getElement( el ) ) ) return;
 		if ( hasClass( el, cn ) ) return;
 		el.className += el.className ? ' ' + cn : cn;
 	}, 
-	
+
+	/**
+	 Remove a class from an element's classList
+	 @param {element} element
+	 @param {string} classname
+	 */	
 	removeClass = function ( el, cn ) {
 		if ( !( el = getElement( el ) ) ) return;
 		if ( el.className == '' ) return;
@@ -16,6 +23,11 @@ var addClass = function ( el, cn ) {
 		el.className = el.className.replace( patt, ' ' );
 	},
 	
+	/**
+	 Test an element for a class in its classList
+	 @param {element} element
+	 @param {string} classname
+	 */
 	hasClass = function ( el, cn ) {
 		if ( !( el = getElement( el ) ) ) return; 
 		var elCn = el.className;
@@ -23,6 +35,11 @@ var addClass = function ( el, cn ) {
 			( elCn == cn || new RegExp( '(^|\\s)' + cn + '(\\s|$)' ).test( elCn ) );
 	},
 	
+	/**
+	 Toggle a class in an element's classList
+	 @param {element} element
+	 @param {string} classname
+	 */	
 	toggleClass = function ( el, cn ) {
 		if ( !( el = getElement( el ) ) ) return;
 		if ( hasClass( el, cn ) ) { 
@@ -34,22 +51,25 @@ var addClass = function ( el, cn ) {
 	},
 	
 	/**
-	Versatile element creation 
+	 Versatile element creation 
+	 
+	 @param {string} arg1 The selector string
+	 @param {object} [arg2] Text/HTML content or options object
+	 @return {element} The new element
+	 @example 
+		 createElement( 'div' );
+		 // <div></div>
 	
-	@example 
-	createElement( 'div' );
-	>>> <div></div>
+		 createElement( '#foo', 'Hello!' );
+		 // <div id="foo">Hello!</div>
 	
-	createElement( '#foo', 'Hello!' );
-	>>> <div id="foo">Hello!</div>
+		 createElement( 'img#bar', {src:'path/to/img.jpg', alt:''});
+		 // <img id="foo" src="path/to/img.jpg" alt="" />
 	
-	createElement( 'img#bar', {src:'path/to/img.jpg', alt:''});
-	>>> <img id="foo" src="path/to/img.jpg" alt="" />
+		 createElement( 'img#bar src:path/to/img.jpg, alt:""' );
+		 // <img id="foo" src="path/to/img.jpg" alt="" />
 	
-	createElement( 'img#bar src:path/to/img.jpg, alt:""' );
-	>>> <img id="foo" src="path/to/img.jpg" alt="" />
-	
-	*/
+	 */
 	createElement = function ( arg, arg2 ) {
 		var el;
 		if ( !/[#:\.]/.test( arg ) ) {
@@ -125,12 +145,22 @@ var addClass = function ( el, cn ) {
 	},
 
 	/**
-	DOM branching 
+	Create branches of DOM elements 
 	
-	@example 
-	See: http://the-echoplex.net/log/dom-branching
-	
-	*/
+	@reference http://the-echoplex.net/log/dom-branching
+	@param {mixed} ...
+	@return {object} See example
+	@example
+		var branch = createBranch( 
+		    '#widget-foo',  
+		        '.content @:content' 
+		   );
+		// {
+		//   root   : #widget-foo,
+		//   div    : [ #widget-foo, .content ],
+		//   content: [ .content ]
+		// }
+	 */
 	createBranch = function () {
 		var args = toArray( arguments ),
 			res = {},
@@ -185,6 +215,11 @@ var addClass = function ( el, cn ) {
 		return res;
 	},
 	
+	/**
+	 Get an element by ID
+	 @param {string|element} object
+	 @return {element}
+	 */
 	getElement = function ( obj ) { 
 		if ( !msie || msie > 7 ) {
 			return function ( obj ) {
@@ -210,12 +245,24 @@ var addClass = function ( el, cn ) {
 			};
 		}
 	}(),
-		
-	getElements = function ( a, b ) { 
-		var context = b ? getElement( b ) : doc;
-		return context && context.getElementsByTagName( a ); 
+	
+	/**
+	 Get elements by tag name
+	 @param {string} tag
+	 @param {object} [context]
+	 @return {nodeList}
+	 */
+	getElements = function ( tag, context ) { 
+		context = context ? getElement( context ) : doc;
+		return context && context.getElementsByTagName( tag ); 
 	},
 	
+	/**
+	 Wrap an element in another element
+	 @param {object} element
+	 @param {element} wrapper
+	 @return {element}
+	 */
 	wrapElement = function ( el, wrapper ) {
 		if ( !( el = getElement( el ) ) ) return;
 		var pnt = el.parentNode, next = el.nextSibling;
@@ -223,21 +270,42 @@ var addClass = function ( el, cn ) {
 		return next ? pnt.insertBefore( wrapper, next ) : pnt.appendChild( wrapper );	
 	},
 	
-	withElement = function ( el, callback, scope ) {
+	/**
+	 Find an element, then apply a callback scoped to the element
+	 @param {object} element
+	 @param {function} callback
+	 */
+	withElement = function ( el, callback ) {
 		if ( !( el = getElement( el ) ) ) return;
-		return callback.call( scope || el, el );
+		return callback.call( el, el );
 	},
 	
+	/**
+	 Replace an element
+	 @param {object} element
+	 @param {element} replacement
+	 @return {element} The replacement element
+	 */
 	replaceElement = function ( el, replacement ) {
 		if ( !( el = getElement( el ) ) ) return;
 		return el.parentNode.replaceChild( replacement, el );
 	},
-	
+
+	/**
+	 Remove an element
+	 @param {object} element
+	 @return {element} The removed element
+	 */	
 	removeElement = function ( el ) {
 		if ( !( el = getElement( el ) ) ) return;
 		return el.parentNode.removeChild( el );
 	},
 	
+	/**
+	 Remove an element's children
+	 @param {object} element
+	 @return {array} The element's children
+	 */
 	removeChildren = function ( el ) {
 		if ( !( el = getElement( el ) ) ) return;
 		var children = getChildren( el );
@@ -245,37 +313,66 @@ var addClass = function ( el, cn ) {
 		return children;
 	}, 
 	
-	insertElement = function ( el, datum ) {
+	/**
+	 Insert an element before another element
+	 @param {object} element
+	 @param {object} reference
+	 @return {element} The inserted element
+	 */
+	insertElement = function ( el, reference ) {
 		if ( !( el = getElement( el ) ) ) return;
-		return ( getElement(datum) || doc.body ).appendChild( el );
+		return ( getElement( reference ) || doc.body ).appendChild( el );
 	},
 	
-	insertTop = function ( el, datum ) {
-		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) return;
-		if ( datum.firstChild ) { 
-			return datum.insertBefore( el, datum.firstChild ); 
+	/**
+	 Insert an element at the top of another element
+	 @param {object} element
+	 @param {object} reference
+	 @return {element} The inserted element
+	 */
+	insertTop = function ( el, reference ) {
+		if ( !( el = getElement( el ) ) || !( reference = getElement( reference ) ) ) return;
+		if ( reference.firstChild ) { 
+			return reference.insertBefore( el, reference.firstChild ); 
 		}
 		else { 
-			return datum.appendChild( el ); 
+			return reference.appendChild( el ); 
 		}
 	},
 	
-	insertBefore = function ( el, datum ) {
-		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) return;
-		return datum.parentNode.insertBefore( getElement( el ), datum );
+	/**
+	 Insert an element before another element
+	 @param {object} element
+	 @param {object} reference
+	 @return {element} The inserted element
+	 */
+	insertBefore = function ( el, reference ) {
+		if ( !( el = getElement( el ) ) || !( reference = getElement( reference ) ) ) return;
+		return reference.parentNode.insertBefore( getElement( el ), reference );
 	},
 	
-	insertAfter = function ( el, datum ) {
-		if ( !( el = getElement( el ) ) || !( datum = getElement( datum ) ) ) return;
-		var next = J.getNext( datum );
+	/**
+	 Insert an element after another element
+	 @param {object} element
+	 @param {object} reference
+	 @return {element} The inserted element
+	 */
+	insertAfter = function ( el, reference ) {
+		if ( !( el = getElement( el ) ) || !( reference = getElement( reference ) ) ) return;
+		var next = J.getNext( reference );
 		if ( next ) { 
-			return datum.parentNode.insertBefore( el, next ); 
+			return reference.parentNode.insertBefore( el, next ); 
 		} 
 		else { 
-			return datum.parentNode.appendChild( el ); 
+			return reference.parentNode.appendChild( el ); 
 		}
 	},
 	
+	/**
+	 Get an element's first child element
+	 @param {object} element
+	 @return {element} The first child element
+	 */
 	getFirst = function ( el ) {
 		el = el.firstChild;
 		while ( el && el.nodeType !== 1 ) {
@@ -284,6 +381,11 @@ var addClass = function ( el, cn ) {
 		return el;
 	},
 	
+	/**
+	 Get an element's last child element
+	 @param {object} element
+	 @return {element} The last child element
+	 */	
 	getLast = function ( el ) {
 		el = el.lastChild;
 		while ( el && el.nodeType !== 1 ) {
@@ -292,6 +394,11 @@ var addClass = function ( el, cn ) {
 		return el;
 	},
 	
+	/**
+	 Get an element's next sibling element
+	 @param {object} element
+	 @return {element} The next sibling element
+	 */	
 	getNext = function ( el ) {
 		el = el.nextSibling;
 		while ( el && el.nodeType !== 1 ) {
@@ -300,6 +407,11 @@ var addClass = function ( el, cn ) {
 		return el;
 	},
 	
+	/**
+	 Get an element's previous sibling element
+	 @param {object} element
+	 @return {element}
+	 */	
 	getPrevious = function ( el ) {
 		el = el.previousSibling;
 		while ( el && el.nodeType !== 1 ) {
@@ -307,7 +419,12 @@ var addClass = function ( el, cn ) {
 		}
 		return el;
 	},
-	
+
+	/**
+	 Get an element's children elements
+	 @param {object} element
+	 @return {array}
+	 */
 	getChildren = function ( el ) {
 		var elements = [], el = el.firstChild;
 		while (el) {
@@ -319,6 +436,11 @@ var addClass = function ( el, cn ) {
 		return elements;
 	},
 	
+	/**
+	 Get an element's left/top values relative to the browser
+	 @param {object} element
+	 @return {array} The left and top (X and Y) values
+	 */
 	getXY = function ( el ) {
 		if ( !( el = getElement( el ) ) ) return;
 		var xy = [ 0, 0 ];
@@ -344,6 +466,13 @@ var addClass = function ( el, cn ) {
 		return xy;
 	},
 
+	/**
+	 Set an element's left and top
+	 @param {object} element
+	 @param {object} X_coordinate
+	 @param {object} Y_coordinate
+	 @param {string} [unit|px]
+	 */
 	setXY = function ( el, X, Y, unit ) {
 		if ( !( el = getElement( el ) ) ) return;
 		unit = unit || 'px';
@@ -351,22 +480,50 @@ var addClass = function ( el, cn ) {
 		el.style.top = Y + unit;
 	},
 	
+	/**
+	 Get an element's left value
+	 @param {object} element
+	 @return {number}
+	 */
 	getX = function ( el ) {
 		return getXY( el )[0];
 	},
 	
+	/**
+	 Set an element's left value
+	 @param {object} element
+	 @param {object} X_coordinate
+	 @param {string} [unit|px]
+	 */
 	setX = function ( el, X, unit ) {
 		( getElement( el ) ).style.left = X + ( unit || 'px' );
 	},
-	
+
+	/**
+	 Get an element's top value
+	 @param {object} element
+	 @return {number}
+	 */	
 	getY = function (el) {
 		return getXY( el )[1];
 	},
 	
+	/**
+	 Set an element's top value
+	 @param {object} element
+	 @param {object} Y_coordinate
+	 @param {string} [unit|px]
+	 */
 	setY = function ( el, Y, unit ) {
 		( getElement( el ) ).style.top = Y + ( unit || 'px' );
 	},
 	
+	/**
+	 Get an element's attribute value (wrapper for legacy internet explorer)
+	 @param {element} element
+	 @param {string} attribute
+	 @return {string}
+	 */
 	getAttribute = function () {
 		if ( !isDefined( docRoot.hasAttribute ) && msie ) {
 			return function ( node, attr ) {
@@ -389,8 +546,16 @@ var addClass = function ( el, cn ) {
 		};
 	}(),
 	
+	getComputedStyleSupport = 'getComputedStyle' in win,
+	
+	/**
+	 Get an element's style value (returns current CSS value in IE < 9)
+	 @param {element} element
+	 @param {string} property
+	 @return {string}
+	 */
 	getStyle = function () {
-		if ( 'getComputedStyle' in win ) {
+		if ( getComputedStyleSupport ) {
 			return function ( el, prop ) {
 				return win.getComputedStyle( el, null )[ camelize( prop ) ]; 
 			};
@@ -407,16 +572,19 @@ var addClass = function ( el, cn ) {
 	}(),
 
 	/**
-	Get the computed font-size for an element in pixels
-	*/
+	 Get the computed font-size for an element in pixels
+	 @param {element} element
+	 @return {number}
+	 */
 	getComputedFontSize = function ( el ) {
 		if ( !( el = getElement( el ) ) ) return;
-		if ( 'getComputedStyle' in win ) {
-			return parseInt( win.getComputedStyle( el, null ).fontSize );	
+		if ( getComputedStyleSupport ) {
+			return parseInt( win.getComputedStyle( el, null ).fontSize );
 		}
 		else {
 			var testElement = getComputedFontSize.el = 
-					getComputedFontSize.el || createElement( 'foo text:x,style:"line-height:1;font-size:100%;position:absolute"' );
+					getComputedFontSize.el || 
+					createElement( 't text:x,style:"line-height:1;font-size:100%;position:absolute"' );
 			insertElement( testElement, el );
 			var result = testElement.offsetHeight;
 			removeElement( testElement );
@@ -424,6 +592,12 @@ var addClass = function ( el, cn ) {
 		}
 	},
 
+	/**
+	 Set an element's style
+	 @param {element} element
+	 @param {string} property
+	 @param {object} value
+	 */
 	setStyle = function ( el, a, b ) {
 		if ( !( el = getElement( el ) ) ) return;
 		var set = function ( prop, value ) {
@@ -448,6 +622,11 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
+	/**
+	 Set an element's opacity
+	 @param {element} element
+	 @param {object} value Between 0 and 1
+	 */
 	setOpacity = function () {
 		if ( 'opacity' in docRoot.style ) {
 			return function ( el, val ) {
@@ -470,14 +649,16 @@ var addClass = function ( el, cn ) {
 	}(),
 	
 	/**
-	Enable keyboard tabbing of any element
-	
-	@example 
-	makeTabbable( el );
-	
-	// reverse previous action (does not make natively tabbable elements un-tabbable)
-	makeTabbable( el, false );
-	*/
+	 Enable keyboard tabbing of any element
+	 
+	 @param {element} element
+	 @param {bool} [makeUnTabbable|undefined]
+	 @example 
+	 	makeTabbable( el );
+	 
+	 	// reverse previous action (does not make natively tabbable elements un-tabbable)
+	 	makeTabbable( el, false );
+	 */
 	makeTabbable = function ( el, bool ) {
 		if ( bool === false ) { 
 			el.removeAttribute( 'tabindex' );
@@ -489,6 +670,12 @@ var addClass = function ( el, cn ) {
 		}
 	},
 	
+	/**
+	 Bind data to an element safely
+	 @param {element} element
+	 @param {string} name
+	 @param {object} value
+	 */
 	storeData = function ( el, name, value ) {
 		var cache = elementData, elementKey = cache.ns;
 		if ( !( el = getElement( el ) ) ) return; 
@@ -498,7 +685,13 @@ var addClass = function ( el, cn ) {
 		}
 		cache[ el[ elementKey ] ][ name ] = value;
 	},
-	
+
+	/**
+	 Retrieve data bound to an element with #stoteData
+	 @param {element} element
+	 @param {string} name
+	 @return {object}
+	 */
 	retrieveData = function ( el, name ) {
 		var cache = elementData, elementKey = cache.ns;
 		if ( !( el = getElement( el ) ) ) return;
@@ -508,6 +701,11 @@ var addClass = function ( el, cn ) {
 		return null;
 	},
 	
+	/**
+	 Remove data bound to an element with #stoteData
+	 @param {element} element
+	 @param {string} name
+	 */
 	removeData = function ( el, name ) {
 		var cache = elementData, elementKey = cache.ns;
 		if ( !( el = getElement( el ) ) ) return;
